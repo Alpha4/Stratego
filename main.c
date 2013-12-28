@@ -32,9 +32,36 @@ int main(int argc, char *argv[])
 
     SDL_Init(SDL_INIT_VIDEO);  // Init SDL
 
-    // SDL_WM_SetIcon(SDL_LoadBMP("truc.bmp"), NULL);  // Icone du jeu
+    // SDL_WM_SetIcon(SDL_LoadBMP("images/truc.bmp"), NULL);  // Icone du jeu
     ecran = SDL_SetVideoMode(LARGEUR_FENETRE, HAUTEUR_FENETRE, 32, SDL_HWSURFACE | SDL_DOUBLEBUF);  // Création de la fenêtre du jeu
     SDL_WM_SetCaption("Stratego", NULL);  // Titre de la fenêtre
+
+    // Chargement des images que l'on va afficher
+    bombRED = SDL_LoadBMP("images/bombRED.bmp");
+    bombBLUE = SDL_LoadBMP("images/bombBLUE.bmp");
+    spyRED = SDL_LoadBMP("images/spyRED.bmp");
+    spyBLUE = SDL_LoadBMP("images/spyBLUE.bmp");
+    scoutRED = SDL_LoadBMP("images/scoutRED.bmp");
+    scoutBLUE = SDL_LoadBMP("images/scoutBLUE.bmp");
+    minerRED = SDL_LoadBMP("images/minerRED.bmp");
+    minerBLUE = SDL_LoadBMP("images/minerBLUE.bmp");
+    sergeantRED = SDL_LoadBMP("images/sergeantRED.bmp");
+    sergeantBLUE = SDL_LoadBMP("images/sergeantBLUE.bmp");
+    lieutenantRED = SDL_LoadBMP("images/lieutenantRED.bmp");
+    lieutenantBLUE = SDL_LoadBMP("images/lieutenantBLUE.bmp");
+    captainRED = SDL_LoadBMP("images/captainRED.bmp");
+    captainBLUE = SDL_LoadBMP("images/captainBLUE.bmp");
+    majorRED = SDL_LoadBMP("images/majorRED.bmp");
+    majorBLUE = SDL_LoadBMP("images/majorBLUE.bmp");
+    colonelRED = SDL_LoadBMP("images/colonelRED.bmp");
+    colonelBLUE = SDL_LoadBMP("images/colonelBLUE.bmp");
+    generalRED = SDL_LoadBMP("images/generalRED.bmp");
+    generalBLUE = SDL_LoadBMP("images/generalBLUE.bmp");
+    marshalRED = SDL_LoadBMP("images/marshalRED.bmp");
+    marshalBLUE = SDL_LoadBMP("images/marshalBLUE.bmp");
+    flagRED = SDL_LoadBMP("images/flagRED.bmp");
+    flagBLUE = SDL_LoadBMP("images/flagBLUE.bmp");
+    plateau = SDL_LoadBMP("images/plateau.bmp")
 
     // Boucle qui attends que l'utilisateur ferme le programme pour s'arrêter
     while (continuer)
