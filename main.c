@@ -14,11 +14,16 @@ Programme principal (main), qui gère l'interface, l'arbitre et fait appel aux l
 
 int main(int argc, char *argv[])
 {
-    SDL_Surface *ecran = NULL; // La fenêtre du jeu
+    // Stratego
+    SGameState gameState;
 
+    // SDL
+    SDL_Surface *ecran = NULL; // La fenêtre du jeu
+    SDL_Event event;
     int continuer = 1;
     int i, j;
     SDL_Surface *plateau = NULL, *bombRED = NULL, *spyRED = NULL, *scoutRED = NULL, *minerRED = NULL, *sergeantRED = NULL, *lieutenantRED = NULL, *captainRED = NULL, *majorRED = NULL, *colonelRED = NULL, *generalRED = NULL, *marshalRED = NULL, *flagRED = NULL, *bombBLUE = NULL, *spyBLUE = NULL, *scoutBLUE = NULL, *minerBLUE = NULL, *sergeantBLUE = NULL, *lieutenantBLUE = NULL, *captainBLUE = NULL, *majorBLUE = NULL, *colonelBLUE = NULL, *generalBLUE = NULL, *marshalBLUE = NULL, *flagBLUE = NULL;
+    SDL_Rect position;  // Utilisé pour positionner chaque surface
 
     // Position de la surface contenant le plateau
     SDL_Rect positionPlateau;
@@ -53,76 +58,76 @@ int main(int argc, char *argv[])
                 position.x = i * TAILLE_CASE;
                 position.y = j * TAILLE_CASE;
 
-                switch(gameState->board[i][j]->piece)
+                switch(gameState.board[i][j].piece)
                 {
                     case EPbomb:
-                        if (gameState->board[i][j]->content == ECred)
+                        if (gameState.board[i][j].content == ECred)
                             SDL_BlitSurface(bombRED, NULL, ecran, &position);
                         else
                             SDL_BlitSurface(bombBLUE, NULL, ecran, &position);
                         break;
                     case EPspy:
-                        if (gameState->board[i][j]->content == ECred)
+                        if (gameState.board[i][j].content == ECred)
                             SDL_BlitSurface(spyRED, NULL, ecran, &position);
                         else
                             SDL_BlitSurface(spyBLUE, NULL, ecran, &position);
                         break;
                     case EPscout:
-                        if (gameState->board[i][j]->content == ECred)
+                        if (gameState.board[i][j].content == ECred)
                             SDL_BlitSurface(scoutRED, NULL, ecran, &position);
                         else
                             SDL_BlitSurface(scoutBLUE, NULL, ecran, &position);
                         break;
                     case EPminer:
-                        if (gameState->board[i][j]->content == ECred)
+                        if (gameState.board[i][j].content == ECred)
                             SDL_BlitSurface(minerRED, NULL, ecran, &position);
                         else
                             SDL_BlitSurface(minerBLUE, NULL, ecran, &position);
                         break;
                     case EPsergeant:
-                        if (gameState->board[i][j]->content == ECred)
+                        if (gameState.board[i][j].content == ECred)
                             SDL_BlitSurface(sergeantRED, NULL, ecran, &position);
                         else
                             SDL_BlitSurface(sergeantBLUE, NULL, ecran, &position);
                         break;
                     case EPlieutenant:
-                        if (gameState->board[i][j]->content == ECred)
+                        if (gameState.board[i][j].content == ECred)
                             SDL_BlitSurface(lieutenantRED, NULL, ecran, &position);
                         else
                             SDL_BlitSurface(lieutenantBLUE, NULL, ecran, &position);
                         break;
                     case EPcaptain:
-                        if (gameState->board[i][j]->content == ECred)
+                        if (gameState.board[i][j].content == ECred)
                             SDL_BlitSurface(captainRED, NULL, ecran, &position);
                         else
                             SDL_BlitSurface(captainBLUE, NULL, ecran, &position);
                         break;
                     case EPmajor:
-                        if (gameState->board[i][j]->content == ECred)
+                        if (gameState.board[i][j].content == ECred)
                             SDL_BlitSurface(majorRED, NULL, ecran, &position);
                         else
                             SDL_BlitSurface(majorBLUE, NULL, ecran, &position);
                         break;
                     case EPcolonel:
-                        if (gameState->board[i][j]->content == ECred)
+                        if (gameState.board[i][j].content == ECred)
                             SDL_BlitSurface(colonelRED, NULL, ecran, &position);
                         else
                             SDL_BlitSurface(colonelBLUE, NULL, ecran, &position);
                         break;
                     case EPgeneral:
-                        if (gameState->board[i][j]->content == ECred)
+                        if (gameState.board[i][j].content == ECred)
                             SDL_BlitSurface(generalRED, NULL, ecran, &position);
                         else
                             SDL_BlitSurface(generalBLUE, NULL, ecran, &position);
                         break;
                     case EPmarshal:
-                        if (gameState->board[i][j]->content == ECred)
+                        if (gameState.board[i][j].content == ECred)
                             SDL_BlitSurface(marshalRED, NULL, ecran, &position);
                         else
                             SDL_BlitSurface(marshalBLUE, NULL, ecran, &position);
                         break;
                     case EPflag:
-                        if (gameState->board[i][j]->content == ECred)
+                        if (gameState.board[i][j].content == ECred)
                             SDL_BlitSurface(flagRED, NULL, ecran, &position);
                         else
                             SDL_BlitSurface(flagBLUE, NULL, ecran, &position);
