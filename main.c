@@ -61,7 +61,7 @@ int main(int argc, char *argv[])
     marshalBLUE = SDL_LoadBMP("images/marshalBLUE.bmp");
     flagRED = SDL_LoadBMP("images/flagRED.bmp");
     flagBLUE = SDL_LoadBMP("images/flagBLUE.bmp");
-    plateau = SDL_LoadBMP("images/plateau.bmp")
+    plateau = SDL_LoadBMP("images/plateau.bmp");
 
     // Boucle qui attends que l'utilisateur ferme le programme pour s'arrêter
     while (continuer)
