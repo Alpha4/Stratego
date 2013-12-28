@@ -11,6 +11,7 @@ Programme principal (main), qui gère l'interface, l'arbitre et fait appel aux l
 #include <string.h>
 #include <stdlib.h>
 #include <SDL/SDL.h>
+#include <SDL/SDL_image.h>
 
 int main(int argc, char *argv[])
 {
@@ -33,35 +34,35 @@ int main(int argc, char *argv[])
 
     SDL_Init(SDL_INIT_VIDEO);  // Init SDL
 
-    // SDL_WM_SetIcon(SDL_LoadBMP("images/truc.bmp"), NULL);  // Icone du jeu
+    // SDL_WM_SetIcon(IMG_Load("images/truc.png"), NULL);  // Icone du jeu
     ecran = SDL_SetVideoMode(LARGEUR_FENETRE, HAUTEUR_FENETRE, 32, SDL_HWSURFACE | SDL_DOUBLEBUF);  // Création de la fenêtre du jeu
     SDL_WM_SetCaption("Stratego", NULL);  // Titre de la fenêtre
 
     // Chargement des images que l'on va afficher
-    bombRED = SDL_LoadBMP("images/bombRED.bmp");
-    bombBLUE = SDL_LoadBMP("images/bombBLUE.bmp");
-    spyRED = SDL_LoadBMP("images/spyRED.bmp");
-    spyBLUE = SDL_LoadBMP("images/spyBLUE.bmp");
-    scoutRED = SDL_LoadBMP("images/scoutRED.bmp");
-    scoutBLUE = SDL_LoadBMP("images/scoutBLUE.bmp");
-    minerRED = SDL_LoadBMP("images/minerRED.bmp");
-    minerBLUE = SDL_LoadBMP("images/minerBLUE.bmp");
-    sergeantRED = SDL_LoadBMP("images/sergeantRED.bmp");
-    sergeantBLUE = SDL_LoadBMP("images/sergeantBLUE.bmp");
-    lieutenantRED = SDL_LoadBMP("images/lieutenantRED.bmp");
-    lieutenantBLUE = SDL_LoadBMP("images/lieutenantBLUE.bmp");
-    captainRED = SDL_LoadBMP("images/captainRED.bmp");
-    captainBLUE = SDL_LoadBMP("images/captainBLUE.bmp");
-    majorRED = SDL_LoadBMP("images/majorRED.bmp");
-    majorBLUE = SDL_LoadBMP("images/majorBLUE.bmp");
-    colonelRED = SDL_LoadBMP("images/colonelRED.bmp");
-    colonelBLUE = SDL_LoadBMP("images/colonelBLUE.bmp");
-    generalRED = SDL_LoadBMP("images/generalRED.bmp");
-    generalBLUE = SDL_LoadBMP("images/generalBLUE.bmp");
-    marshalRED = SDL_LoadBMP("images/marshalRED.bmp");
-    marshalBLUE = SDL_LoadBMP("images/marshalBLUE.bmp");
-    flagRED = SDL_LoadBMP("images/flagRED.bmp");
-    flagBLUE = SDL_LoadBMP("images/flagBLUE.bmp");
+    bombRED = IMG_Load("images/bombRED.png");
+    bombBLUE = IMG_Load("images/bombBLUE.png");
+    spyRED = IMG_Load("images/spyRED.png");
+    spyBLUE = IMG_Load("images/spyBLUE.png");
+    scoutRED = IMG_Load("images/scoutRED.png");
+    scoutBLUE = IMG_Load("images/scoutBLUE.png");
+    minerRED = IMG_Load("images/minerRED.png");
+    minerBLUE = IMG_Load("images/minerBLUE.png");
+    sergeantRED = IMG_Load("images/sergeantRED.png");
+    sergeantBLUE = IMG_Load("images/sergeantBLUE.png");
+    lieutenantRED = IMG_Load("images/lieutenantRED.png");
+    lieutenantBLUE = IMG_Load("images/lieutenantBLUE.png");
+    captainRED = IMG_Load("images/captainRED.png");
+    captainBLUE = IMG_Load("images/captainBLUE.png");
+    majorRED = IMG_Load("images/majorRED.png");
+    majorBLUE = IMG_Load("images/majorBLUE.png");
+    colonelRED = IMG_Load("images/colonelRED.png");
+    colonelBLUE = IMG_Load("images/colonelBLUE.png");
+    generalRED = IMG_Load("images/generalRED.png");
+    generalBLUE = IMG_Load("images/generalBLUE.png");
+    marshalRED = IMG_Load("images/marshalRED.png");
+    marshalBLUE = IMG_Load("images/marshalBLUE.png");
+    flagRED = IMG_Load("images/flagRED.png");
+    flagBLUE = IMG_Load("images/flagBLUE.png");
     plateau = SDL_LoadBMP("images/plateau.bmp");
 
     /*
@@ -72,8 +73,8 @@ int main(int argc, char *argv[])
     {
         for (j = 0 ; j < NB_BLOCS_COTE ; j++)
         {
-            gameState.board[i][j].piece = EPspy;
-            gameState.board[i][j].content = ECred;
+            gameState.board[i][j].piece = i;
+            gameState.board[i][j].content = ECblue;
         }
     }
 
