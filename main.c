@@ -17,6 +17,7 @@ int main(int argc, char *argv[])
     // Stratego
     SGameState gameState;
 
+
     // SDL
     SDL_Surface *ecran = NULL; // La fenêtre du jeu
     SDL_Event event;
@@ -63,10 +64,25 @@ int main(int argc, char *argv[])
     flagBLUE = SDL_LoadBMP("images/flagBLUE.bmp");
     plateau = SDL_LoadBMP("images/plateau.bmp");
 
+    /*
+    Temporaire : remplissage de gameState avec des pièces pour tester l'affichage
+     */
+
+    for (i = 0 ; i < NB_BLOCS_COTE ; i++)
+    {
+        for (j = 0 ; j < NB_BLOCS_COTE ; j++)
+        {
+            gameState.board[i][j].piece = EPspy;
+            gameState.board[i][j].content = ECred;
+        }
+    }
+
+
     // Boucle qui attends que l'utilisateur ferme le programme pour s'arrêter
     while (continuer)
     {
-        SDL_WaitEvent(&event);
+        SDL_Delay(30);  // Attente de 30ms entre chaque tour de boucle pour en pas surcharger le CPU
+        SDL_PollEvent(&event);
         switch(event.type)
         {
             case SDL_QUIT:
