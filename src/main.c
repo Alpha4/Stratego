@@ -12,19 +12,42 @@ Programme principal (main), qui gère l'interface, l'arbitre et fait appel aux l
 #include <stdlib.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
+#include <SDL/SDL_ttf.h>
 
 int main(int argc, char *argv[])
 {
-    // Stratego
-    SGameState gameState;
+    /**
+     * argv[0] = Nombre de joueurs humain
+     * argv[1] = Chemin vers la lib de l'IA 1 (si nécessaire)
+     * argv[2] = Chemin vers la lib de l'IA 2 (si nécessaire)
+     */
+
+    /**
+     * Variables concernant le jeu de Stratego
+     */
+
+    SGameState gameState;  // Le jeu (plateau + pièces éliminées)
+
+    /**
+     * Etat du jeu pour gérer l'interface graphique (notamment les clics de souris):
+     * 0 = partie non commencée
+     * 1 = En attente d'une sélection de pièce par le joueur
+     * 2 = En attente d'un choix de destination de la pièce pour le joueur
+     */
+    int gameStatus;
+
+    int currentPlayer;  // Joueur qui est en train de jouer
 
 
-    // SDL
+    /**
+     * Variables concernant la gestino de la SDL
+     */
+
     SDL_Surface *ecran = NULL; // La fenêtre du jeu
     SDL_Event event;
     int continuer = 1;
     int i, j;
-    SDL_Surface *plateau = NULL, *bombRED = NULL, *spyRED = NULL, *scoutRED = NULL, *minerRED = NULL, *sergeantRED = NULL, *lieutenantRED = NULL, *captainRED = NULL, *majorRED = NULL, *colonelRED = NULL, *generalRED = NULL, *marshalRED = NULL, *flagRED = NULL, *bombBLUE = NULL, *spyBLUE = NULL, *scoutBLUE = NULL, *minerBLUE = NULL, *sergeantBLUE = NULL, *lieutenantBLUE = NULL, *captainBLUE = NULL, *majorBLUE = NULL, *colonelBLUE = NULL, *generalBLUE = NULL, *marshalBLUE = NULL, *flagBLUE = NULL;
+    SDL_Surface *plateau = NULL, *bombRED = NULL, *spyRED = NULL, *scoutRED = NULL, *minerRED = NULL, *sergeantRED = NULL, *lieutenantRED = NULL, *captainRED = NULL, *majorRED = NULL, *colonelRED = NULL, *generalRED = NULL, *marshalRED = NULL, *flagRED = NULL, *bombBLUE = NULL, *spyBLUE = NULL, *scoutBLUE = NULL, *minerBLUE = NULL, *sergeantBLUE = NULL, *lieutenantBLUE = NULL, *captainBLUE = NULL, *majorBLUE = NULL, *colonelBLUE = NULL, *generalBLUE = NULL, *marshalBLUE = NULL, *flagBLUE = NULL, *texte = NULL;
     SDL_Rect position;  // Utilisé pour positionner chaque surface
 
     // Position de la surface contenant le plateau
@@ -32,7 +55,21 @@ int main(int argc, char *argv[])
     positionPlateau.x = 0;
     positionPlateau.y = 0;
 
-    SDL_Init(SDL_INIT_VIDEO);  // Init SDL
+    if (SDL_Init(SDL_INIT_VIDEO) == -1) // Démarrage de la SDL. Si erreur :
+    {
+        fprintf(stderr, "Erreur d'initialisation de la SDL : %s\n", SDL_GetError()); // Écriture de l'erreur
+        exit(EXIT_FAILURE); // On quitte le programme
+    }
+
+    if(TTF_Init() == -1)  // Démarragge de SDL_ttf pour pouvoir afficher du texte
+    {
+        fprintf(stderr, "Erreur d'initialisation de TTF_Init : %s\n", TTF_GetError());
+        exit(EXIT_FAILURE);
+    }
+
+    TTF_Font *police = NULL;  // Police d'écriture du texte dans la fenêtre
+    police = TTF_OpenFont("DejaVuSans.ttf", 56);  // Chargement de la police
+    SDL_Color couleurNoire = {0, 0, 0};  // Couleur noire pour le texte
 
     // SDL_WM_SetIcon(IMG_Load("images/truc.png"), NULL);  // Icone du jeu
     ecran = SDL_SetVideoMode(LARGEUR_FENETRE, HAUTEUR_FENETRE, 32, SDL_HWSURFACE | SDL_DOUBLEBUF);  // Création de la fenêtre du jeu
@@ -180,6 +217,14 @@ int main(int argc, char *argv[])
             }
         }
 
+        // Affichage du nom du jeu
+        texte = TTF_RenderText_Blended(police, "Stratego", couleurNoire);
+        position.x = LARGEUR_FENETRE - (500/2) - (texte->w/2);  // On centre le texte dans la surface à droite du plateau
+        position.y = 20;
+        SDL_BlitSurface(texte, NULL, ecran, &position);
+
+
+
         SDL_Flip(ecran);  // Affichage de l'écran
     }
 
@@ -212,6 +257,8 @@ int main(int argc, char *argv[])
     SDL_FreeSurface(plateau);
 
     SDL_Quit();
+    TTF_CloseFont(police);
+    TTF_Quit();
 
     return EXIT_SUCCESS;
 }

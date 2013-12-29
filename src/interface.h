@@ -10,7 +10,7 @@ Contient également les constantes nécessaires
 
     #define TAILLE_CASE         64 // Taille en pixels d'une case du plateau
     #define NB_BLOCS_COTE       10 // Nombre de cases par coté du plateau
-    #define LARGEUR_FENETRE     TAILLE_CASE * NB_BLOCS_COTE + 500
+    #define LARGEUR_FENETRE     TAILLE_CASE * NB_BLOCS_COTE + 500  // On laisse 500px à droite du plateau pour de l'affichage
     #define HAUTEUR_FENETRE     TAILLE_CASE * NB_BLOCS_COTE
 
 #endif

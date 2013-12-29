@@ -17,7 +17,7 @@ CFlags = -D__STDC_CONSTANT_MACROS -D__STDC_LIMIT_MACROS -fPIC -DPIC -D_REENTRANT
 # linker options
 LDFlags = -rdynamic
 # library names
-libs = SDL SDL_image
+libs = SDL SDL_image SDL_ttf
 # additionnal library directories
 libDir = libs/
 # additionnal include directories
