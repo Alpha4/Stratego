@@ -44,7 +44,7 @@ typedef struct
 	unsigned int blueOut[11];	// Tableau de comptage des pièces bleues éliminées (indexées par la valeur de EPiece : EPbomb=0, ..., EPmarshal=11
 } SGameState;
 
-// Structure de représentation d'un mouvement
+// Structure de représentation d'une position
 typedef struct
 {
 	int line;
