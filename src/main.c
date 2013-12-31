@@ -10,6 +10,7 @@ Programme principal (main), qui gère l'interface, l'arbitre et fait appel aux l
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include <dlfcn.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 #include <SDL/SDL_ttf.h>
@@ -17,9 +18,9 @@ Programme principal (main), qui gère l'interface, l'arbitre et fait appel aux l
 int main(int argc, char *argv[])
 {
     /**
-     * argv[0] = Nombre de joueurs humain
-     * argv[1] = Chemin vers la lib de l'IA 1 (si nécessaire)
-     * argv[2] = Chemin vers la lib de l'IA 2 (si nécessaire)
+     * argv[1] = Nombre de joueurs humain
+     * argv[2] = Chemin vers la lib de l'IA 1 (si nécessaire)
+     * argv[3] = Chemin vers la lib de l'IA 2 (si nécessaire)
      */
 
     /**
@@ -36,11 +37,11 @@ int main(int argc, char *argv[])
      */
     int gameStatus;
 
-    int currentPlayer;  // Joueur qui est en train de jouer
+    int currentPlayer;  // Joueur qui est en train de jouer (1 ou 2)
 
 
     /**
-     * Variables concernant la gestino de la SDL
+     * Variables concernant la gestion de la SDL
      */
 
     SDL_Surface *ecran = NULL; // La fenêtre du jeu
@@ -55,13 +56,173 @@ int main(int argc, char *argv[])
     positionPlateau.x = 0;
     positionPlateau.y = 0;
 
+    /**
+     * Variables concernant la gestion des lib
+     */
+
+    void *lib1, *lib2;  // Pointeurs vers les lib
+
+    // Pointeurs vers les fonctions des libs pour chaque joueur
+    pfInitLibrary j1InitLibrary, j2InitLibrary;
+    pfStartMatch j1StartMatch, j2StartMatch;
+    pfStartGame j1StartGame, j2StartGame;
+    pfEndGame j1EndGame, j2EndGame;
+    pfEndMatch j1EndMatch, j2EndMatch;
+    pfNextMove j1NextMove, j2NextMove;
+    pfAttackResult j1AttackResult, j2AttackResult;
+    pfPenalty j1Penalty, j2Penalty;
+
+    /**
+     * Chargement des lib si besoin
+     */
+
+    // Vérification qu'il y a au moins en paramètre le nombre de joueurs humains
+    if (argc < 2)
+    {
+        fprintf(stderr, "Erreur : pas assez de paramètres\n"); // Écriture de l'erreur
+        return EXIT_FAILURE;
+    }
+
+    if (atoi(argv[1]) == 1) // 1 joueur humain
+    {
+        if (argc < 3) // Si le chemin vers la lib n'est pas fourni
+        {
+            fprintf(stderr, "Erreur : pas assez de paramètres\n"); // Écriture de l'erreur
+            return EXIT_FAILURE;
+        }
+
+        // On charge une librairie pour le joueur 1
+        if ((lib1 = dlopen(argv[2], RTLD_LAZY)) == NULL)
+        {
+            // Erreur de chargement de la lib
+            fprintf(stderr, "Erreur de chargement de la lib : %s\n", dlerror()); // Écriture de l'erreur
+            return EXIT_FAILURE;
+        }
+
+        // Chargement des pointeurs de fonctions pour chaque fonction de la lib
+        if ((j1InitLibrary = (pfInitLibrary) dlsym(lib1, "InitLibrary")) == NULL)
+        {
+            // Erreur de chargement de la fonction
+            fprintf(stderr, "Erreur de chargement de la fonction : %s\n", dlerror()); // Écriture de l'erreur
+            return EXIT_FAILURE;
+        }
+        if ((j1StartMatch = (pfStartMatch) dlsym(lib1, "StartMatch")) == NULL)
+        {
+            // Erreur de chargement de la fonction
+            fprintf(stderr, "Erreur de chargement de la fonction : %s\n", dlerror()); // Écriture de l'erreur
+            return EXIT_FAILURE;
+        }
+        if ((j1StartGame = (pfStartGame) dlsym(lib1, "StartGame")) == NULL)
+        {
+            // Erreur de chargement de la fonction
+            fprintf(stderr, "Erreur de chargement de la fonction : %s\n", dlerror()); // Écriture de l'erreur
+            return EXIT_FAILURE;
+        }
+        if ((j1EndGame = (pfEndGame) dlsym(lib1, "EndGame")) == NULL)
+        {
+            // Erreur de chargement de la fonction
+            fprintf(stderr, "Erreur de chargement de la fonction : %s\n", dlerror()); // Écriture de l'erreur
+            return EXIT_FAILURE;
+        }
+        if ((j1EndMatch = (pfEndMatch) dlsym(lib1, "EndMatch")) == NULL)
+        {
+            // Erreur de chargement de la fonction
+            fprintf(stderr, "Erreur de chargement de la fonction : %s\n", dlerror()); // Écriture de l'erreur
+            return EXIT_FAILURE;
+        }
+        if ((j1NextMove = (pfNextMove) dlsym(lib1, "NextMove")) == NULL)
+        {
+            // Erreur de chargement de la fonction
+            fprintf(stderr, "Erreur de chargement de la fonction : %s\n", dlerror()); // Écriture de l'erreur
+            return EXIT_FAILURE;
+        }
+        if ((j1AttackResult = (pfAttackResult) dlsym(lib1, "AttackResult")) == NULL)
+        {
+            // Erreur de chargement de la fonction
+            fprintf(stderr, "Erreur de chargement de la fonction : %s\n", dlerror()); // Écriture de l'erreur
+            return EXIT_FAILURE;
+        }
+        if ((j1Penalty = (pfPenalty) dlsym(lib1, "Penalty")) == NULL)
+        {
+            // Erreur de chargement de la fonction
+            fprintf(stderr, "Erreur de chargement de la fonction : %s\n", dlerror()); // Écriture de l'erreur
+            return EXIT_FAILURE;
+        }
+    }
+    if (atoi(argv[1]) == 0) // 0 joueur humain
+    {
+        if (argc < 4) // Si le chemin vers la lib n'est pas fourni
+        {
+            fprintf(stderr, "Erreur : pas assez de paramètres\n"); // Écriture de l'erreur
+            return EXIT_FAILURE;
+        }
+
+        // On charge également une librairie pour le joueur 2
+        if ((lib2 = dlopen(argv[3], RTLD_LAZY)) == NULL)
+        {
+            // Erreur de chargement de la lib
+            fprintf(stderr, "Erreur de chargement de la lib : %s\n", dlerror()); // Écriture de l'erreur
+            return EXIT_FAILURE;
+        }
+
+        // Chargement des pointeurs de fonctions pour chaque fonction de la lib
+        if ((j2InitLibrary = (pfInitLibrary) dlsym(lib2, "InitLibrary")) == NULL)
+        {
+            // Erreur de chargement de la fonction
+            fprintf(stderr, "Erreur de chargement de la fonction : %s\n", dlerror()); // Écriture de l'erreur
+            return EXIT_FAILURE;
+        }
+        if ((j2StartMatch = (pfStartMatch) dlsym(lib2, "StartMatch")) == NULL)
+        {
+            // Erreur de chargement de la fonction
+            fprintf(stderr, "Erreur de chargement de la fonction : %s\n", dlerror()); // Écriture de l'erreur
+            return EXIT_FAILURE;
+        }
+        if ((j2StartGame = (pfStartGame) dlsym(lib2, "StartGame")) == NULL)
+        {
+            // Erreur de chargement de la fonction
+            fprintf(stderr, "Erreur de chargement de la fonction : %s\n", dlerror()); // Écriture de l'erreur
+            return EXIT_FAILURE;
+        }
+        if ((j2EndGame = (pfEndGame) dlsym(lib2, "EndGame")) == NULL)
+        {
+            // Erreur de chargement de la fonction
+            fprintf(stderr, "Erreur de chargement de la fonction : %s\n", dlerror()); // Écriture de l'erreur
+            return EXIT_FAILURE;
+        }
+        if ((j2EndMatch = (pfEndMatch) dlsym(lib2, "EndMatch")) == NULL)
+        {
+            // Erreur de chargement de la fonction
+            fprintf(stderr, "Erreur de chargement de la fonction : %s\n", dlerror()); // Écriture de l'erreur
+            return EXIT_FAILURE;
+        }
+        if ((j2NextMove = (pfNextMove) dlsym(lib2, "NextMove")) == NULL)
+        {
+            // Erreur de chargement de la fonction
+            fprintf(stderr, "Erreur de chargement de la fonction : %s\n", dlerror()); // Écriture de l'erreur
+            return EXIT_FAILURE;
+        }
+        if ((j2AttackResult = (pfAttackResult) dlsym(lib2, "AttackResult")) == NULL)
+        {
+            // Erreur de chargement de la fonction
+            fprintf(stderr, "Erreur de chargement de la fonction : %s\n", dlerror()); // Écriture de l'erreur
+            return EXIT_FAILURE;
+        }
+        if ((j2Penalty = (pfPenalty) dlsym(lib2, "Penalty")) == NULL)
+        {
+            // Erreur de chargement de la fonction
+            fprintf(stderr, "Erreur de chargement de la fonction : %s\n", dlerror()); // Écriture de l'erreur
+            return EXIT_FAILURE;
+        }
+    }
+
     if (SDL_Init(SDL_INIT_VIDEO) == -1) // Démarrage de la SDL. Si erreur :
     {
         fprintf(stderr, "Erreur d'initialisation de la SDL : %s\n", SDL_GetError()); // Écriture de l'erreur
         exit(EXIT_FAILURE); // On quitte le programme
     }
 
-    if(TTF_Init() == -1)  // Démarragge de SDL_ttf pour pouvoir afficher du texte
+    if (TTF_Init() == -1)  // Démarragge de SDL_ttf pour pouvoir afficher du texte
     {
         fprintf(stderr, "Erreur d'initialisation de TTF_Init : %s\n", TTF_GetError());
         exit(EXIT_FAILURE);
@@ -255,10 +416,25 @@ int main(int argc, char *argv[])
     SDL_FreeSurface(flagRED);
     SDL_FreeSurface(flagBLUE);
     SDL_FreeSurface(plateau);
+    SDL_FreeSurface(texte);
 
     SDL_Quit();
     TTF_CloseFont(police);
     TTF_Quit();
+
+    /**
+     * Libération des ressources des libs ouvertes
+     */
+    if (atoi(argv[1]) == 1) // 1 joueur humain
+    {
+        // On ferme la librairie du joueur 1
+        dlclose(lib1);
+    }
+    if (atoi(argv[1]) == 0) // 0 joueur humain
+    {
+        // On ferme aussi la librairie du joueur 1
+        dlclose(lib2);
+    }
 
     return EXIT_SUCCESS;
 }
