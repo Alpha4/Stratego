@@ -4,9 +4,6 @@ Programme principal (main), qui gère l'interface, l'arbitre et fait appel aux l
 
 */
 
-#include "stratego.h"
-#include "interface.h"
-#include "arbitre.h"
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
@@ -14,6 +11,10 @@ Programme principal (main), qui gère l'interface, l'arbitre et fait appel aux l
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 #include <SDL/SDL_ttf.h>
+
+#include "stratego.h"
+#include "interface.h"
+#include "arbitre.h"
 
 int main(int argc, char *argv[])
 {
@@ -38,6 +39,7 @@ int main(int argc, char *argv[])
     int gameStatus;
 
     int currentPlayer;  // Joueur qui est en train de jouer (1 ou 2)
+    char j1Name[50] = "Joueur 1", j2Name[50] = "Joueur 2";  // Noms des joueurs
 
 
     /**
@@ -50,6 +52,8 @@ int main(int argc, char *argv[])
     int i, j;
     SDL_Surface *plateau = NULL, *bombRED = NULL, *spyRED = NULL, *scoutRED = NULL, *minerRED = NULL, *sergeantRED = NULL, *lieutenantRED = NULL, *captainRED = NULL, *majorRED = NULL, *colonelRED = NULL, *generalRED = NULL, *marshalRED = NULL, *flagRED = NULL, *bombBLUE = NULL, *spyBLUE = NULL, *scoutBLUE = NULL, *minerBLUE = NULL, *sergeantBLUE = NULL, *lieutenantBLUE = NULL, *captainBLUE = NULL, *majorBLUE = NULL, *colonelBLUE = NULL, *generalBLUE = NULL, *marshalBLUE = NULL, *flagBLUE = NULL, *texte = NULL;
     SDL_Rect position;  // Utilisé pour positionner chaque surface
+    TTF_Font *policeTitre = NULL, *policeSousTitre = NULL, *policeTexte = NULL;  // Polices d'écriture du texte dans la fenêtre
+    SDL_Color couleurNoire = {0, 0, 0};  // Couleur noire pour le texte
 
     // Position de la surface contenant le plateau
     SDL_Rect positionPlateau;
@@ -228,11 +232,9 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    TTF_Font *policeTitre = NULL, *policeSousTitre = NULL, *policeTexte = NULL;  // Polices d'écriture du texte dans la fenêtre
     policeTitre = TTF_OpenFont("DejaVuSans.ttf", 56);  // Chargement de la police du titres
     policeSousTitre = TTF_OpenFont("DejaVuSans.ttf", 24);  // Chargement de la police des sous-titres
     policeTexte = TTF_OpenFont("DejaVuSans.ttf", 14);  // Chargement de la police du texte
-    SDL_Color couleurNoire = {0, 0, 0};  // Couleur noire pour le texte
 
     // SDL_WM_SetIcon(IMG_Load("images/truc.png"), NULL);  // Icone du jeu
     ecran = SDL_SetVideoMode(LARGEUR_FENETRE, HAUTEUR_FENETRE, 32, SDL_HWSURFACE | SDL_DOUBLEBUF);  // Création de la fenêtre du jeu
@@ -269,8 +271,6 @@ int main(int argc, char *argv[])
      * Initialisation de la partie
      */
 
-    char j1Name[50] = "Joueur 1", j2Name[50] = "Joueur 2";  // Noms des joueurs
-
     if (lib1 != NULL)  // Le joueur 1 est une IA
     {
         j1InitLibrary(j1Name);  // On lui demande son nom
@@ -283,7 +283,30 @@ int main(int argc, char *argv[])
         }
     }
 
+    /**
+     * Placement des pièces par les joueurs
+     */
+    EPiece redSide[4][10], blueSide[4][10];  // Placement initial des pièce par les joueurs
 
+    if (lib1 != NULL)  // Le joueur 1 est une IA
+    {
+        j1StartGame(ECred, redSide);  // On lui demande de placer ses pièces
+
+        if (lib2 != NULL)  // Le joueur 2 est aussi une IA
+        {
+            j2StartGame(ECblue, blueSide);  // On lui demande de placer ses pièces
+        }
+        else
+        {
+            placementPiece(ecran, ECblue, blueSide);  // On lui demande de placer ses pièces
+        }
+    }
+    else  // Aucun joueur n'est une IA
+    {
+        // On demande à chaque joueur humain de placer ses pièces
+        placementPiece(ecran, ECred, redSide);
+        placementPiece(ecran, ECblue, blueSide);
+    }
 
 
     // Boucle qui attends que l'utilisateur ferme le programme pour s'arrêter
@@ -300,14 +323,16 @@ int main(int argc, char *argv[])
 
         // Effacement de l'écran
         SDL_FillRect(ecran, NULL, SDL_MapRGB(ecran->format, 255, 255, 255));
+
+        // Affichage du plateau
         SDL_BlitSurface(plateau, NULL, ecran, &positionPlateau);
 
         for (i = 0 ; i < NB_BLOCS_COTE ; i++)
         {
             for (j = 0 ; j < NB_BLOCS_COTE ; j++)
             {
-                position.x = i * TAILLE_CASE;
-                position.y = j * TAILLE_CASE;
+                position.x = j * TAILLE_CASE;
+                position.y = i * TAILLE_CASE;
 
                 switch(gameState.board[i][j].piece)
                 {
