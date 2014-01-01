@@ -228,8 +228,10 @@ int main(int argc, char *argv[])
         exit(EXIT_FAILURE);
     }
 
-    TTF_Font *police = NULL;  // Police d'écriture du texte dans la fenêtre
-    police = TTF_OpenFont("DejaVuSans.ttf", 56);  // Chargement de la police
+    TTF_Font *policeTitre = NULL, *policeSousTitre = NULL, *policeTexte = NULL;  // Polices d'écriture du texte dans la fenêtre
+    policeTitre = TTF_OpenFont("DejaVuSans.ttf", 56);  // Chargement de la police du titres
+    policeSousTitre = TTF_OpenFont("DejaVuSans.ttf", 24);  // Chargement de la police des sous-titres
+    policeTexte = TTF_OpenFont("DejaVuSans.ttf", 14);  // Chargement de la police du texte
     SDL_Color couleurNoire = {0, 0, 0};  // Couleur noire pour le texte
 
     // SDL_WM_SetIcon(IMG_Load("images/truc.png"), NULL);  // Icone du jeu
@@ -386,11 +388,20 @@ int main(int argc, char *argv[])
         }
 
         // Affichage du nom du jeu
-        texte = TTF_RenderText_Blended(police, "Stratego", couleurNoire);
+        texte = TTF_RenderText_Blended(policeTitre, "Stratego", couleurNoire);
         position.x = LARGEUR_FENETRE - (500/2) - (texte->w/2);  // On centre le texte dans la surface à droite du plateau
-        position.y = 20;
+        position.y = 5;
         SDL_BlitSurface(texte, NULL, ecran, &position);
 
+        // Affichage des noms des joueurs (pour afficher en dessous le nombre de pièces perdues par le joueur)
+        texte = TTF_RenderText_Blended(policeSousTitre, j1Name, couleurNoire);
+        position.x = LARGEUR_FENETRE - 500 + 20;
+        position.y = 70;
+        SDL_BlitSurface(texte, NULL, ecran, &position);
+        texte = TTF_RenderText_Blended(policeSousTitre, j2Name, couleurNoire);
+        position.x = LARGEUR_FENETRE - 500 + 20;
+        position.y = HAUTEUR_FENETRE / 2;
+        SDL_BlitSurface(texte, NULL, ecran, &position);
 
 
         SDL_Flip(ecran);  // Affichage de l'écran
@@ -426,7 +437,9 @@ int main(int argc, char *argv[])
     SDL_FreeSurface(texte);
 
     SDL_Quit();
-    TTF_CloseFont(police);
+    TTF_CloseFont(policeTitre);
+    TTF_CloseFont(policeSousTitre);
+    TTF_CloseFont(policeTexte);
     TTF_Quit();
 
     /**
