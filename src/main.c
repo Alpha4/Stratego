@@ -60,7 +60,7 @@ int main(int argc, char *argv[])
      * Variables concernant la gestion des lib
      */
 
-    void *lib1, *lib2;  // Pointeurs vers les lib
+    void *lib1 = NULL, *lib2 = NULL;  // Pointeurs vers les lib
 
     // Pointeurs vers les fonctions des libs pour chaque joueur
     pfInitLibrary j1InitLibrary, j2InitLibrary;
@@ -425,16 +425,10 @@ int main(int argc, char *argv[])
     /**
      * Libération des ressources des libs ouvertes
      */
-    if (atoi(argv[1]) == 1) // 1 joueur humain
-    {
-        // On ferme la librairie du joueur 1
+    if (lib1 != NULL)
         dlclose(lib1);
-    }
-    if (atoi(argv[1]) == 0) // 0 joueur humain
-    {
-        // On ferme aussi la librairie du joueur 1
+    if (lib2 != NULL)
         dlclose(lib2);
-    }
 
     return EXIT_SUCCESS;
 }
