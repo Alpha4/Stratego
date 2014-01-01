@@ -263,18 +263,25 @@ int main(int argc, char *argv[])
     flagBLUE = IMG_Load("images/flagBLUE.png");
     plateau = SDL_LoadBMP("images/plateau.bmp");
 
-    /*
-    Temporaire : remplissage de gameState avec des pièces pour tester l'affichage
+    /**
+     * Initialisation de la partie
      */
 
-    for (i = 0 ; i < NB_BLOCS_COTE ; i++)
+    char j1Name[50] = "Joueur 1", j2Name[50] = "Joueur 2";  // Noms des joueurs
+
+    if (lib1 != NULL)  // Le joueur 1 est une IA
     {
-        for (j = 0 ; j < NB_BLOCS_COTE ; j++)
+        j1InitLibrary(j1Name);  // On lui demande son nom
+        j1StartMatch();  // On l'initialise
+
+        if (lib2 != NULL)  // Le joueur 2 est aussi une IA
         {
-            gameState.board[i][j].piece = i;
-            gameState.board[i][j].content = ECblue;
+            j2InitLibrary(j2Name);  // On lui demande son nom
+            j2StartMatch();  // On l'initialise
         }
     }
+
+
 
 
     // Boucle qui attends que l'utilisateur ferme le programme pour s'arrêter
