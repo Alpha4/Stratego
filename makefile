@@ -7,7 +7,7 @@ srcExt = c
 # directories
 srcDir = src
 objDir = obj
-binDir = bin
+binDir = .
 
 # debug option (=1 for debugging ; =0 no include debug information)
 debug = 0
