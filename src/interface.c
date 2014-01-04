@@ -16,20 +16,142 @@ Fonctions gérant l'interface, notamment les fonctions gérant les interractions
 #include "interface.h"
 #include "arbitre.h"
 
-void placementPiece(SDL_Surface *ecran, EColor color, EPiece side[4][10])
+
+void UpdateEvents(Input *in)
 {
     SDL_Event event;
+
+    in->mousebuttons[SDL_BUTTON_WHEELUP] = 0;
+    in->mousebuttons[SDL_BUTTON_WHEELDOWN] = 0;
+
+    while (SDL_PollEvent(&event))
+    {
+        switch (event.type)
+        {
+            case SDL_KEYDOWN:
+                in->key[event.key.keysym.sym] = 1;
+                break;
+            case SDL_KEYUP:
+                in->key[event.key.keysym.sym] = 0;
+                break;
+            case SDL_MOUSEMOTION:
+                in->mousex=event.motion.x;
+                in->mousey=event.motion.y;
+                in->mousexrel=event.motion.xrel;
+                in->mouseyrel=event.motion.yrel;
+                break;
+            case SDL_MOUSEBUTTONDOWN:
+                in->mousebuttons[event.button.button] = 1;
+                break;
+            case SDL_MOUSEBUTTONUP:
+                if (event.button.button != SDL_BUTTON_WHEELUP && event.button.button!=SDL_BUTTON_WHEELDOWN)
+                    in->mousebuttons[event.button.button] = 0;
+                break;
+            case SDL_QUIT:
+                in->quit = 1;
+                break;
+            default:
+                break;
+        }
+    }
+}
+
+int Init(Context *C, int x, int y, char* title)
+{
+    if (C == NULL)
+        return -1;
+
+    if (SDL_Init(SDL_INIT_VIDEO) == -1) // Démarrage de la SDL. Si erreur :
+    {
+        fprintf(stderr, "Erreur d'initialisation de la SDL : %s\n", SDL_GetError()); // Écriture de l'erreur
+        return -1;
+    }
+
+    if (TTF_Init() == -1)  // Démarragge de SDL_ttf pour pouvoir afficher du texte
+    {
+        fprintf(stderr, "Erreur d'initialisation de TTF_Init : %s\n", TTF_GetError());
+        return -1;
+    }
+
+    C->XRES = x;
+    C->YRES = y;
+    C->screen = SDL_SetVideoMode(C->XRES, C->YRES, 32, SDL_HWSURFACE | SDL_DOUBLEBUF);  // Création de la fenêtre du jeu
+    if (C->screen == NULL)
+    {
+        fprintf(stderr, "Erreur lors de la création de la fenêtre");
+        return -1;
+    }
+
+    SDL_WM_SetCaption(title, NULL);  // Titre de la fenêtre
+
+    LoadImages(C);  // Chargement des images
+
+    return 0;  // L'initialisation s'est bien passée
+}
+
+void LoadImages(Context *C)
+{
+    C->images[ImgRed][EPbomb] = IMG_Load("images/bombRED.png");
+    C->images[ImgBlue][EPbomb] = IMG_Load("images/bombBLUE.png");
+    C->images[ImgRed][EPspy] = IMG_Load("images/spyRED.png");
+    C->images[ImgBlue][EPspy] = IMG_Load("images/spyBLUE.png");
+    C->images[ImgRed][EPscout] = IMG_Load("images/scoutRED.png");
+    C->images[ImgBlue][EPscout] = IMG_Load("images/scoutBLUE.png");
+    C->images[ImgRed][EPminer] = IMG_Load("images/minerRED.png");
+    C->images[ImgBlue][EPminer] = IMG_Load("images/minerBLUE.png");
+    C->images[ImgRed][EPsergeant] = IMG_Load("images/sergeantRED.png");
+    C->images[ImgBlue][EPsergeant] = IMG_Load("images/sergeantBLUE.png");
+    C->images[ImgRed][EPlieutenant] = IMG_Load("images/lieutenantRED.png");
+    C->images[ImgBlue][EPlieutenant] = IMG_Load("images/lieutenantBLUE.png");
+    C->images[ImgRed][EPcaptain] = IMG_Load("images/captainRED.png");
+    C->images[ImgBlue][EPcaptain] = IMG_Load("images/captainBLUE.png");
+    C->images[ImgRed][EPmajor] = IMG_Load("images/majorRED.png");
+    C->images[ImgBlue][EPmajor] = IMG_Load("images/majorBLUE.png");
+    C->images[ImgRed][EPcolonel] = IMG_Load("images/colonelRED.png");
+    C->images[ImgBlue][EPcolonel] = IMG_Load("images/colonelBLUE.png");
+    C->images[ImgRed][EPgeneral] = IMG_Load("images/generalRED.png");
+    C->images[ImgBlue][EPgeneral] = IMG_Load("images/generalBLUE.png");
+    C->images[ImgRed][EPmarshal] = IMG_Load("images/marshalRED.png");
+    C->images[ImgBlue][EPmarshal] = IMG_Load("images/marshalBLUE.png");
+    C->images[ImgRed][EPflag] = IMG_Load("images/flagRED.png");
+    C->images[ImgBlue][EPflag] = IMG_Load("images/flagBLUE.png");
+
+    C->plateau = SDL_LoadBMP("images/plateau.bmp");
+}
+
+void FreeImages(Context *C)
+{
+    int i, j;
+
+    for (i = 0 ; i < 2 ; i++)
+    {
+        for (j = 0 ; j < 12 ; j++)
+        {
+            SDL_FreeSurface(C->images[i][j]);
+        }
+    }
+}
+
+int Blit(SDL_Surface *src, SDL_Surface *dst, int x, int y)
+{
+    SDL_Rect R;
+    R.x = x;
+    R.y = y;
+    return SDL_BlitSurface(src, NULL, dst, &R);
+}
+
+void placementPiece(Context *C, EColor color, EPiece side[4][10])
+{
     int continuer = 1;
     int i, j;
-    SDL_Surface *plateau = NULL, *bombRED = NULL, *spyRED = NULL, *scoutRED = NULL, *minerRED = NULL, *sergeantRED = NULL, *lieutenantRED = NULL, *captainRED = NULL, *majorRED = NULL, *colonelRED = NULL, *generalRED = NULL, *marshalRED = NULL, *flagRED = NULL, *bombBLUE = NULL, *spyBLUE = NULL, *scoutBLUE = NULL, *minerBLUE = NULL, *sergeantBLUE = NULL, *lieutenantBLUE = NULL, *captainBLUE = NULL, *majorBLUE = NULL, *colonelBLUE = NULL, *generalBLUE = NULL, *marshalBLUE = NULL, *flagBLUE = NULL, *texte = NULL, *impossible= NULL;
-    SDL_Rect position;  // Utilisé pour positionner chaque surface
+    int x, y;
+
+    Input in;
+    memset(&in, 0, sizeof(in));
+
+    SDL_Surface *texte;
     TTF_Font *policeTitre = NULL, *policeSousTitre = NULL, *policeTexte = NULL;  // Polices d'écriture du texte dans la fenêtre
     SDL_Color couleurNoire = {0, 0, 0};  // Couleur noire pour le texte
-
-    // Position de la surface contenant le plateau
-    SDL_Rect positionPlateau;
-    positionPlateau.x = 0;
-    positionPlateau.y = 0;
 
     EPiece currentPiece;  // Prochaine pièce que le joueur doit placer
     int nbCurrentPieceLeft;  // Nombre de currentPiece qu'il reste à placer
@@ -38,36 +160,10 @@ void placementPiece(SDL_Surface *ecran, EColor color, EPiece side[4][10])
     policeSousTitre = TTF_OpenFont("DejaVuSans.ttf", 24);  // Chargement de la police des sous-titres
     policeTexte = TTF_OpenFont("DejaVuSans.ttf", 14);  // Chargement de la police du texte
 
-    // Chargement des images que l'on va afficher
-    bombRED = IMG_Load("images/bombRED.png");
-    bombBLUE = IMG_Load("images/bombBLUE.png");
-    spyRED = IMG_Load("images/spyRED.png");
-    spyBLUE = IMG_Load("images/spyBLUE.png");
-    scoutRED = IMG_Load("images/scoutRED.png");
-    scoutBLUE = IMG_Load("images/scoutBLUE.png");
-    minerRED = IMG_Load("images/minerRED.png");
-    minerBLUE = IMG_Load("images/minerBLUE.png");
-    sergeantRED = IMG_Load("images/sergeantRED.png");
-    sergeantBLUE = IMG_Load("images/sergeantBLUE.png");
-    lieutenantRED = IMG_Load("images/lieutenantRED.png");
-    lieutenantBLUE = IMG_Load("images/lieutenantBLUE.png");
-    captainRED = IMG_Load("images/captainRED.png");
-    captainBLUE = IMG_Load("images/captainBLUE.png");
-    majorRED = IMG_Load("images/majorRED.png");
-    majorBLUE = IMG_Load("images/majorBLUE.png");
-    colonelRED = IMG_Load("images/colonelRED.png");
-    colonelBLUE = IMG_Load("images/colonelBLUE.png");
-    generalRED = IMG_Load("images/generalRED.png");
-    generalBLUE = IMG_Load("images/generalBLUE.png");
-    marshalRED = IMG_Load("images/marshalRED.png");
-    marshalBLUE = IMG_Load("images/marshalBLUE.png");
-    flagRED = IMG_Load("images/flagRED.png");
-    flagBLUE = IMG_Load("images/flagBLUE.png");
-    plateau = SDL_LoadBMP("images/plateau.bmp");
-
     // Surface qui noircit la partie du plateau où l'on ne peut rien placer
+    SDL_Surface *impossible;
     impossible = SDL_CreateRGBSurface(SDL_HWSURFACE, TAILLE_CASE * NB_BLOCS_COTE, TAILLE_CASE * 6, 32, 0, 0, 0, 0);
-    SDL_FillRect(impossible, NULL, SDL_MapRGB(ecran->format, 0, 0, 0));
+    SDL_FillRect(impossible, NULL, SDL_MapRGB(C->screen->format, 0, 0, 0));
     SDL_SetAlpha(impossible, SDL_SRCALPHA, 192);
 
     // Première pièce à placer
@@ -81,191 +177,89 @@ void placementPiece(SDL_Surface *ecran, EColor color, EPiece side[4][10])
             side[i][j] = EPnone;
     }
 
-    // Boucle qui attends que l'utilisateur ferme le programme pour s'arrêter
-    while (continuer)
+    while (continuer && !in.quit)
     {
-        // SDL_Delay(30);  // Attente de 30ms entre chaque tour de boucle pour en pas surcharger le CPU
-        SDL_WaitEvent(&event);
-        switch(event.type)
+        UpdateEvents(&in);
+        if (in.mousebuttons[SDL_BUTTON_LEFT])
         {
-            case SDL_QUIT:
-                continuer = 0;
-                break;
-            case SDL_MOUSEBUTTONUP:  // Clic de la souris
-                if (event.button.button == SDL_BUTTON_LEFT)  // Clic gauche
+            // On vérifie que le clic est bien dans une case disponible
+            i = (int) ((HAUTEUR_FENETRE - in.mousey) / TAILLE_CASE);
+            j = (int) (in.mousex / TAILLE_CASE);
+
+            if (i >= 0 && i < 4 && j >= 0 && j < 10)
+            {
+                if (side[i][j] == EPnone)  // Si la case demandée est libre
                 {
-                    // On vérifie que le clic est bien dans une case disponible
-                    i = (int) ((HAUTEUR_FENETRE - event.button.y) / TAILLE_CASE);
-                    j = (int) (event.button.x / TAILLE_CASE);
+                    // On place la pièce et on passe à la suivante
+                    side[i][j] = currentPiece;
+                    nbCurrentPieceLeft--;
 
-                    fprintf(stderr, "clic : i : %d, j : %d, x : %d, y : %d\n", i, j, event.button.x, event.button.y);
-                    if (i >= 0 && i < 4 && j >= 0 && j < 10)
+                    if (nbCurrentPieceLeft == 0)  // Si on a placé toutes les pièces de ce type
                     {
-                        if (side[i][j] == EPnone)  // Si la case demandée est libre
-                        {
-                            // On place la pièce et on passe à la suivante
-                            side[i][j] = currentPiece;
-                            nbCurrentPieceLeft--;
-
-                            if (nbCurrentPieceLeft == 0)  // Si on a placé toutes les pièces de ce type
-                            {
-                                // On passe au type suivant
-                                currentPiece = getNextPieceAPlacer(currentPiece);
-                                if (currentPiece != EPnone)
-                                    nbCurrentPieceLeft = getNbPieceAPlacer(currentPiece);
-                                else
-                                    continuer = 0;
-                            }
-                        }
+                        // On passe au type suivant
+                        currentPiece = getNextPieceAPlacer(currentPiece);
+                        if (currentPiece != EPnone)
+                            nbCurrentPieceLeft = getNbPieceAPlacer(currentPiece);
+                        else
+                            continuer = 0;
                     }
                 }
-                break;
+            }
         }
 
         // Effacement de l'écran
-        SDL_FillRect(ecran, NULL, SDL_MapRGB(ecran->format, 255, 255, 255));
+        SDL_FillRect(C->screen, NULL, SDL_MapRGB(C->screen->format, 255, 255, 255));
 
         // Affichage du plateau
-        SDL_BlitSurface(plateau, NULL, ecran, &positionPlateau);
-        SDL_BlitSurface(impossible, NULL, ecran, &positionPlateau);  // On noircit le plateau à l'endroit où le joueur ne peut pas placer de pièces
+        Blit(C->plateau, C->screen, 0, 0);
+
+        // On noircit le plateau à l'endroit où le joueur ne peut pas placer de pièces
+        Blit(impossible, C->screen, 0, 0);
 
         for (i = 0 ; i < 4 ; i++)
         {
             for (j = 0 ; j < 10 ; j++)
             {
-                position.x = j * TAILLE_CASE;
-                position.y = HAUTEUR_FENETRE - (i + 1) * TAILLE_CASE;
+                x = j * TAILLE_CASE;
+                y = HAUTEUR_FENETRE - (i + 1) * TAILLE_CASE;
 
-                switch(side[i][j])
+                if (side[i][j] != EPnone)
                 {
-                    case EPbomb:
-                        if (color == ECred)
-                            SDL_BlitSurface(bombRED, NULL, ecran, &position);
-                        else
-                            SDL_BlitSurface(bombBLUE, NULL, ecran, &position);
-                        break;
-                    case EPspy:
-                        if (color == ECred)
-                            SDL_BlitSurface(spyRED, NULL, ecran, &position);
-                        else
-                            SDL_BlitSurface(spyBLUE, NULL, ecran, &position);
-                        break;
-                    case EPscout:
-                        if (color == ECred)
-                            SDL_BlitSurface(scoutRED, NULL, ecran, &position);
-                        else
-                            SDL_BlitSurface(scoutBLUE, NULL, ecran, &position);
-                        break;
-                    case EPminer:
-                        if (color == ECred)
-                            SDL_BlitSurface(minerRED, NULL, ecran, &position);
-                        else
-                            SDL_BlitSurface(minerBLUE, NULL, ecran, &position);
-                        break;
-                    case EPsergeant:
-                        if (color == ECred)
-                            SDL_BlitSurface(sergeantRED, NULL, ecran, &position);
-                        else
-                            SDL_BlitSurface(sergeantBLUE, NULL, ecran, &position);
-                        break;
-                    case EPlieutenant:
-                        if (color == ECred)
-                            SDL_BlitSurface(lieutenantRED, NULL, ecran, &position);
-                        else
-                            SDL_BlitSurface(lieutenantBLUE, NULL, ecran, &position);
-                        break;
-                    case EPcaptain:
-                        if (color == ECred)
-                            SDL_BlitSurface(captainRED, NULL, ecran, &position);
-                        else
-                            SDL_BlitSurface(captainBLUE, NULL, ecran, &position);
-                        break;
-                    case EPmajor:
-                        if (color == ECred)
-                            SDL_BlitSurface(majorRED, NULL, ecran, &position);
-                        else
-                            SDL_BlitSurface(majorBLUE, NULL, ecran, &position);
-                        break;
-                    case EPcolonel:
-                        if (color == ECred)
-                            SDL_BlitSurface(colonelRED, NULL, ecran, &position);
-                        else
-                            SDL_BlitSurface(colonelBLUE, NULL, ecran, &position);
-                        break;
-                    case EPgeneral:
-                        if (color == ECred)
-                            SDL_BlitSurface(generalRED, NULL, ecran, &position);
-                        else
-                            SDL_BlitSurface(generalBLUE, NULL, ecran, &position);
-                        break;
-                    case EPmarshal:
-                        if (color == ECred)
-                            SDL_BlitSurface(marshalRED, NULL, ecran, &position);
-                        else
-                            SDL_BlitSurface(marshalBLUE, NULL, ecran, &position);
-                        break;
-                    case EPflag:
-                        if (color == ECred)
-                            SDL_BlitSurface(flagRED, NULL, ecran, &position);
-                        else
-                            SDL_BlitSurface(flagBLUE, NULL, ecran, &position);
-                        break;
+                    if (color == ECred)
+                        Blit(C->images[ImgRed][side[i][j]], C->screen, x, y);
+                    else
+                        Blit(C->images[ImgBlue][side[i][j]], C->screen, x, y);
                 }
             }
         }
 
         // Affichage du nom du jeu
         texte = TTF_RenderText_Blended(policeTitre, "Stratego", couleurNoire);
-        position.x = LARGEUR_FENETRE - (500/2) - (texte->w/2);  // On centre le texte dans la surface à droite du plateau
-        position.y = 5;
-        SDL_BlitSurface(texte, NULL, ecran, &position);
+        x = LARGEUR_FENETRE - (500/2) - (texte->w/2);  // On centre le texte dans la surface à droite du plateau
+        y = 5;
+        Blit(texte, C->screen, x, y);
 
         // Affichage de la pièce à placer
         texte = TTF_RenderText_Blended(policeSousTitre, getNomPieceAPlacer(currentPiece), couleurNoire);
-        position.x = LARGEUR_FENETRE - (500/2) - (texte->w/2);  // On centre le texte dans la surface à droite du plateau
-        position.y = 150;
-        SDL_BlitSurface(texte, NULL, ecran, &position);
+        x = LARGEUR_FENETRE - (500/2) - (texte->w/2);  // On centre le texte dans la surface à droite du plateau
+        y = 150;
+        Blit(texte, C->screen, x, y);
 
         // Affichage de la couleur du joueur
         if (color == ECred)
             texte = TTF_RenderText_Blended(policeSousTitre, "Joueur Rouge : ", couleurNoire);
         else
             texte = TTF_RenderText_Blended(policeSousTitre, "Joueur Bleu : ", couleurNoire);
-        position.x = LARGEUR_FENETRE - (500/2) - (texte->w/2);  // On centre le texte dans la surface à droite du plateau
-        position.y = 100;
-        SDL_BlitSurface(texte, NULL, ecran, &position);
+        x = LARGEUR_FENETRE - (500/2) - (texte->w/2);  // On centre le texte dans la surface à droite du plateau
+        y = 100;
+        Blit(texte, C->screen, x, y);
 
 
-        SDL_Flip(ecran);  // Affichage de l'écran
+        SDL_Flip(C->screen);  // Affichage de l'écran
+
+        SDL_Delay(30);  // Attente de 30ms entre chaque tour de boucle pour en pas surcharger le CPU
     }
 
-
-    // Libération des surfaces
-    SDL_FreeSurface(bombRED);
-    SDL_FreeSurface(bombBLUE);
-    SDL_FreeSurface(spyRED);
-    SDL_FreeSurface(spyBLUE);
-    SDL_FreeSurface(scoutRED);
-    SDL_FreeSurface(scoutBLUE);
-    SDL_FreeSurface(minerRED);
-    SDL_FreeSurface(minerBLUE);
-    SDL_FreeSurface(sergeantRED);
-    SDL_FreeSurface(sergeantBLUE);
-    SDL_FreeSurface(lieutenantRED);
-    SDL_FreeSurface(lieutenantBLUE);
-    SDL_FreeSurface(captainRED);
-    SDL_FreeSurface(captainBLUE);
-    SDL_FreeSurface(majorRED);
-    SDL_FreeSurface(majorBLUE);
-    SDL_FreeSurface(colonelRED);
-    SDL_FreeSurface(colonelBLUE);
-    SDL_FreeSurface(generalRED);
-    SDL_FreeSurface(generalBLUE);
-    SDL_FreeSurface(marshalRED);
-    SDL_FreeSurface(marshalBLUE);
-    SDL_FreeSurface(flagRED);
-    SDL_FreeSurface(flagBLUE);
-    SDL_FreeSurface(plateau);
     SDL_FreeSurface(texte);
     SDL_FreeSurface(impossible);
 
@@ -315,7 +309,7 @@ char* getNomPieceAPlacer(EPiece piece)
             return "Placez le drapeau";
             break;
     }
-    return "";
+    return "Voila !";
 }
 
 EPiece getNextPieceAPlacer(EPiece piece)
