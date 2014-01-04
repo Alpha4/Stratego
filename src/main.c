@@ -53,9 +53,9 @@ int main(int argc, char *argv[])
 
     int i, j;
     int x, y;
-    TTF_Font *policeTitre = NULL, *policeSousTitre = NULL, *policeTexte = NULL;  // Polices d'écriture du texte dans la fenêtre
+
     SDL_Color couleurNoire = {0, 0, 0};  // Couleur noire pour le texte
-    SDL_Surface *texte;
+
     /**
      * Variables concernant la gestion des lib
      */
@@ -223,9 +223,6 @@ int main(int argc, char *argv[])
     if (Init(&C, LARGEUR_FENETRE, HAUTEUR_FENETRE, "Stratego") == -1)
         return EXIT_FAILURE;
 
-    policeTitre = TTF_OpenFont("DejaVuSans.ttf", 56);  // Chargement de la police du titres
-    policeSousTitre = TTF_OpenFont("DejaVuSans.ttf", 24);  // Chargement de la police des sous-titres
-    policeTexte = TTF_OpenFont("DejaVuSans.ttf", 14);  // Chargement de la police du texte
 
     /**
      * Initialisation de la partie
@@ -306,28 +303,28 @@ int main(int argc, char *argv[])
                 if (gameState.board[i][j].piece != EPnone)
                 {
                     if (gameState.board[i][j].content == ECred)
-                        Blit(C.images[ImgRed][gameState.board[i][j].piece], C.screen, x, y);
+                        Blit(C.images[IMGRED][gameState.board[i][j].piece], C.screen, x, y);
                     else
-                        Blit(C.images[ImgBlue][gameState.board[i][j].piece], C.screen, x, y);
+                        Blit(C.images[IMGBLUE][gameState.board[i][j].piece], C.screen, x, y);
                 }
             }
         }
 
         // Affichage du nom du jeu
-        texte = TTF_RenderText_Blended(policeTitre, "Stratego", couleurNoire);
-        x = LARGEUR_FENETRE - (500/2) - (texte->w/2);  // On centre le texte dans la surface à droite du plateau
+        C.texte = TTF_RenderText_Blended(C.fonts[BIGTEXT], "Stratego", couleurNoire);
+        x = LARGEUR_FENETRE - (500/2) - (C.texte->w/2);  // On centre le texte dans la surface à droite du plateau
         y = 5;
-        Blit(texte, C.screen, x, y);
+        Blit(C.texte, C.screen, x, y);
 
         // Affichage des noms des joueurs (pour afficher en dessous le nombre de pièces perdues par le joueur)
-        texte = TTF_RenderText_Blended(policeSousTitre, j1Name, couleurNoire);
+        C.texte = TTF_RenderText_Blended(C.fonts[MEDIUMTEXT], j1Name, couleurNoire);
         x = LARGEUR_FENETRE - 500 + 20;
         y = 70;
-        Blit(texte, C.screen, x, y);
-        texte = TTF_RenderText_Blended(policeSousTitre, j2Name, couleurNoire);
+        Blit(C.texte, C.screen, x, y);
+        C.texte = TTF_RenderText_Blended(C.fonts[MEDIUMTEXT], j2Name, couleurNoire);
         x = LARGEUR_FENETRE - 500 + 20;
         y = HAUTEUR_FENETRE / 2;
-        Blit(texte, C.screen, x, y);
+        Blit(C.texte, C.screen, x, y);
 
 
         SDL_Flip(C.screen);  // Affichage de l'écran
@@ -335,15 +332,7 @@ int main(int argc, char *argv[])
         SDL_Delay(30);  // Attente de 30ms entre chaque tour de boucle pour en pas surcharger le CPU
     }
 
-    FreeImages(&C);
-
-    SDL_FreeSurface(texte);
-
-    SDL_Quit();
-    TTF_CloseFont(policeTitre);
-    TTF_CloseFont(policeSousTitre);
-    TTF_CloseFont(policeTexte);
-    TTF_Quit();
+    FreeAll(&C);
 
     /**
      * Libération des ressources des libs ouvertes

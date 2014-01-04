@@ -14,8 +14,13 @@ Contient également les constantes nécessaires
     #define HAUTEUR_FENETRE     TAILLE_CASE * NB_BLOCS_COTE
 
     // Pour simplifier l'affichage des images
-    #define ImgRed 0
-    #define ImgBlue 1
+    #define IMGRED 0
+    #define IMGBLUE 1
+
+    // Pour simplifier la gestion des différentes tailles de police
+    #define SMALLTEXT 0
+    #define MEDIUMTEXT 1
+    #define BIGTEXT 2
 
     typedef struct Context
     {
@@ -24,6 +29,7 @@ Contient également les constantes nécessaires
         SDL_Surface *plateau;  // Surface du plateau de jeu
         SDL_Surface *texte;
         SDL_Surface *images[2][12];  // Tableau de pointeurs vers les surfaces de chaque image du jeu
+        TTF_Font *fonts[3];  // Tableau contenant les 3 tailles de texte que l'on va utiliser
     } Context;
 
     typedef struct Input
@@ -58,6 +64,12 @@ Contient également les constantes nécessaires
     void LoadImages(Context *C);
 
     /**
+     * Charge les polices dans la structure C
+     * @param Context *C Le contexte de l'affichage du jeu
+     */
+    void LoadFonts(Context *C);
+
+    /**
      * Affiche une surface à l'écran
      * @param  SDL_Surface *src Surface à afficher
      * @param  SDL_Surface *dst Surface sur laquelle afficher
@@ -68,10 +80,10 @@ Contient également les constantes nécessaires
     int Blit(SDL_Surface *src, SDL_Surface *dst, int x, int y);
 
     /**
-     * Libère les surfaces des images
+     * Libère les ressources utilisées
      * @param Context *C Le contexte de l'affichage du jeu
      */
-    void FreeImages(Context *C);
+    void FreeAll(Context *C);
 
     /**
      * Demande à un joueur humain de placer ses pièces une par une

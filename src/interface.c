@@ -86,40 +86,49 @@ int Init(Context *C, int x, int y, char* title)
 
     LoadImages(C);  // Chargement des images
 
+    LoadFonts(C);
+
     return 0;  // L'initialisation s'est bien passée
 }
 
 void LoadImages(Context *C)
 {
-    C->images[ImgRed][EPbomb] = IMG_Load("images/bombRED.png");
-    C->images[ImgBlue][EPbomb] = IMG_Load("images/bombBLUE.png");
-    C->images[ImgRed][EPspy] = IMG_Load("images/spyRED.png");
-    C->images[ImgBlue][EPspy] = IMG_Load("images/spyBLUE.png");
-    C->images[ImgRed][EPscout] = IMG_Load("images/scoutRED.png");
-    C->images[ImgBlue][EPscout] = IMG_Load("images/scoutBLUE.png");
-    C->images[ImgRed][EPminer] = IMG_Load("images/minerRED.png");
-    C->images[ImgBlue][EPminer] = IMG_Load("images/minerBLUE.png");
-    C->images[ImgRed][EPsergeant] = IMG_Load("images/sergeantRED.png");
-    C->images[ImgBlue][EPsergeant] = IMG_Load("images/sergeantBLUE.png");
-    C->images[ImgRed][EPlieutenant] = IMG_Load("images/lieutenantRED.png");
-    C->images[ImgBlue][EPlieutenant] = IMG_Load("images/lieutenantBLUE.png");
-    C->images[ImgRed][EPcaptain] = IMG_Load("images/captainRED.png");
-    C->images[ImgBlue][EPcaptain] = IMG_Load("images/captainBLUE.png");
-    C->images[ImgRed][EPmajor] = IMG_Load("images/majorRED.png");
-    C->images[ImgBlue][EPmajor] = IMG_Load("images/majorBLUE.png");
-    C->images[ImgRed][EPcolonel] = IMG_Load("images/colonelRED.png");
-    C->images[ImgBlue][EPcolonel] = IMG_Load("images/colonelBLUE.png");
-    C->images[ImgRed][EPgeneral] = IMG_Load("images/generalRED.png");
-    C->images[ImgBlue][EPgeneral] = IMG_Load("images/generalBLUE.png");
-    C->images[ImgRed][EPmarshal] = IMG_Load("images/marshalRED.png");
-    C->images[ImgBlue][EPmarshal] = IMG_Load("images/marshalBLUE.png");
-    C->images[ImgRed][EPflag] = IMG_Load("images/flagRED.png");
-    C->images[ImgBlue][EPflag] = IMG_Load("images/flagBLUE.png");
+    C->images[IMGRED][EPbomb] = IMG_Load("images/bombRED.png");
+    C->images[IMGBLUE][EPbomb] = IMG_Load("images/bombBLUE.png");
+    C->images[IMGRED][EPspy] = IMG_Load("images/spyRED.png");
+    C->images[IMGBLUE][EPspy] = IMG_Load("images/spyBLUE.png");
+    C->images[IMGRED][EPscout] = IMG_Load("images/scoutRED.png");
+    C->images[IMGBLUE][EPscout] = IMG_Load("images/scoutBLUE.png");
+    C->images[IMGRED][EPminer] = IMG_Load("images/minerRED.png");
+    C->images[IMGBLUE][EPminer] = IMG_Load("images/minerBLUE.png");
+    C->images[IMGRED][EPsergeant] = IMG_Load("images/sergeantRED.png");
+    C->images[IMGBLUE][EPsergeant] = IMG_Load("images/sergeantBLUE.png");
+    C->images[IMGRED][EPlieutenant] = IMG_Load("images/lieutenantRED.png");
+    C->images[IMGBLUE][EPlieutenant] = IMG_Load("images/lieutenantBLUE.png");
+    C->images[IMGRED][EPcaptain] = IMG_Load("images/captainRED.png");
+    C->images[IMGBLUE][EPcaptain] = IMG_Load("images/captainBLUE.png");
+    C->images[IMGRED][EPmajor] = IMG_Load("images/majorRED.png");
+    C->images[IMGBLUE][EPmajor] = IMG_Load("images/majorBLUE.png");
+    C->images[IMGRED][EPcolonel] = IMG_Load("images/colonelRED.png");
+    C->images[IMGBLUE][EPcolonel] = IMG_Load("images/colonelBLUE.png");
+    C->images[IMGRED][EPgeneral] = IMG_Load("images/generalRED.png");
+    C->images[IMGBLUE][EPgeneral] = IMG_Load("images/generalBLUE.png");
+    C->images[IMGRED][EPmarshal] = IMG_Load("images/marshalRED.png");
+    C->images[IMGBLUE][EPmarshal] = IMG_Load("images/marshalBLUE.png");
+    C->images[IMGRED][EPflag] = IMG_Load("images/flagRED.png");
+    C->images[IMGBLUE][EPflag] = IMG_Load("images/flagBLUE.png");
 
     C->plateau = SDL_LoadBMP("images/plateau.bmp");
 }
 
-void FreeImages(Context *C)
+void LoadFonts(Context *C)
+{
+    C->fonts[SMALLTEXT] = TTF_OpenFont("DejaVuSans.ttf", 14);
+    C->fonts[MEDIUMTEXT] = TTF_OpenFont("DejaVuSans.ttf", 24);
+    C->fonts[BIGTEXT] = TTF_OpenFont("DejaVuSans.ttf", 56);
+}
+
+void FreeAll(Context *C)
 {
     int i, j;
 
@@ -130,6 +139,12 @@ void FreeImages(Context *C)
             SDL_FreeSurface(C->images[i][j]);
         }
     }
+
+    for (i = 0 ; i < 3 ; i++)
+        TTF_CloseFont(C->fonts[i]);
+
+    SDL_Quit();
+    TTF_Quit();
 }
 
 int Blit(SDL_Surface *src, SDL_Surface *dst, int x, int y)
@@ -149,16 +164,10 @@ void placementPiece(Context *C, EColor color, EPiece side[4][10])
     Input in;
     memset(&in, 0, sizeof(in));
 
-    SDL_Surface *texte;
-    TTF_Font *policeTitre = NULL, *policeSousTitre = NULL, *policeTexte = NULL;  // Polices d'écriture du texte dans la fenêtre
     SDL_Color couleurNoire = {0, 0, 0};  // Couleur noire pour le texte
 
     EPiece currentPiece;  // Prochaine pièce que le joueur doit placer
     int nbCurrentPieceLeft;  // Nombre de currentPiece qu'il reste à placer
-
-    policeTitre = TTF_OpenFont("DejaVuSans.ttf", 56);  // Chargement de la police du titres
-    policeSousTitre = TTF_OpenFont("DejaVuSans.ttf", 24);  // Chargement de la police des sous-titres
-    policeTexte = TTF_OpenFont("DejaVuSans.ttf", 14);  // Chargement de la police du texte
 
     // Surface qui noircit la partie du plateau où l'on ne peut rien placer
     SDL_Surface *impossible;
@@ -226,33 +235,33 @@ void placementPiece(Context *C, EColor color, EPiece side[4][10])
                 if (side[i][j] != EPnone)
                 {
                     if (color == ECred)
-                        Blit(C->images[ImgRed][side[i][j]], C->screen, x, y);
+                        Blit(C->images[IMGRED][side[i][j]], C->screen, x, y);
                     else
-                        Blit(C->images[ImgBlue][side[i][j]], C->screen, x, y);
+                        Blit(C->images[IMGBLUE][side[i][j]], C->screen, x, y);
                 }
             }
         }
 
         // Affichage du nom du jeu
-        texte = TTF_RenderText_Blended(policeTitre, "Stratego", couleurNoire);
-        x = LARGEUR_FENETRE - (500/2) - (texte->w/2);  // On centre le texte dans la surface à droite du plateau
+        C->texte = TTF_RenderText_Blended(C->fonts[BIGTEXT], "Stratego", couleurNoire);
+        x = LARGEUR_FENETRE - (500/2) - (C->texte->w/2);  // On centre le texte dans la surface à droite du plateau
         y = 5;
-        Blit(texte, C->screen, x, y);
+        Blit(C->texte, C->screen, x, y);
 
         // Affichage de la pièce à placer
-        texte = TTF_RenderText_Blended(policeSousTitre, getNomPieceAPlacer(currentPiece), couleurNoire);
-        x = LARGEUR_FENETRE - (500/2) - (texte->w/2);  // On centre le texte dans la surface à droite du plateau
+        C->texte = TTF_RenderText_Blended(C->fonts[MEDIUMTEXT], getNomPieceAPlacer(currentPiece), couleurNoire);
+        x = LARGEUR_FENETRE - (500/2) - (C->texte->w/2);  // On centre le texte dans la surface à droite du plateau
         y = 150;
-        Blit(texte, C->screen, x, y);
+        Blit(C->texte, C->screen, x, y);
 
         // Affichage de la couleur du joueur
         if (color == ECred)
-            texte = TTF_RenderText_Blended(policeSousTitre, "Joueur Rouge : ", couleurNoire);
+            C->texte = TTF_RenderText_Blended(C->fonts[MEDIUMTEXT], "Joueur Rouge : ", couleurNoire);
         else
-            texte = TTF_RenderText_Blended(policeSousTitre, "Joueur Bleu : ", couleurNoire);
-        x = LARGEUR_FENETRE - (500/2) - (texte->w/2);  // On centre le texte dans la surface à droite du plateau
+            C->texte = TTF_RenderText_Blended(C->fonts[MEDIUMTEXT], "Joueur Bleu : ", couleurNoire);
+        x = LARGEUR_FENETRE - (500/2) - (C->texte->w/2);  // On centre le texte dans la surface à droite du plateau
         y = 100;
-        Blit(texte, C->screen, x, y);
+        Blit(C->texte, C->screen, x, y);
 
 
         SDL_Flip(C->screen);  // Affichage de l'écran
@@ -260,12 +269,7 @@ void placementPiece(Context *C, EColor color, EPiece side[4][10])
         SDL_Delay(30);  // Attente de 30ms entre chaque tour de boucle pour en pas surcharger le CPU
     }
 
-    SDL_FreeSurface(texte);
     SDL_FreeSurface(impossible);
-
-    TTF_CloseFont(policeTitre);
-    TTF_CloseFont(policeSousTitre);
-    TTF_CloseFont(policeTexte);
 }
 
 char* getNomPieceAPlacer(EPiece piece)
