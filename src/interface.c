@@ -15,6 +15,7 @@ Fonctions gérant l'interface, notamment les fonctions gérant les interractions
 #include "stratego.h"
 #include "interface.h"
 #include "arbitre.h"
+#include "libs.h"
 
 
 void UpdateEvents(Input *in)
@@ -63,7 +64,7 @@ int Init(Context *C, int x, int y, char* title)
 
     if (SDL_Init(SDL_INIT_VIDEO) == -1) // Démarrage de la SDL. Si erreur :
     {
-        fprintf(stderr, "Erreur d'initialisation de la SDL : %s\n", SDL_GetError()); // Écriture de l'erreur
+        fprintf(stderr, "Erreur d'initialisation de la SDL : %s\n", SDL_GetError());  // Écriture de l'erreur
         return -1;
     }
 
@@ -118,7 +119,7 @@ void LoadImages(Context *C)
     C->images[IMGRED][EPflag] = IMG_Load("images/flagRED.png");
     C->images[IMGBLUE][EPflag] = IMG_Load("images/flagBLUE.png");
 
-    C->plateau = SDL_LoadBMP("images/plateau.bmp");
+    C->board = SDL_LoadBMP("images/plateau.bmp");
 }
 
 void LoadFonts(Context *C)
@@ -155,7 +156,7 @@ int Blit(SDL_Surface *src, SDL_Surface *dst, int x, int y)
     return SDL_BlitSurface(src, NULL, dst, &R);
 }
 
-void placementPiece(Context *C, EColor color, EPiece side[4][10])
+void PlacePiece(Context *C, EColor color, EPiece side[4][10])
 {
     int continuer = 1;
     int i, j;
@@ -164,20 +165,20 @@ void placementPiece(Context *C, EColor color, EPiece side[4][10])
     Input in;
     memset(&in, 0, sizeof(in));
 
-    SDL_Color couleurNoire = {0, 0, 0};  // Couleur noire pour le texte
+    SDL_Color blackColor = {0, 0, 0};  // Couleur noire pour le texte
 
     EPiece currentPiece;  // Prochaine pièce que le joueur doit placer
     int nbCurrentPieceLeft;  // Nombre de currentPiece qu'il reste à placer
 
     // Surface qui noircit la partie du plateau où l'on ne peut rien placer
-    SDL_Surface *impossible;
-    impossible = SDL_CreateRGBSurface(SDL_HWSURFACE, TAILLE_CASE * NB_BLOCS_COTE, TAILLE_CASE * 6, 32, 0, 0, 0, 0);
-    SDL_FillRect(impossible, NULL, SDL_MapRGB(C->screen->format, 0, 0, 0));
-    SDL_SetAlpha(impossible, SDL_SRCALPHA, 192);
+    SDL_Surface *noMansLand;
+    noMansLand = SDL_CreateRGBSurface(SDL_HWSURFACE, SQUARE_SIZE * SQUARES_BY_SIDE, SQUARE_SIZE * 6, 32, 0, 0, 0, 0);
+    SDL_FillRect(noMansLand, NULL, SDL_MapRGB(C->screen->format, 0, 0, 0));
+    SDL_SetAlpha(noMansLand, SDL_SRCALPHA, 192);
 
     // Première pièce à placer
     currentPiece = EPbomb;
-    nbCurrentPieceLeft = getNbPieceAPlacer(currentPiece);
+    nbCurrentPieceLeft = getNumberOfPiece(currentPiece);
 
     // Initialisation du plateau
     for (i = 0 ; i < 4 ; i++)
@@ -192,8 +193,8 @@ void placementPiece(Context *C, EColor color, EPiece side[4][10])
         if (in.mousebuttons[SDL_BUTTON_LEFT])
         {
             // On vérifie que le clic est bien dans une case disponible
-            i = (int) ((HAUTEUR_FENETRE - in.mousey) / TAILLE_CASE);
-            j = (int) (in.mousex / TAILLE_CASE);
+            i = (int) ((WINDOW_HEIGHT - in.mousey) / SQUARE_SIZE);
+            j = (int) (in.mousex / SQUARE_SIZE);
 
             if (i >= 0 && i < 4 && j >= 0 && j < 10)
             {
@@ -206,9 +207,9 @@ void placementPiece(Context *C, EColor color, EPiece side[4][10])
                     if (nbCurrentPieceLeft == 0)  // Si on a placé toutes les pièces de ce type
                     {
                         // On passe au type suivant
-                        currentPiece = getNextPieceAPlacer(currentPiece);
+                        currentPiece = getNextPiece(currentPiece);
                         if (currentPiece != EPnone)
-                            nbCurrentPieceLeft = getNbPieceAPlacer(currentPiece);
+                            nbCurrentPieceLeft = getNumberOfPiece(currentPiece);
                         else
                             continuer = 0;
                     }
@@ -220,17 +221,17 @@ void placementPiece(Context *C, EColor color, EPiece side[4][10])
         SDL_FillRect(C->screen, NULL, SDL_MapRGB(C->screen->format, 255, 255, 255));
 
         // Affichage du plateau
-        Blit(C->plateau, C->screen, 0, 0);
+        Blit(C->board, C->screen, 0, 0);
 
         // On noircit le plateau à l'endroit où le joueur ne peut pas placer de pièces
-        Blit(impossible, C->screen, 0, 0);
+        Blit(noMansLand, C->screen, 0, 0);
 
         for (i = 0 ; i < 4 ; i++)
         {
             for (j = 0 ; j < 10 ; j++)
             {
-                x = j * TAILLE_CASE;
-                y = HAUTEUR_FENETRE - (i + 1) * TAILLE_CASE;
+                x = j * SQUARE_SIZE;
+                y = WINDOW_HEIGHT - (i + 1) * SQUARE_SIZE;
 
                 if (side[i][j] != EPnone)
                 {
@@ -243,25 +244,25 @@ void placementPiece(Context *C, EColor color, EPiece side[4][10])
         }
 
         // Affichage du nom du jeu
-        C->texte = TTF_RenderText_Blended(C->fonts[BIGTEXT], "Stratego", couleurNoire);
-        x = LARGEUR_FENETRE - (500/2) - (C->texte->w/2);  // On centre le texte dans la surface à droite du plateau
+        C->text = TTF_RenderText_Blended(C->fonts[BIGTEXT], "Stratego", blackColor);
+        x = WINDOW_WIDTH - (500/2) - (C->text->w/2);  // On centre le texte dans la surface à droite du plateau
         y = 5;
-        Blit(C->texte, C->screen, x, y);
+        Blit(C->text, C->screen, x, y);
 
         // Affichage de la pièce à placer
-        C->texte = TTF_RenderText_Blended(C->fonts[MEDIUMTEXT], getNomPieceAPlacer(currentPiece), couleurNoire);
-        x = LARGEUR_FENETRE - (500/2) - (C->texte->w/2);  // On centre le texte dans la surface à droite du plateau
+        C->text = TTF_RenderText_Blended(C->fonts[MEDIUMTEXT], getNamePiece(currentPiece), blackColor);
+        x = WINDOW_WIDTH - (500/2) - (C->text->w/2);  // On centre le texte dans la surface à droite du plateau
         y = 150;
-        Blit(C->texte, C->screen, x, y);
+        Blit(C->text, C->screen, x, y);
 
         // Affichage de la couleur du joueur
         if (color == ECred)
-            C->texte = TTF_RenderText_Blended(C->fonts[MEDIUMTEXT], "Joueur Rouge : ", couleurNoire);
+            C->text = TTF_RenderText_Blended(C->fonts[MEDIUMTEXT], "Joueur Rouge : ", blackColor);
         else
-            C->texte = TTF_RenderText_Blended(C->fonts[MEDIUMTEXT], "Joueur Bleu : ", couleurNoire);
-        x = LARGEUR_FENETRE - (500/2) - (C->texte->w/2);  // On centre le texte dans la surface à droite du plateau
+            C->text = TTF_RenderText_Blended(C->fonts[MEDIUMTEXT], "Joueur Bleu : ", blackColor);
+        x = WINDOW_WIDTH - (500/2) - (C->text->w/2);  // On centre le texte dans la surface à droite du plateau
         y = 100;
-        Blit(C->texte, C->screen, x, y);
+        Blit(C->text, C->screen, x, y);
 
 
         SDL_Flip(C->screen);  // Affichage de l'écran
@@ -269,10 +270,10 @@ void placementPiece(Context *C, EColor color, EPiece side[4][10])
         SDL_Delay(30);  // Attente de 30ms entre chaque tour de boucle pour en pas surcharger le CPU
     }
 
-    SDL_FreeSurface(impossible);
+    SDL_FreeSurface(noMansLand);
 }
 
-char* getNomPieceAPlacer(EPiece piece)
+char* getNamePiece(EPiece piece)
 {
     switch(piece)
     {
@@ -316,7 +317,7 @@ char* getNomPieceAPlacer(EPiece piece)
     return "Voila !";
 }
 
-EPiece getNextPieceAPlacer(EPiece piece)
+EPiece getNextPiece(EPiece piece)
 {
     switch(piece)
     {
@@ -360,7 +361,7 @@ EPiece getNextPieceAPlacer(EPiece piece)
     return EPnone;
 }
 
-int getNbPieceAPlacer(EPiece piece)
+int getNumberOfPiece(EPiece piece)
 {
     switch(piece)
     {

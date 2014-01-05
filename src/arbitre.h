@@ -9,10 +9,10 @@ Fonctions utilisées pour l'arbitrage du jeu
 
     /**
      * Vérifie si un coup est valide
-     * @param  gameState Etat du jeu avant le coup
-     * @param  move      Mouvement demandé
-     * @return int       1 si coup valide, 0 sinon
+     * @param  SGameState gameState Etat du jeu avant le coup
+     * @param  Smove       move     Mouvement demandé
+     * @return int                  1 si coup valide, 0 sinon
      */
-    int coupValide(SGameState *gameState, SMove move);
+    int isValidMove(SGameState *gameState, SMove move);
 
 #endif

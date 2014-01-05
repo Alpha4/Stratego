@@ -15,8 +15,9 @@ Fonctions utilisées pour l'arbitrage du jeu
 #include "stratego.h"
 #include "interface.h"
 #include "arbitre.h"
+#include "libs.h"
 
-int coupValide(SGameState *gameState, SMove move)
+int isValidMove(SGameState *gameState, SMove move)
 {
     return 1;
 }
