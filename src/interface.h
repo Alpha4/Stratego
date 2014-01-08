@@ -100,6 +100,16 @@ Contient également les constantes nécessaires
     void PlacePiece(Context *C, EColor color, EPiece side[4][10]);
 
     /**
+     * Permet à un joueur humain de déplacer une pièce
+     * @param  Context    *C            Le contexte de l'affichage du jeu
+     * @param  EColor     currentPlayer Le joueur qui doit jouer
+     * @param  SGameState *gameState    Le plateau du jeu
+     * @param  SMove      *movement     Variable qui va stocker le déplacement choisi par le joueur
+     * @return int                      -1 si le joueur à quitté le jeu, 0 sinon
+     */
+    int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *movement);
+
+    /**
      * Permet de connaitre le nom d'une pièce en fonction de son type, pour l'affichage
      * @param  EPiece piece Le type de la pièce
      * @return              Le nom de la pièce

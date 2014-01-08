@@ -273,6 +273,100 @@ void PlacePiece(Context *C, EColor color, EPiece side[4][10])
     SDL_FreeSurface(noMansLand);
 }
 
+int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *movement)
+{
+    int continuer = 1;
+    int i, j;
+    int x, y;
+
+    Input in;
+    memset(&in, 0, sizeof(in));
+
+    int gameStatus = 0;  // 0 = le joueur doit sélectionner une pièce, 1 = il doit sélectionner une destination
+
+    EColor colorOpponent;
+
+    SDL_Color blackColor = {0, 0, 0};  // Couleur noire pour le texte
+
+    if (currentPlayer == ECred)
+        colorOpponent = ECblue;
+    else
+        colorOpponent = ECred;
+
+    while (continuer && !in.quit)
+    {
+        UpdateEvents(&in);
+        if (in.mousebuttons[SDL_BUTTON_LEFT])
+        {
+            in.mousebuttons[SDL_BUTTON_LEFT] = 0;
+
+            // On vérifie que le clic est bien dans une case disponible
+            i = (int) (in.mousey / SQUARE_SIZE);
+            j = (int) (in.mousex / SQUARE_SIZE);
+            fprintf(stderr, "i, j: %d, %d \n", i, j);
+            if (i >= 0 && i < 10 && j >= 0 && j < 10)
+            {
+                if (gameStatus == 0)
+                {
+                    if (gameState->board[i][j].content == currentPlayer)  // Il a bien cliqué sur une de ses pièces
+                    {
+                        movement->start.line = i;
+                        movement->start.col = j;
+                        gameStatus = 1;
+                    }
+                }
+                else
+                {
+                    if (gameState->board[i][j].content == ECnone || gameState->board[i][j].content == colorOpponent)  // Il a bien cliqué sur une destination possible
+                    {
+                        movement->end.line = i;
+                        movement->end.col = j;
+                        continuer = 0;
+                    }
+                }
+            }
+        }
+
+        // Effacement de l'écran
+        SDL_FillRect(C->screen, NULL, SDL_MapRGB(C->screen->format, 255, 255, 255));
+
+        // Affichage du plateau
+        Blit(C->board, C->screen, 0, 0);
+
+        for (i = 0 ; i < SQUARES_BY_SIDE ; i++)
+        {
+            for (j = 0 ; j < SQUARES_BY_SIDE ; j++)
+            {
+                x = j * SQUARE_SIZE;
+                y = i * SQUARE_SIZE;
+
+                if (gameState->board[i][j].piece != EPnone)
+                {
+                    if (gameState->board[i][j].content == ECred)
+                        Blit(C->images[IMGRED][gameState->board[i][j].piece], C->screen, x, y);
+                    else
+                        Blit(C->images[IMGBLUE][gameState->board[i][j].piece], C->screen, x, y);
+                }
+            }
+        }
+
+        // Affichage du nom du jeu
+        C->text = TTF_RenderText_Blended(C->fonts[BIGTEXT], "Stratego", blackColor);
+        x = WINDOW_WIDTH - (500/2) - (C->text->w/2);  // On centre le texte dans la surface à droite du plateau
+        y = 5;
+        Blit(C->text, C->screen, x, y);
+
+        SDL_Flip(C->screen);  // Affichage de l'écran
+
+        SDL_Delay(30);  // Attente de 30ms entre chaque tour de boucle pour en pas surcharger le CPU
+    }
+
+    if (in.quit)
+        return -1;
+    else
+        return 0;
+}
+
 char* getNamePiece(EPiece piece)
 {
     switch(piece)

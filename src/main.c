@@ -20,7 +20,7 @@ Programme principal (main), qui gère l'interface, l'arbitre et fait appel aux l
 int main(int argc, char *argv[])
 {
     /**
-     * argv[1] = Nombre de joueurs humain
+     * argv[1] = Nombre de joueurs artificiels
      * argv[2] = Chemin vers la lib de l'IA 1 (si nécessaire)
      * argv[3] = Chemin vers la lib de l'IA 2 (si nécessaire)
      */
@@ -32,19 +32,15 @@ int main(int argc, char *argv[])
 
     SGameState gameState;  // Le jeu (plateau + pièces éliminées)
 
-    /**
-     * Etat du jeu pour gérer l'interface graphique (notamment les clics de souris):
-     * 0 = partie non commencée
-     * 1 = En attente d'une sélection de pièce par le joueur
-     * 2 = En attente d'un choix de destination de la pièce pour le joueur
-     */
-    int gameStatus;
-
     int nbHumanPlayers;
 
-    int currentPlayer;  // Joueur qui est en train de jouer (1 ou 2)
+    EColor player1 = ECred, player2 = ECblue;
+
+    EColor currentPlayer = ECred;  // Joueur qui est en train de jouer (ECred ou ECblue)
     char p1Name[50] = "Joueur 1", p2Name[50] = "Joueur 2";  // Noms des joueurs
     EPiece redSide[4][10], blueSide[4][10];  // Tableau de placement initial des pièce par les joueurs
+
+    SMove movement;
 
 
     /**
@@ -78,7 +74,7 @@ int main(int argc, char *argv[])
         return EXIT_FAILURE;
     }
 
-    nbHumanPlayers = atoi(argv[1]);  // On stocke le nombre de joueurs humains
+    nbHumanPlayers = 2 - atoi(argv[1]);  // On stocke le nombre de joueurs humains
 
     if (nbHumanPlayers == 1) // 1 joueur humain
     {
@@ -130,6 +126,7 @@ int main(int argc, char *argv[])
 
     /**
      * Placement des pièces par les joueurs
+     * TODO : random red/blue
      */
 
     if (nbHumanPlayers == 1)  // Le joueur 1 est une IA
@@ -154,15 +151,33 @@ int main(int argc, char *argv[])
 
 
     /*
-    Temporaire : remplissage de gameState avec des pièces pour tester l'affichage
+     * Remplissage de gameState
      */
 
     for (i = 0 ; i < SQUARES_BY_SIDE ; i++)
     {
         for (j = 0 ; j < SQUARES_BY_SIDE ; j++)
         {
-            gameState.board[i][j].piece = EPspy;
-            gameState.board[i][j].content = ECred;
+            gameState.board[i][j].piece = EPnone;
+            gameState.board[i][j].content = ECnone;
+        }
+    }
+
+    for (i = 0 ; i < 4 ; i++)
+    {
+        for (j = 0 ; j < SQUARES_BY_SIDE ; j++)
+        {
+            gameState.board[9 - i][j].piece = redSide[i][j];
+            gameState.board[9 - i][j].content = ECred;
+        }
+    }
+
+    for (i = 0 ; i < 4 ; i++)
+    {
+        for (j = 0 ; j < SQUARES_BY_SIDE ; j++)
+        {
+            gameState.board[i][9 - j].piece = blueSide[i][j];
+            gameState.board[i][9 - j].content = ECblue;
         }
     }
 
@@ -174,6 +189,46 @@ int main(int argc, char *argv[])
         /**
          * TODO: gestion des déplacements des pièces par les joueurs
          */
+
+        if (currentPlayer == player1)  // Le joueur 1 doit jouer
+        {
+            if (nbHumanPlayers == 1)  // Le joueur 1 est une IA
+                movement = ai1.NextMove(&gameState);
+            else  // Le joueur 1 est un humain
+            {
+                if (movePiece(&C, currentPlayer, &gameState, &movement) == -1)
+                {
+                    // L'utilisateur a quitté le jeu
+                    return EXIT_SUCCESS;
+                }
+            }
+        }
+        else  // Le joueur 2 doit jouer
+        {
+            if (nbHumanPlayers == 0)  // Le joueur 2 est une IA
+                movement = ai2.NextMove(&gameState);
+            else  // Le joueur 2 est un humain
+            {
+                if (movePiece(&C, currentPlayer, &gameState, &movement) == -1)
+                {
+                    // L'utilisateur a quitté le jeu
+                    return EXIT_SUCCESS;
+                }
+            }
+        }
+
+        if (isValidMove(&gameState, movement))
+        {
+            fprintf(stderr, "SPos: %d, %d  --> %d, %d\n", movement.start.line, movement.start.col, movement.end.line, movement.end.col);
+            fprintf(stderr, "end before: piece, content: %d, %d\n", gameState.board[movement.end.line][movement.end.col].piece, gameState.board[movement.end.line][movement.end.col].content);
+            fprintf(stderr, "start before: piece, content: %d, %d\n", gameState.board[movement.start.line][movement.start.col].piece, gameState.board[movement.start.line][movement.start.col].content);
+            gameState.board[movement.end.line][movement.end.col].piece = gameState.board[movement.start.line][movement.start.col].piece;
+            gameState.board[movement.end.line][movement.end.col].content = gameState.board[movement.start.line][movement.start.col].content;
+            gameState.board[movement.start.line][movement.start.col].content = ECnone;
+            gameState.board[movement.start.line][movement.start.col].piece = EPnone;
+            fprintf(stderr, "end after: piece, content: %d, %d\n", gameState.board[movement.end.line][movement.end.col].piece, gameState.board[movement.end.line][movement.end.col].content);
+            fprintf(stderr, "start after: piece, content: %d, %d\n", gameState.board[movement.start.line][movement.start.col].piece, gameState.board[movement.start.line][movement.start.col].content);
+        }
 
         // Effacement de l'écran
         SDL_FillRect(C.screen, NULL, SDL_MapRGB(C.screen->format, 255, 255, 255));
