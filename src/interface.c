@@ -303,7 +303,7 @@ int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *mo
             // On vérifie que le clic est bien dans une case disponible
             i = (int) (in.mousey / SQUARE_SIZE);
             j = (int) (in.mousex / SQUARE_SIZE);
-            fprintf(stderr, "i, j: %d, %d \n", i, j);
+
             if (i >= 0 && i < 10 && j >= 0 && j < 10)
             {
                 if (gameStatus == 0)

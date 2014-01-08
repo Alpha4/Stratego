@@ -219,15 +219,10 @@ int main(int argc, char *argv[])
 
         if (isValidMove(&gameState, movement))
         {
-            fprintf(stderr, "SPos: %d, %d  --> %d, %d\n", movement.start.line, movement.start.col, movement.end.line, movement.end.col);
-            fprintf(stderr, "end before: piece, content: %d, %d\n", gameState.board[movement.end.line][movement.end.col].piece, gameState.board[movement.end.line][movement.end.col].content);
-            fprintf(stderr, "start before: piece, content: %d, %d\n", gameState.board[movement.start.line][movement.start.col].piece, gameState.board[movement.start.line][movement.start.col].content);
             gameState.board[movement.end.line][movement.end.col].piece = gameState.board[movement.start.line][movement.start.col].piece;
             gameState.board[movement.end.line][movement.end.col].content = gameState.board[movement.start.line][movement.start.col].content;
             gameState.board[movement.start.line][movement.start.col].content = ECnone;
             gameState.board[movement.start.line][movement.start.col].piece = EPnone;
-            fprintf(stderr, "end after: piece, content: %d, %d\n", gameState.board[movement.end.line][movement.end.col].piece, gameState.board[movement.end.line][movement.end.col].content);
-            fprintf(stderr, "start after: piece, content: %d, %d\n", gameState.board[movement.start.line][movement.start.col].piece, gameState.board[movement.start.line][movement.start.col].content);
         }
 
         // Effacement de l'écran
