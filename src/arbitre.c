@@ -17,7 +17,7 @@ Fonctions utilisées pour l'arbitrage du jeu
 #include "arbitre.h"
 #include "libs.h"
 
-int isValidMove(SGameState *gameState, SMove move)
+int isValidMove(SGameState *gameState, SMove move, EColor currentPlayer)
 {
     return 1;
 }

@@ -13,6 +13,6 @@ Fonctions utilisées pour l'arbitrage du jeu
      * @param  Smove       move     Mouvement demandé
      * @return int                  1 si coup valide, 0 sinon
      */
-    int isValidMove(SGameState *gameState, SMove move);
+    int isValidMove(SGameState *gameState, SMove move, EColor currentPlayer);
 
 #endif

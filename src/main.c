@@ -217,7 +217,7 @@ int main(int argc, char *argv[])
             }
         }
 
-        if (isValidMove(&gameState, movement))
+        if (isValidMove(&gameState, movement, currentPlayer))
         {
             gameState.board[movement.end.line][movement.end.col].piece = gameState.board[movement.start.line][movement.start.col].piece;
             gameState.board[movement.end.line][movement.end.col].content = gameState.board[movement.start.line][movement.start.col].content;
