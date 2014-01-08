@@ -110,6 +110,16 @@ Contient également les constantes nécessaires
     int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *movement);
 
     /**
+     * Vérifie si les coordonnées demandées sont une destination possible pour la pièce (pour l'affichage)
+     * @param  SPos       origin     L'origine du déplacement
+     * @param  int        i          Ligne du déplacement demandé
+     * @param  int        j          Colonne du déplacement demandé
+     * @param  SGameState *gameState Le plateau du jeu
+     * @return int                   1 si coordonnées valide, 0 sinon
+     */
+    int areValidCoords(SPos origin, int i, int j, SGameState *gameState);
+
+    /**
      * Permet de connaitre le nom d'une pièce en fonction de son type, pour l'affichage
      * @param  EPiece piece Le type de la pièce
      * @return              Le nom de la pièce

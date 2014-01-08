@@ -20,9 +20,10 @@ Programme principal (main), qui gère l'interface, l'arbitre et fait appel aux l
 int main(int argc, char *argv[])
 {
     /**
-     * argv[1] = Nombre de joueurs artificiels
-     * argv[2] = Chemin vers la lib de l'IA 1 (si nécessaire)
-     * argv[3] = Chemin vers la lib de l'IA 2 (si nécessaire)
+     * argv[1] = Nombre de coups maximum
+     * argv[2] = Nombre de joueurs artificiels
+     * argv[3] = Chemin vers la lib de l'IA 1 (si nécessaire)
+     * argv[4] = Chemin vers la lib de l'IA 2 (si nécessaire)
      */
 
 
@@ -68,27 +69,15 @@ int main(int argc, char *argv[])
      */
 
     // Vérification qu'il y a au moins en paramètre le nombre de joueurs humains
-    if (argc < 2)
+    if (argc < 3)
     {
         fprintf(stderr, "Erreur : pas assez de paramètres\n");  // Écriture de l'erreur
         return EXIT_FAILURE;
     }
 
-    nbHumanPlayers = 2 - atoi(argv[1]);  // On stocke le nombre de joueurs humains
+    nbHumanPlayers = 2 - atoi(argv[2]);  // On stocke le nombre de joueurs humains
 
     if (nbHumanPlayers == 1) // 1 joueur humain
-    {
-        if (argc < 3) // Si le chemin vers la lib n'est pas fourni
-        {
-            fprintf(stderr, "Erreur : pas assez de paramètres\n");  // Écriture de l'erreur
-            return EXIT_FAILURE;
-        }
-
-        if (LoadLib(&ai1, argv[2]) == -1)
-            return EXIT_FAILURE;
-    }
-
-    if (nbHumanPlayers == 0) // 0 joueur humain
     {
         if (argc < 4) // Si le chemin vers la lib n'est pas fourni
         {
@@ -96,7 +85,19 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
         }
 
-        if (LoadLib(&ai2, argv[3]) == -1)
+        if (LoadLib(&ai1, argv[3]) == -1)
+            return EXIT_FAILURE;
+    }
+
+    if (nbHumanPlayers == 0) // 0 joueur humain
+    {
+        if (argc < 5) // Si le chemin vers la lib n'est pas fourni
+        {
+            fprintf(stderr, "Erreur : pas assez de paramètres\n");  // Écriture de l'erreur
+            return EXIT_FAILURE;
+        }
+
+        if (LoadLib(&ai2, argv[4]) == -1)
             return EXIT_FAILURE;
     }
 
@@ -217,8 +218,34 @@ int main(int argc, char *argv[])
             }
         }
 
+        // Si le déplacement est valide, on l'effectue
         if (isValidMove(&gameState, movement, currentPlayer))
         {
+            if (gameState.board[movement.end.line][movement.end.col].piece != EPnone)  // Il y a une pièce sur la case où le joueur se déplace, c'est donc une attaque
+            {
+                // On augmente le nombre de pièces éliminées du joueur attaqué
+                if (currentPlayer == ECred)
+                    gameState.redOut[gameState.board[movement.end.line][movement.end.col].piece]++;
+                else
+                    gameState.blueOut[gameState.board[movement.end.line][movement.end.col].piece]++;
+
+                // On envoie l'info aux IA si nécessaire
+                if (nbHumanPlayers == 1)  // Le joueur 1 est une IA
+                {
+                    if (currentPlayer == player1)
+                        ai1.AttackResult(movement.start, gameState.board[movement.start.line][movement.start.col].piece, movement.end, gameState.board[movement.end.line][movement.end.col].piece);
+                    else
+                        ai1.AttackResult(movement.end, gameState.board[movement.end.line][movement.end.col].piece, movement.start, gameState.board[movement.start.line][movement.start.col].piece);
+
+                    if (nbHumanPlayers == 0)  // Le joueur 2 est aussi une IA
+                    {
+                        if (currentPlayer == player2)
+                            ai2.AttackResult(movement.start, gameState.board[movement.start.line][movement.start.col].piece, movement.end, gameState.board[movement.end.line][movement.end.col].piece);
+                        else
+                            ai2.AttackResult(movement.end, gameState.board[movement.end.line][movement.end.col].piece, movement.start, gameState.board[movement.start.line][movement.start.col].piece);
+                    }
+                }
+            }
             gameState.board[movement.end.line][movement.end.col].piece = gameState.board[movement.start.line][movement.start.col].piece;
             gameState.board[movement.end.line][movement.end.col].content = gameState.board[movement.start.line][movement.start.col].content;
             gameState.board[movement.start.line][movement.start.col].content = ECnone;

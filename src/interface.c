@@ -317,7 +317,7 @@ int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *mo
                 }
                 else
                 {
-                    if (gameState->board[i][j].content == ECnone || gameState->board[i][j].content == colorOpponent)  // Il a bien cliqué sur une destination possible
+                    if ((gameState->board[i][j].content == ECnone || gameState->board[i][j].content == colorOpponent) && areValidCoords(movement->start, i, j, gameState))  // Il a bien cliqué sur une destination possible
                     {
                         movement->end.line = i;
                         movement->end.col = j;
@@ -365,6 +365,14 @@ int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *mo
         return -1;
     else
         return 0;
+}
+
+int areValidCoords(SPos origin, int i, int j, SGameState *gameState)
+{
+    /**
+     * TODO : Vérifier si les coordonnées demandées sont possibles comme destination. Traiter le cas de l'éclaireur (EPscout) qui peut se déplacer/attaquer sur de longues distances
+     */
+    return 1;
 }
 
 char* getNamePiece(EPiece piece)
