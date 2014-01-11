@@ -42,27 +42,27 @@ int isValidMove(SGameState *gameState, SMove move, EColor currentPlayer, SMove h
     // La case d'arrivé est un lac ou est occupée par une pièce du joueur courant
     if ((gameState->board[i0][j0].content == currentPlayer) || (gameState->board[i0][j0].content == EClake)) return 0;
 
-    if (moveI == moveJ) return 0; // Déplacement diagonal ou surplace
-    if (gameState->board[i0][j0].piece != EPscout) // La pièce n'est pas un éclaireur
+    if (moveI == moveJ) return 0;  // Déplacement diagonal ou surplace
+    if (gameState->board[i0][j0].piece != EPscout)  // La pièce n'est pas un éclaireur
     {
-        if ((moveI != 0) && (moveJ != 1)) return 0; // Déplacement vertical >= 2
-        if ((moveI != 1) && (moveJ != 0)) return 0; // Déplacement horizontal >= 2
+        if ((moveI != 0) && (moveJ != 1)) return 0;  // Déplacement vertical >= 2
+        if ((moveI != 1) && (moveJ != 0)) return 0;  // Déplacement horizontal >= 2
     }
-    else if ((moveI != 0) && (moveJ != 0)) return 0; // La pièce est un éclaireur
+    else if ((moveI != 0) && (moveJ != 0)) return 0;  // La pièce est un éclaireur
 
 
-    if ((histMove[0].start.line == NULL) && (histMove[0].start.col == NULL)) // 1er coup du joueur
+    if ((histMove[0].start.line == NULL) && (histMove[0].start.col == NULL))  // 1er coup du joueur
     {
         histMove[0] = move;
     }
     else
     {
-        if (histMove[2].start.line == NULL) // 2eme ou 3eme coup du joueur
+        if (histMove[2].start.line == NULL)  // 2eme ou 3eme coup du joueur
         {
             while (histMove[k].start.line != NULL) k++;
             histMove[k] = move;
         }
-        else    // 4eme coup et +, on vérifie la possibilité des allers-retours
+        else  // 4eme coup et +, on vérifie la possibilité des allers-retours
         {
             if ((histMove[0].start.line == histMove[1].end.line) && (histMove[0].start.col == histMove[1].end.col)
             && (histMove[0].start.line == histMove[2].start.line) && (histMove[0].start.col == histMove[2].start.col)
