@@ -40,16 +40,15 @@ int isValidMove(SGameState *gameState, SMove move, EColor currentPlayer, SMove h
     // La pièce sélectionnée est une bombe ou le drapeau (pièce fixe)
     if ((gameState->board[i0][j0].piece == EPbomb) || (gameState->board[i0][j0].piece == EPflag)) return 0;
     // La case d'arrivé est un lac ou est occupée par une pièce du joueur courant
-    if ((gameState->board[i0][j0].content == currentPlayer) || (gameState->board[i0][j0].content == EClake)) return 0;
+    if ((gameState->board[i1][j1].content == currentPlayer) || (gameState->board[i1][j1].content == EClake)) return 0;
 
     if (moveI == moveJ) return 0;  // Déplacement diagonal ou surplace
     if (gameState->board[i0][j0].piece != EPscout)  // La pièce n'est pas un éclaireur
     {
-        if ((moveI != 0) && (moveJ != 1)) return 0;  // Déplacement vertical >= 2
-        if ((moveI != 1) && (moveJ != 0)) return 0;  // Déplacement horizontal >= 2
+        if ((moveI == 1) && (moveJ != 0)) return 0;  // Déplacement vertical >= 2
+        if ((moveI != 0) && (moveJ == 1)) return 0;  // Déplacement horizontal >= 2
     }
     else if ((moveI != 0) && (moveJ != 0)) return 0;  // La pièce est un éclaireur
-
 
     if ((histMove[0].start.line == NULL) && (histMove[0].start.col == NULL))  // 1er coup du joueur
     {
