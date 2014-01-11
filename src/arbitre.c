@@ -52,9 +52,9 @@ int isValidMove(SGameState *gameState, SMove move, EColor currentPlayer, SMove h
 
 
     if ((histMove[0].start.line == NULL) && (histMove[0].start.col == NULL)) // 1er coup du joueur
-        {
-            histMove[0] = move;
-        }
+    {
+        histMove[0] = move;
+    }
     else
     {
         if (histMove[2].start.line == NULL) // 2eme ou 3eme coup du joueur
@@ -62,7 +62,6 @@ int isValidMove(SGameState *gameState, SMove move, EColor currentPlayer, SMove h
             while (histMove[k].start.line != NULL) k++;
             histMove[k] = move;
         }
-        
         else    // 4eme coup et +, on vérifie la possibilité des allers-retours
         {
             if ((histMove[0].start.line == histMove[1].end.line) && (histMove[0].start.col == histMove[1].end.col)
@@ -79,9 +78,9 @@ int isValidMove(SGameState *gameState, SMove move, EColor currentPlayer, SMove h
             }
 
             for (k = 0 ; k <= 1 ; k++) histMove[k] = histMove[k+1];
-            histMove[3] = move;
+            histMove[2] = move;
         }
     }
 
     return 1;
-  }
+}
