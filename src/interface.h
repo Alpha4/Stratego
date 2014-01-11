@@ -14,13 +14,13 @@ Contient également les constantes nécessaires
     #define WINDOW_HEIGHT   SQUARE_SIZE * SQUARES_BY_SIDE
 
     // Pour simplifier l'affichage des images
-    #define IMGRED 0
+    #define IMGRED  0
     #define IMGBLUE 1
 
     // Pour simplifier la gestion des différentes tailles de police
-    #define SMALLTEXT 0
+    #define SMALLTEXT  0
     #define MEDIUMTEXT 1
-    #define BIGTEXT 2
+    #define BIGTEXT    2
 
     /**
      * Contient toutes les variables qui servent à l'affichage
@@ -105,9 +105,10 @@ Contient également les constantes nécessaires
      * @param  EColor     currentPlayer Le joueur qui doit jouer
      * @param  SGameState *gameState    Le plateau du jeu
      * @param  SMove      *movement     Variable qui va stocker le déplacement choisi par le joueur
+     * @param  char        name[50]     Nom du joueur
      * @return int                      -1 si le joueur à quitté le jeu, 0 sinon
      */
-    int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *movement);
+    int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *movement, char name[50]);
 
     /**
      * Vérifie si les coordonnées demandées sont une destination possible pour la pièce (pour l'affichage)

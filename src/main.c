@@ -35,6 +35,8 @@ int main(int argc, char *argv[])
 
     int nbHumanPlayers;
 
+    SMove histMove[2][3] = {0};  // Les trois derniers mouvement du joueur de chaque joueur
+    int penalty[2];  // Le nombre de pénalité pour chaque joueur
     EColor player1 = ECred, player2 = ECblue;
 
     EColor currentPlayer = ECred;  // Joueur qui est en train de jouer (ECred ou ECblue)
@@ -77,9 +79,9 @@ int main(int argc, char *argv[])
 
     nbHumanPlayers = 2 - atoi(argv[2]);  // On stocke le nombre de joueurs humains
 
-    if (nbHumanPlayers == 1) // 1 joueur humain
+    if (nbHumanPlayers == 1)  // 1 joueur humain
     {
-        if (argc < 4) // Si le chemin vers la lib n'est pas fourni
+        if (argc < 4)  // Si le chemin vers la lib n'est pas fourni
         {
             fprintf(stderr, "Erreur : pas assez de paramètres\n");  // Écriture de l'erreur
             return EXIT_FAILURE;
@@ -89,9 +91,9 @@ int main(int argc, char *argv[])
             return EXIT_FAILURE;
     }
 
-    if (nbHumanPlayers == 0) // 0 joueur humain
+    if (nbHumanPlayers == 0)  // 0 joueur humain
     {
-        if (argc < 5) // Si le chemin vers la lib n'est pas fourni
+        if (argc < 5)  // Si le chemin vers la lib n'est pas fourni
         {
             fprintf(stderr, "Erreur : pas assez de paramètres\n");  // Écriture de l'erreur
             return EXIT_FAILURE;
@@ -187,17 +189,13 @@ int main(int argc, char *argv[])
     {
         UpdateEvents(&in);
 
-        /**
-         * TODO: gestion des déplacements des pièces par les joueurs
-         */
-
         if (currentPlayer == player1)  // Le joueur 1 doit jouer
         {
             if (nbHumanPlayers == 1)  // Le joueur 1 est une IA
                 movement = ai1.NextMove(&gameState);
             else  // Le joueur 1 est un humain
             {
-                if (movePiece(&C, currentPlayer, &gameState, &movement) == -1)
+                if (movePiece(&C, currentPlayer, &gameState, &movement, p1Name) == -1)
                 {
                     // L'utilisateur a quitté le jeu
                     return EXIT_SUCCESS;
@@ -210,7 +208,7 @@ int main(int argc, char *argv[])
                 movement = ai2.NextMove(&gameState);
             else  // Le joueur 2 est un humain
             {
-                if (movePiece(&C, currentPlayer, &gameState, &movement) == -1)
+                if (movePiece(&C, currentPlayer, &gameState, &movement, p2Name) == -1)
                 {
                     // L'utilisateur a quitté le jeu
                     return EXIT_SUCCESS;
@@ -219,7 +217,7 @@ int main(int argc, char *argv[])
         }
 
         // Si le déplacement est valide, on l'effectue
-        if (isValidMove(&gameState, movement, currentPlayer))
+        if (isValidMove(&gameState, movement, currentPlayer, histMove[currentPlayer - 2]))
         {
             if (gameState.board[movement.end.line][movement.end.col].piece != EPnone)  // Il y a une pièce sur la case où le joueur se déplace, c'est donc une attaque
             {
@@ -246,11 +244,37 @@ int main(int argc, char *argv[])
                     }
                 }
             }
+
+            /**
+             * TODO : Vérifier qui gagne une attaque !
+             */
             gameState.board[movement.end.line][movement.end.col].piece = gameState.board[movement.start.line][movement.start.col].piece;
             gameState.board[movement.end.line][movement.end.col].content = gameState.board[movement.start.line][movement.start.col].content;
             gameState.board[movement.start.line][movement.start.col].content = ECnone;
             gameState.board[movement.start.line][movement.start.col].piece = EPnone;
         }
+        else
+        {
+            penalty[currentPlayer - 2]++;  // On augmente le compteur de pénalité du joueur
+
+            // On envoie l'info à l'IA si besoin
+            if (currentPlayer == player1)  // Le joueur 1 a joué
+            {
+                if (nbHumanPlayers == 1)  // Le joueur 1 est une IA
+                    ai1.Penalty();
+            }
+            else  // Le joueur a joué
+            {
+                if (nbHumanPlayers == 0)  // Le joueur 2 est une IA
+                    ai2.Penalty();
+            }
+        }
+
+        // C'est maintenant à l'autre joueur de jouer
+        if (currentPlayer == player1)
+            currentPlayer = player2;
+        else
+            currentPlayer = player1;
 
         // Effacement de l'écran
         SDL_FillRect(C.screen, NULL, SDL_MapRGB(C.screen->format, 255, 255, 255));

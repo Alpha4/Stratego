@@ -273,7 +273,7 @@ void PlacePiece(Context *C, EColor color, EPiece side[4][10])
     SDL_FreeSurface(noMansLand);
 }
 
-int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *movement)
+int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *movement, char name[50])
 {
     int continuer = 1;
     int i, j;
@@ -285,6 +285,8 @@ int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *mo
     int gameStatus = 0;  // 0 = le joueur doit sélectionner une pièce, 1 = il doit sélectionner une destination
 
     EColor colorOpponent;
+
+    char text[70];  // Stocke du texte à afficher
 
     SDL_Color blackColor = {0, 0, 0};  // Couleur noire pour le texte
 
@@ -354,6 +356,13 @@ int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *mo
         C->text = TTF_RenderText_Blended(C->fonts[BIGTEXT], "Stratego", blackColor);
         x = WINDOW_WIDTH - (500/2) - (C->text->w/2);  // On centre le texte dans la surface à droite du plateau
         y = 5;
+        Blit(C->text, C->screen, x, y);
+
+        // Affichage du nom du joueur qui doit jouer
+        sprintf(&text, name, ", à vous de jouer !");
+        C->text = TTF_RenderText_Blended(C->fonts[SMALLTEXT], text, blackColor);
+        x = WINDOW_WIDTH - (500/2) - (C->text->w/2);  // On centre le texte dans la surface à droite du plateau
+        y = 100;
         Blit(C->text, C->screen, x, y);
 
         SDL_Flip(C->screen);  // Affichage de l'écran
