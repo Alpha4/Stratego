@@ -28,8 +28,8 @@ int isValidMove(SGameState *gameState, SMove move, EColor currentPlayer, SMove h
     int i1 = move.end.line;
     int j1 = move.end.col;
     // Nombre de cases de déplacement en horizontal et en vertical
-    int moveI = abs(i1 -i0);
-    int moveJ = abs(j1-j0);
+    int moveI = abs(i1 - i0);
+    int moveJ = abs(j1 - j0);
 
     // Lignes et colonnes hors du plateau
     if ((i0 < 0) || (i0 > 9) || (i1 < 0) || (i1 > 9)) return 0;
@@ -45,8 +45,9 @@ int isValidMove(SGameState *gameState, SMove move, EColor currentPlayer, SMove h
     if (moveI == moveJ) return 0;  // Déplacement diagonal ou surplace
     if (gameState->board[i0][j0].piece != EPscout)  // La pièce n'est pas un éclaireur
     {
-        if ((moveI == 1) && (moveJ != 0)) return 0;  // Déplacement vertical >= 2
-        if ((moveI != 0) && (moveJ == 1)) return 0;  // Déplacement horizontal >= 2
+        if ((moveI >= 2) || (moveJ >= 2)) return 0;  // Déplacement >= 2
+        if ((moveI == 1) && (moveJ != 0)) return 0;
+        if ((moveI == 0) && (moveJ != 1)) return 0;
     }
     else if ((moveI != 0) && (moveJ != 0)) return 0;  // La pièce est un éclaireur
 
