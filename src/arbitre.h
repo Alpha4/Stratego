@@ -17,4 +17,12 @@ Fonctions utilisées pour l'arbitrage du jeu
      */
     int isValidMove(SGameState *gameState, SMove move, EColor currentPlayer, SMove histMove[3]);
 
+    /**
+     * Renvoie le résulat d'une attaque
+     * @param  SBox       piece1        Pièce qui attaque
+     * @param  SBox       piece2        Pièce qui est attaquée
+     * @return int                      0 si destruction mutuelle, 1 si joueur attaquant gagne, 2 si joueur attaqué gagne
+     */
+    int attack(SBox piece1, SBox piece2);
+
 #endif
