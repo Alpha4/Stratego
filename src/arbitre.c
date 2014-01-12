@@ -19,7 +19,7 @@ Fonctions utilisées pour l'arbitrage du jeu
 
 int isValidMove(SGameState *gameState, SMove move, EColor currentPlayer, SMove histMove[3])
 {
-    int k = 0;
+    int k = 0, t;
 
     // Coordonnées case initiale
     int i0 = move.start.line;
@@ -49,7 +49,38 @@ int isValidMove(SGameState *gameState, SMove move, EColor currentPlayer, SMove h
         if ((moveI == 1) && (moveJ != 0)) return 0;
         if ((moveI == 0) && (moveJ != 1)) return 0;
     }
-    else if ((moveI != 0) && (moveJ != 0)) return 0;  // La pièce est un éclaireur
+    else  // La pièce est un éclaireur
+    {
+        if ((moveI != 0) && (moveJ != 0)) return 0;
+
+        /* On va véfifier que l'éclaireur ne saute pas par-dessus une pièce ou un lac */
+        if (moveI > 1)  // Déplacement vertical
+        {
+            for (t=1; t < moveI; t++)
+            {
+                if (i1 - i0 > 0)  // Déplacement vers le haut
+                {
+                    if (gameState->board[i0 + t][j0].content != ECnone) return 0;
+                }
+                else if (gameState->board[i0 - t][j0].content != ECnone) return 0;  // Déplacmenent vers le bas
+            }
+        }
+        else  // Déplacement horizontal
+        {
+            for (t=1; t < moveJ; t++)
+            {
+                if (j1 - j0 > 0)  // Déplacemnt vers la droite
+                {
+                    if (gameState->board[i0][j0 + t].content != ECnone) return 0;
+                }
+                else if (gameState->board[i0][j0 - t].content != ECnone) return 0;  // Déplacement vers la gauche
+            }
+        }
+    }
+    /* Fin de la partie pour l'éclaireur */
+
+
+    /* Vérification des allers-retours */
 
     if ((histMove[0].start.line == NULL) && (histMove[0].start.col == NULL))  // 1er coup du joueur
     {
