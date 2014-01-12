@@ -331,6 +331,10 @@ int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *mo
                         movement->end.col = j;
                         continuer = 0;
                     }
+                    else if (movement->start.line == i && movement->start.col == j)  // Il a recliqué sur la même pièce, on annule la sélection d'une pièce
+                    {
+                        gameStatus = 0;
+                    }
                 }
             }
         }
@@ -358,7 +362,7 @@ int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *mo
 
                 if (gameStatus == 1)
                 {
-                    if (!areValidCoords(movement->start, i, j, gameState, currentPlayer))
+                    if (!areValidCoords(movement->start, i, j, gameState, currentPlayer) && (movement->start.line != i || movement->start.col != j))
                     {
                         // On noircit la case à l'endroit où le joueur ne peut pas placer de pièces
                         Blit(noMansLand, C->screen, x, y);
