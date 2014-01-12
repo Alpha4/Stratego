@@ -115,3 +115,18 @@ int isValidMove(SGameState *gameState, SMove move, EColor currentPlayer, SMove h
 
     return 1;
 }
+
+int attack(SBox piece1, SBox piece2)
+{
+    if (piece2.piece == EPflag) return 1;  // Attaque sur le drapeau
+    if ((piece1.piece == EPspy) && (piece2.piece == EPmarshal)) return 1;  // Attaque de l'espion sur le maréchal
+    if (piece2.piece == EPbomb)  // Si la pièce attaquée est une bombe
+    {
+        if (piece1.piece == EPminer) return 1;  // Joueur 1 gagne si Pièce 1 est un démineur
+        else return 2;  // Joueur 2 gagne sinon
+    }
+
+    if (piece1.piece > piece2.piece) return 1;  // Pièce 1 plus forte que Pièce 2
+    if (piece1.piece < piece2.piece) return 2;  // Pièce 1 plus faible que Pièce 2
+    else return 0;  // Pièce 1 et Pièce 2 de meme valeur
+}
