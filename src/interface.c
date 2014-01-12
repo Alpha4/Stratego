@@ -319,7 +319,7 @@ int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *mo
                 }
                 else
                 {
-                    if ((gameState->board[i][j].content == ECnone || gameState->board[i][j].content == colorOpponent) && areValidCoords(movement->start, i, j, gameState))  // Il a bien cliqué sur une destination possible
+                    if ((gameState->board[i][j].content == ECnone || gameState->board[i][j].content == colorOpponent) && areValidCoords(movement->start, i, j, gameState, currentPlayer))  // Il a bien cliqué sur une destination possible
                     {
                         movement->end.line = i;
                         movement->end.col = j;
@@ -376,11 +376,65 @@ int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *mo
         return 0;
 }
 
-int areValidCoords(SPos origin, int i, int j, SGameState *gameState)
+int areValidCoords(SPos origin, int i1, int j1, SGameState *gameState, EColor currentPlayer)
 {
-    /**
-     * TODO : Vérifier si les coordonnées demandées sont possibles comme destination. Traiter le cas de l'éclaireur (EPscout) qui peut se déplacer/attaquer sur de longues distances
-     */
+     int t;
+
+    // Coordonnées case initiale
+    int i0 = origin.line;
+    int j0 = origin.col;
+    // Nombre de cases de déplacement en horizontal et en vertical
+    int moveI = abs(i1 - i0);
+    int moveJ = abs(j1 - j0);
+
+    // Lignes et colonnes hors du plateau
+    if ((i0 < 0) || (i0 > 9) || (i1 < 0) || (i1 > 9)) return 0;
+    if ((j0 < 0) || (j0 > 9) || (j1 < 0) || (j1 > 9)) return 0;
+
+    // La pièce sélectionnée n'est pas celle du joueur courant
+    if (gameState->board[i0][j0].content != currentPlayer) return 0;
+    // La pièce sélectionnée est une bombe ou le drapeau (pièce fixe)
+    if ((gameState->board[i0][j0].piece == EPbomb) || (gameState->board[i0][j0].piece == EPflag)) return 0;
+    // La case d'arrivé est un lac ou est occupée par une pièce du joueur courant
+    if ((gameState->board[i1][j1].content == currentPlayer) || (gameState->board[i1][j1].content == EClake)) return 0;
+
+    if (moveI == moveJ) return 0;  // Déplacement diagonal ou surplace
+    if (gameState->board[i0][j0].piece != EPscout)  // La pièce n'est pas un éclaireur
+    {
+        if ((moveI >= 2) || (moveJ >= 2)) return 0;  // Déplacement >= 2
+        if ((moveI == 1) && (moveJ != 0)) return 0;
+        if ((moveI == 0) && (moveJ != 1)) return 0;
+    }
+    else  // La pièce est un éclaireur
+    {
+        if ((moveI != 0) && (moveJ != 0)) return 0;
+
+        /* On va véfifier que l'éclaireur ne saute pas par-dessus une pièce ou un lac */
+        if (moveI > 1)  // Déplacement vertical
+        {
+            for (t=1; t < moveI; t++)
+            {
+                if (i1 - i0 > 0)  // Déplacement vers le haut
+                {
+                    if (gameState->board[i0 + t][j0].content != ECnone) return 0;
+                }
+                else if (gameState->board[i0 - t][j0].content != ECnone) return 0;  // Déplacmenent vers le bas
+            }
+        }
+        else  // Déplacement horizontal
+        {
+            for (t=1; t < moveJ; t++)
+            {
+                if (j1 - j0 > 0)  // Déplacemnt vers la droite
+                {
+                    if (gameState->board[i0][j0 + t].content != ECnone) return 0;
+                }
+                else if (gameState->board[i0][j0 - t].content != ECnone) return 0;  // Déplacement vers la gauche
+            }
+        }
+    }
+    /* Fin de la partie pour l'éclaireur */
+
     return 1;
 }
 
