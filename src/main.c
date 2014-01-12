@@ -143,14 +143,26 @@ int main(int argc, char *argv[])
         }
         else
         {
-            PlacePiece(&C, ECblue, blueSide);  // On lui demande de placer ses pièces
+            if (PlacePiece(&C, ECblue, blueSide) == -1)  // On lui demande de placer ses pièces
+            {
+                // L'utilisateur a quitté le jeu
+                return EXIT_SUCCESS;
+            }
         }
     }
     else  // Aucun joueur n'est une IA
     {
         // On demande à chaque joueur humain de placer ses pièces
-        PlacePiece(&C, ECred, redSide);
-        PlacePiece(&C, ECblue, blueSide);
+        if (PlacePiece(&C, ECred, redSide) == -1)
+        {
+            // L'utilisateur a quitté le jeu
+            return EXIT_SUCCESS;
+        }
+        if (PlacePiece(&C, ECblue, blueSide) == -1)
+        {
+            // L'utilisateur a quitté le jeu
+            return EXIT_SUCCESS;
+        }
     }
 
 
@@ -197,6 +209,13 @@ int main(int argc, char *argv[])
             gameState.board[i][9 - j].piece = blueSide[i][j];
             gameState.board[i][9 - j].content = ECblue;
         }
+    }
+
+    // Initialisation du nombre de pièces éliminées pour chaque joueur
+    for (i = 0 ; i < 11 ; i++)
+    {
+        gameState.redOut[i] = 0;
+        gameState.blueOut[i] = 0;
     }
 
     // Boucle qui attends que l'utilisateur ferme le programme pour s'arrêter
@@ -315,18 +334,18 @@ int main(int argc, char *argv[])
         }
 
         // Affichage du nom du jeu
-        C.text = TTF_RenderText_Blended(C.fonts[BIGTEXT], "Stratego", blackColor);
+        C.text = TTF_RenderUTF8_Blended(C.fonts[BIGTEXT], "Stratego", blackColor);
         x = WINDOW_WIDTH - (500/2) - (C.text->w/2);  // On centre le texte dans la surface à droite du plateau
         y = 5;
         Blit(C.text, C.screen, x, y);
 
         // Affichage des noms des joueurs (pour afficher en dessous le nombre de pièces perdues par le joueur)
-        C.text = TTF_RenderText_Blended(C.fonts[MEDIUMTEXT], p1Name, blackColor);
+        C.text = TTF_RenderUTF8_Blended(C.fonts[MEDIUMTEXT], p1Name, blackColor);
         x = WINDOW_WIDTH - 500 + 20;
         y = 70;
         Blit(C.text, C.screen, x, y);
 
-        C.text = TTF_RenderText_Blended(C.fonts[MEDIUMTEXT], p2Name, blackColor);
+        C.text = TTF_RenderUTF8_Blended(C.fonts[MEDIUMTEXT], p2Name, blackColor);
         x = WINDOW_WIDTH - 500 + 20;
         y = WINDOW_HEIGHT / 2;
         Blit(C.text, C.screen, x, y);

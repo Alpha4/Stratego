@@ -119,12 +119,25 @@ void LoadImages(Context *C)
     C->images[IMGRED][EPflag] = IMG_Load("images/flagRED.png");
     C->images[IMGBLUE][EPflag] = IMG_Load("images/flagBLUE.png");
 
+    C->imagesMini[EPbomb] = IMG_Load("images/mini/bomb.png");
+    C->imagesMini[EPspy] = IMG_Load("images/mini/spy.png");
+    C->imagesMini[EPscout] = IMG_Load("images/mini/scout.png");
+    C->imagesMini[EPminer] = IMG_Load("images/mini/miner.png");
+    C->imagesMini[EPsergeant] = IMG_Load("images/mini/sergeant.png");
+    C->imagesMini[EPlieutenant] = IMG_Load("images/mini/lieutenant.png");
+    C->imagesMini[EPcaptain] = IMG_Load("images/mini/captain.png");
+    C->imagesMini[EPmajor] = IMG_Load("images/mini/major.png");
+    C->imagesMini[EPcolonel] = IMG_Load("images/mini/colonel.png");
+    C->imagesMini[EPgeneral] = IMG_Load("images/mini/general.png");
+    C->imagesMini[EPmarshal] = IMG_Load("images/mini/marshal.png");
+    C->imagesMini[EPflag] = IMG_Load("images/mini/flag.png");
+
     C->board = SDL_LoadBMP("images/plateau.bmp");
 }
 
 void LoadFonts(Context *C)
 {
-    C->fonts[SMALLTEXT] = TTF_OpenFont("DejaVuSans.ttf", 14);
+    C->fonts[SMALLTEXT] = TTF_OpenFont("DejaVuSans.ttf", 18);
     C->fonts[MEDIUMTEXT] = TTF_OpenFont("DejaVuSans.ttf", 24);
     C->fonts[BIGTEXT] = TTF_OpenFont("DejaVuSans.ttf", 56);
 }
@@ -156,7 +169,31 @@ int Blit(SDL_Surface *src, SDL_Surface *dst, int x, int y)
     return SDL_BlitSurface(src, NULL, dst, &R);
 }
 
-void PlacePiece(Context *C, EColor color, EPiece side[4][10])
+int blitText(SDL_Surface *dst, int x, int y, int centerX, int centerY, char* text, TTF_Font *font, SDL_Color color)
+{
+    SDL_Surface *T;
+
+    T = TTF_RenderUTF8_Blended(font, text, color);
+
+    // On centre le texte si demandé
+    if (centerX)
+        x = x - T->w/2;
+    if (centerY)
+        y = y - T->h/2;
+
+    if (Blit(T, dst, x, y))
+    {
+        SDL_FreeSurface(T);
+        return 0;
+    }
+    else
+    {
+        SDL_FreeSurface(T);
+        return -1;
+    }
+}
+
+int PlacePiece(Context *C, EColor color, EPiece side[4][10])
 {
     int continuer = 1;
     int i, j;
@@ -243,23 +280,19 @@ void PlacePiece(Context *C, EColor color, EPiece side[4][10])
             }
         }
 
-        // Affichage du nom du jeu
-        C->text = TTF_RenderText_Blended(C->fonts[BIGTEXT], "Stratego", blackColor);
-        x = WINDOW_WIDTH - (500/2) - (C->text->w/2);  // On centre le texte dans la surface à droite du plateau
-        y = 5;
-        Blit(C->text, C->screen, x, y);
+        displayInfo(C, NULL, color);
 
         // Affichage de la pièce à placer
-        C->text = TTF_RenderText_Blended(C->fonts[MEDIUMTEXT], getNamePiece(currentPiece), blackColor);
+        C->text = TTF_RenderUTF8_Blended(C->fonts[MEDIUMTEXT], getNamePiece(currentPiece), blackColor);
         x = WINDOW_WIDTH - (500/2) - (C->text->w/2);  // On centre le texte dans la surface à droite du plateau
         y = 150;
         Blit(C->text, C->screen, x, y);
 
         // Affichage de la couleur du joueur
         if (color == ECred)
-            C->text = TTF_RenderText_Blended(C->fonts[MEDIUMTEXT], "Joueur Rouge : ", blackColor);
+            C->text = TTF_RenderUTF8_Blended(C->fonts[MEDIUMTEXT], "Joueur Rouge : ", blackColor);
         else
-            C->text = TTF_RenderText_Blended(C->fonts[MEDIUMTEXT], "Joueur Bleu : ", blackColor);
+            C->text = TTF_RenderUTF8_Blended(C->fonts[MEDIUMTEXT], "Joueur Bleu : ", blackColor);
         x = WINDOW_WIDTH - (500/2) - (C->text->w/2);  // On centre le texte dans la surface à droite du plateau
         y = 100;
         Blit(C->text, C->screen, x, y);
@@ -271,6 +304,11 @@ void PlacePiece(Context *C, EColor color, EPiece side[4][10])
     }
 
     SDL_FreeSurface(noMansLand);
+
+    if (in.quit)
+        return -1;
+    else
+        return 0;
 }
 
 int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *movement, char name[50])
@@ -371,15 +409,11 @@ int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *mo
             }
         }
 
-        // Affichage du nom du jeu
-        C->text = TTF_RenderText_Blended(C->fonts[BIGTEXT], "Stratego", blackColor);
-        x = WINDOW_WIDTH - (500/2) - (C->text->w/2);  // On centre le texte dans la surface à droite du plateau
-        y = 5;
-        Blit(C->text, C->screen, x, y);
+        displayInfo(C, gameState, currentPlayer);
 
         // Affichage du nom du joueur qui doit jouer
         sprintf(&text, name, ", à vous de jouer !");
-        C->text = TTF_RenderText_Blended(C->fonts[SMALLTEXT], text, blackColor);
+        C->text = TTF_RenderUTF8_Blended(C->fonts[SMALLTEXT], text, blackColor);
         x = WINDOW_WIDTH - (500/2) - (C->text->w/2);  // On centre le texte dans la surface à droite du plateau
         y = 100;
         Blit(C->text, C->screen, x, y);
@@ -388,6 +422,8 @@ int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *mo
 
         SDL_Delay(30);  // Attente de 30ms entre chaque tour de boucle pour en pas surcharger le CPU
     }
+
+    SDL_FreeSurface(noMansLand);
 
     if (in.quit)
         return -1;
@@ -455,6 +491,31 @@ int areValidCoords(SPos origin, int i1, int j1, SGameState *gameState, EColor cu
     /* Fin de la partie pour l'éclaireur */
 
     return 1;
+}
+
+void displayInfo(Context *C, SGameState *gameState, EColor currentPlayer)
+{
+    int i, x = SQUARE_SIZE * SQUARES_BY_SIDE + 20, y = 270;
+    char out[2];
+
+    // Affichage du nom du jeu
+    blitText(C->screen, WINDOW_WIDTH - (500/2), 5, 1, 0, "Stratego", C->fonts[BIGTEXT], (SDL_Color) {0, 0, 0});
+    blitText(C->screen, SQUARE_SIZE * SQUARES_BY_SIDE + 20, 200, 0, 0, "Pièces éliminées", C->fonts[MEDIUMTEXT], (SDL_Color) {0, 0, 0});
+
+    if (gameState != NULL)
+    {
+        fprintf(stderr, "blabla\n");fflush(stderr);
+        for (i = 0 ; i < 11 ; i++)
+        {
+            Blit(C->imagesMini[i], C->screen, x, y);
+            sprintf(&out, "%d", gameState->redOut[i]);
+            blitText(C->screen, x + 40, y, 0, 0, out, C->fonts[SMALLTEXT], (SDL_Color) {255, 0, 0});
+            sprintf(&out, "%d", gameState->blueOut[i]);
+            blitText(C->screen, x + 80, y, 0, 0, out, C->fonts[SMALLTEXT], (SDL_Color) {0, 0, 255});
+
+            y += 30;
+        }
+    }
 }
 
 char* getNamePiece(EPiece piece)

@@ -32,6 +32,7 @@ Contient également les constantes nécessaires
         SDL_Surface *board;  // Surface du plateau de jeu
         SDL_Surface *text;
         SDL_Surface *images[2][12];  // Tableau de pointeurs vers les surfaces de chaque image du jeu
+        SDL_Surface *imagesMini[12];  // Tableau de pointeurs vers les surfaces de chaque image du jeu en mini
         TTF_Font *fonts[3];  // Tableau contenant les 3 tailles de texte que l'on va utiliser
     } Context;
 
@@ -86,6 +87,20 @@ Contient également les constantes nécessaires
     int Blit(SDL_Surface *src, SDL_Surface *dst, int x, int y);
 
     /**
+     * Affiche un texte à l'écran
+     * @param  SDL_Surface *dst    Surface sur laquelle afficher
+     * @param  int         x       Position x
+     * @param  int         y       Position y
+     * @param  int         centerX 1 si le texte doit être centré sur la coordonnée x
+     * @param  int         centerY 1 si le texte doit être centré sur la coordonnée y
+     * @param  char*       text    Texte à afficher
+     * @param  TTF_Font    *font   Police dans laquelle afficher le texte
+     * @param  SDL_Color   color   Couleur du texte
+     * @return int                 0 si erreur, -1 sinon
+     */
+    int blitText(SDL_Surface *dst, int x, int y, int centerX, int centerY, char* text, TTF_Font *font, SDL_Color color);
+
+    /**
      * Libère les ressources utilisées
      * @param Context *C Le contexte de l'affichage du jeu
      */
@@ -93,11 +108,12 @@ Contient également les constantes nécessaires
 
     /**
      * Demande à un joueur humain de placer ses pièces une par une
-     * @param Context *C          Le contexte de l'affichage du jeu
-     * @param Ecolor  color       La couleur du joueur
-     * @param EPiece  side[4][10] La partie du plateau de jeu sur laquelle le joueur place ses pièces
+     * @param  Context *C          Le contexte de l'affichage du jeu
+     * @param  Ecolor  color       La couleur du joueur
+     * @param  EPiece  side[4][10] La partie du plateau de jeu sur laquelle le joueur place ses pièces
+     * @return int                 1 si coordonnées valide, 0 sinon
      */
-    void PlacePiece(Context *C, EColor color, EPiece side[4][10]);
+    int PlacePiece(Context *C, EColor color, EPiece side[4][10]);
 
     /**
      * Permet à un joueur humain de déplacer une pièce
@@ -120,6 +136,14 @@ Contient également les constantes nécessaires
      * @return int                   1 si coordonnées valide, 0 sinon
      */
     int areValidCoords(SPos origin, int i1, int j1, SGameState *gameState, EColor currentPlayer);
+
+    /**
+     * Affiche les infos à droite du plateau
+     * @param Context    *C             Le contexte de l'affichage du jeu
+     * @param SGameState *gameState     L'état du jeu
+     * @param EColor     currentPlayer  Le joueur qui doit jouer
+     */
+    void displayInfo(Context *C, SGameState *gameState, EColor currentPlayer);
 
     /**
      * Permet de connaitre le nom d'une pièce en fonction de son type, pour l'affichage
