@@ -35,7 +35,8 @@ int main(int argc, char *argv[])
 
     int nbHumanPlayers;
 
-    SMove histMove[2][3] = {0};  // Les trois derniers mouvement du joueur de chaque joueur
+    SMove histMove[2][3];  // Les trois derniers mouvement du joueur de chaque joueur
+    memset(histMove, 0, sizeof(histMove));  // On met à 0 le contenu de chaque case de histMove
     int penalty[2];  // Le nombre de pénalité pour chaque joueur
     EColor player1 = ECred, player2 = ECblue;
 
@@ -165,6 +166,20 @@ int main(int argc, char *argv[])
             gameState.board[i][j].content = ECnone;
         }
     }
+
+    // Placement des lacs (ligne 4 et 5, colonnes 2, 3, 6 et 7)
+    for (i = 4 ; i <= 5 ; i++)
+    {
+        for (j = 2 ; j <= 7 ; j++)
+        {
+            if (j != 4 && j != 5)
+            {
+                gameState.board[j][j].piece = EPnone;
+                gameState.board[i][j].content = EClake;
+            }
+        }
+    }
+
 
     for (i = 0 ; i < 4 ; i++)
     {

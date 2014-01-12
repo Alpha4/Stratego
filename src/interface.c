@@ -290,6 +290,12 @@ int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *mo
 
     SDL_Color blackColor = {0, 0, 0};  // Couleur noire pour le texte
 
+    // Surface qui noircit les cases du plateau où une la pièce sélectionnée ne peut se déplacer
+    SDL_Surface *noMansLand;
+    noMansLand = SDL_CreateRGBSurface(SDL_HWSURFACE, SQUARE_SIZE, SQUARE_SIZE, 32, 0, 0, 0, 0);
+    SDL_FillRect(noMansLand, NULL, SDL_MapRGB(C->screen->format, 0, 0, 0));
+    SDL_SetAlpha(noMansLand, SDL_SRCALPHA, 192);
+
     if (currentPlayer == ECred)
         colorOpponent = ECblue;
     else
@@ -310,7 +316,7 @@ int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *mo
             {
                 if (gameStatus == 0)
                 {
-                    if (gameState->board[i][j].content == currentPlayer)  // Il a bien cliqué sur une de ses pièces
+                    if (gameState->board[i][j].content == currentPlayer && gameState->board[i][j].piece != EPbomb && gameState->board[i][j].piece != EPflag)  // Il a bien cliqué sur une de ses pièces, autre que le drapeau ou une bomb
                     {
                         movement->start.line = i;
                         movement->start.col = j;
@@ -348,6 +354,15 @@ int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *mo
                         Blit(C->images[IMGRED][gameState->board[i][j].piece], C->screen, x, y);
                     else
                         Blit(C->images[IMGBLUE][gameState->board[i][j].piece], C->screen, x, y);
+                }
+
+                if (gameStatus == 1)
+                {
+                    if (!areValidCoords(movement->start, i, j, gameState, currentPlayer))
+                    {
+                        // On noircit la case à l'endroit où le joueur ne peut pas placer de pièces
+                        Blit(noMansLand, C->screen, x, y);
+                    }
                 }
             }
         }
