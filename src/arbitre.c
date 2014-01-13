@@ -82,15 +82,15 @@ int isValidMove(SGameState *gameState, SMove move, EColor currentPlayer, SMove h
 
     /* Vérification des allers-retours */
 
-    if ((histMove[0].start.line == NULL) && (histMove[0].start.col == NULL))  // 1er coup du joueur
+    if ((histMove[0].start.line == -1) && (histMove[0].start.col == -1))  // 1er coup du joueur
     {
         histMove[0] = move;
     }
     else
     {
-        if (histMove[2].start.line == NULL)  // 2eme ou 3eme coup du joueur
+        if (histMove[2].start.line == -1)  // 2eme ou 3eme coup du joueur
         {
-            while (histMove[k].start.line != NULL) k++;
+            while (histMove[k].start.line != -1) k++;
             histMove[k] = move;
         }
         else  // 4eme coup et +, on vérifie la possibilité des allers-retours
@@ -116,17 +116,16 @@ int isValidMove(SGameState *gameState, SMove move, EColor currentPlayer, SMove h
     return 1;
 }
 
-int attack(SBox piece1, SBox piece2)
+int attack(EPiece piece1, EPiece piece2)
 {
-    if (piece2.piece == EPflag) return 1;  // Attaque sur le drapeau
-    if ((piece1.piece == EPspy) && (piece2.piece == EPmarshal)) return 1;  // Attaque de l'espion sur le maréchal
-    if (piece2.piece == EPbomb)  // Si la pièce attaquée est une bombe
+    if (piece2 == EPflag) return 1;  // Attaque sur le drapeau
+    if ((piece1 == EPspy) && (piece2 == EPmarshal)) return 1;  // Attaque de l'espion sur le maréchal
+    if (piece2 == EPbomb)  // Si la pièce attaquée est une bombe
     {
-        if (piece1.piece == EPminer) return 1;  // Joueur 1 gagne si Pièce 1 est un démineur
+        if (piece1 == EPminer) return 1;  // Joueur 1 gagne si Pièce 1 est un démineur
         else return 2;  // Joueur 2 gagne sinon
     }
 
-    if (piece1.piece > piece2.piece) return 1;  // Pièce 1 plus forte que Pièce 2
-    if (piece1.piece < piece2.piece) return 2;  // Pièce 1 plus faible que Pièce 2
-    else return 0;  // Pièce 1 et Pièce 2 de meme valeur
+    if (piece1 < piece2) return 2;  // Pièce 1 plus faible que Pièce 2
+    return (piece1 > piece2);  // 1 si pièce 1 plus forte que pièce 2, 0 sinon
 }

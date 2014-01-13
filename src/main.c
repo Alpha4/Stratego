@@ -36,7 +36,8 @@ int main(int argc, char *argv[])
     int nbHumanPlayers;
 
     SMove histMove[2][3];  // Les trois derniers mouvement du joueur de chaque joueur
-    memset(histMove, 0, sizeof(histMove));  // On met à 0 le contenu de chaque case de histMove
+    memset(histMove, -1, sizeof(histMove));  // On met à 0 le contenu de chaque case de histMove
+
     int penalty[2];  // Le nombre de pénalité pour chaque joueur
     EColor player1 = ECred, player2 = ECblue;
 
@@ -45,6 +46,14 @@ int main(int argc, char *argv[])
     EPiece redSide[4][10], blueSide[4][10];  // Tableau de placement initial des pièce par les joueurs
 
     SMove movement;
+
+    int nbMaxMove = atoi(argv[1]);
+
+    if (nbMaxMove < 1)
+    {
+        fprintf(stderr, "Erreur : nombre maximum de coups incorrect\n");  // Écriture de l'erreur
+        return EXIT_FAILURE;
+    }
 
 
     /**
@@ -80,6 +89,11 @@ int main(int argc, char *argv[])
 
     nbHumanPlayers = 2 - atoi(argv[2]);  // On stocke le nombre de joueurs humains
 
+    if (nbHumanPlayers < 0 || nbHumanPlayers > 2)
+    {
+        fprintf(stderr, "Erreur : nombre d'IA incorrect\n");  // Écriture de l'erreur
+        return EXIT_FAILURE;
+    }
     if (nbHumanPlayers == 1)  // 1 joueur humain
     {
         if (argc < 4)  // Si le chemin vers la lib n'est pas fourni
@@ -255,12 +269,6 @@ int main(int argc, char *argv[])
         {
             if (gameState.board[movement.end.line][movement.end.col].piece != EPnone)  // Il y a une pièce sur la case où le joueur se déplace, c'est donc une attaque
             {
-                // On augmente le nombre de pièces éliminées du joueur attaqué
-                if (currentPlayer == ECred)
-                    gameState.redOut[gameState.board[movement.end.line][movement.end.col].piece]++;
-                else
-                    gameState.blueOut[gameState.board[movement.end.line][movement.end.col].piece]++;
-
                 // On envoie l'info aux IA si nécessaire
                 if (nbHumanPlayers == 1)  // Le joueur 1 est une IA
                 {
@@ -277,15 +285,23 @@ int main(int argc, char *argv[])
                             ai2.AttackResult(movement.end, gameState.board[movement.end.line][movement.end.col].piece, movement.start, gameState.board[movement.start.line][movement.start.col].piece);
                     }
                 }
-            }
 
-            /**
-             * TODO : Vérifier qui gagne une attaque !
-             */
-            gameState.board[movement.end.line][movement.end.col].piece = gameState.board[movement.start.line][movement.start.col].piece;
-            gameState.board[movement.end.line][movement.end.col].content = gameState.board[movement.start.line][movement.start.col].content;
-            gameState.board[movement.start.line][movement.start.col].content = ECnone;
-            gameState.board[movement.start.line][movement.start.col].piece = EPnone;
+                // ICI on appelle attack()
+                // 3 conditions
+                // On augmente le nombre de pièces éliminées du joueur attaqué
+                if (currentPlayer == ECred)
+                    gameState.redOut[gameState.board[movement.end.line][movement.end.col].piece]++;
+                else
+                    gameState.blueOut[gameState.board[movement.end.line][movement.end.col].piece]++;
+
+            }
+            else
+            {
+                gameState.board[movement.end.line][movement.end.col].piece = gameState.board[movement.start.line][movement.start.col].piece;
+                gameState.board[movement.end.line][movement.end.col].content = gameState.board[movement.start.line][movement.start.col].content;
+                gameState.board[movement.start.line][movement.start.col].content = ECnone;
+                gameState.board[movement.start.line][movement.start.col].piece = EPnone;
+            }
         }
         else
         {

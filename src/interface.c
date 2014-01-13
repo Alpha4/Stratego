@@ -151,6 +151,8 @@ void FreeAll(Context *C)
         for (j = 0 ; j < 12 ; j++)
         {
             SDL_FreeSurface(C->images[i][j]);
+            if (j != 12)
+                SDL_FreeSurface(C->imagesMini[j]);
         }
     }
 
@@ -500,18 +502,18 @@ void displayInfo(Context *C, SGameState *gameState, EColor currentPlayer)
 
     // Affichage du nom du jeu
     blitText(C->screen, WINDOW_WIDTH - (500/2), 5, 1, 0, "Stratego", C->fonts[BIGTEXT], (SDL_Color) {0, 0, 0});
-    blitText(C->screen, SQUARE_SIZE * SQUARES_BY_SIDE + 20, 200, 0, 0, "Pièces éliminées", C->fonts[MEDIUMTEXT], (SDL_Color) {0, 0, 0});
 
     if (gameState != NULL)
     {
-        fprintf(stderr, "blabla\n");fflush(stderr);
+        blitText(C->screen, SQUARE_SIZE * SQUARES_BY_SIDE + 20, 200, 0, 0, "Pièces éliminées", C->fonts[MEDIUMTEXT], (SDL_Color) {0, 0, 0});
+
         for (i = 0 ; i < 11 ; i++)
         {
             Blit(C->imagesMini[i], C->screen, x, y);
             sprintf(&out, "%d", gameState->redOut[i]);
-            blitText(C->screen, x + 40, y, 0, 0, out, C->fonts[SMALLTEXT], (SDL_Color) {255, 0, 0});
+            blitText(C->screen, x + 55, y + 15, 0, 1, out, C->fonts[SMALLTEXT], (SDL_Color) {255, 0, 0});
             sprintf(&out, "%d", gameState->blueOut[i]);
-            blitText(C->screen, x + 80, y, 0, 0, out, C->fonts[SMALLTEXT], (SDL_Color) {0, 0, 255});
+            blitText(C->screen, x + 95, y + 15, 0, 1, out, C->fonts[SMALLTEXT], (SDL_Color) {0, 0, 255});
 
             y += 30;
         }
