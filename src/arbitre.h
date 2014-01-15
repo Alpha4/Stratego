@@ -23,6 +23,8 @@ Fonctions utilisées pour l'arbitrage du jeu
      * @param  EPiece piece2 Pièce qui est attaquée
      * @return int           0 si destruction mutuelle, 1 si joueur attaquant gagne, 2 si joueur attaqué gagne
      */
-    int attack(EPiece piece1, EPiece piece2);
+    int Attack(EPiece piece1, EPiece piece2);
+
+    void manageBoard(SGameState *gameState, SGameState *result, EColor currentPlayer);
 
 #endif

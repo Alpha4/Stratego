@@ -8,6 +8,7 @@ Programme principal (main), qui gère l'interface, l'arbitre et fait appel aux l
 #include <string.h>
 #include <stdlib.h>
 #include <dlfcn.h>
+#include <time.h>
 #include <SDL/SDL.h>
 #include <SDL/SDL_image.h>
 #include <SDL/SDL_ttf.h>
@@ -32,6 +33,7 @@ int main(int argc, char *argv[])
      */
 
     SGameState gameState;  // Le jeu (plateau + pièces éliminées)
+    SGameState gameStateCopy;  // Le jeu (plateau + pièces éliminées)
 
     int nbHumanPlayers;
 
@@ -42,14 +44,14 @@ int main(int argc, char *argv[])
     EColor player1 = ECred, player2 = ECblue;
 
     EColor currentPlayer = ECred;  // Joueur qui est en train de jouer (ECred ou ECblue)
-    char p1Name[50] = "Joueur 1", p2Name[50] = "Joueur 2";  // Noms des joueurs
-    EPiece redSide[4][10], blueSide[4][10];  // Tableau de placement initial des pièce par les joueurs
+    char p1Name[50], p2Name[50];  // Noms des joueurs
+    EPiece p1Side[4][10], p2Side[4][10];  // Tableau de placement initial des pièce par les joueurs
 
     SMove movement;
 
-    int nbMaxMove = atoi(argv[1]);
+    int nbMoveLeft = atoi(argv[1]);
 
-    if (nbMaxMove < 1)
+    if (nbMoveLeft < 1)
     {
         fprintf(stderr, "Erreur : nombre maximum de coups incorrect\n");  // Écriture de l'erreur
         return EXIT_FAILURE;
@@ -67,6 +69,7 @@ int main(int argc, char *argv[])
 
     int i, j;
     int x, y;
+    int result;
 
     SDL_Color blackColor = {0, 0, 0};  // Couleur noire pour le texte
 
@@ -75,6 +78,25 @@ int main(int argc, char *argv[])
      */
 
     AI ai1, ai2;
+
+    /**
+     * Randomisation de la couleur des joueurs
+     */
+
+    srand(time(NULL));
+    player1 = (rand() % 2) + 2;
+    if (player1 == ECblue)
+    {
+        player2 = ECred;
+        strcpy(p1Name, "Bleus");
+        strcpy(p2Name, "Rouges");
+    }
+    else
+    {
+        player2 = ECblue;
+        strcpy(p1Name, "Rouges");
+        strcpy(p2Name, "Bleus");
+    }
 
     /**
      * Chargement des lib si besoin
@@ -142,22 +164,17 @@ int main(int argc, char *argv[])
         }
     }
 
-    /**
-     * Placement des pièces par les joueurs
-     * TODO : random red/blue
-     */
-
     if (nbHumanPlayers == 1)  // Le joueur 1 est une IA
     {
-        ai1.StartGame(ECred, redSide);  // On lui demande de placer ses pièces
+        ai1.StartGame(player1, p1Side);  // On lui demande de placer ses pièces
 
         if (nbHumanPlayers == 0)  // Le joueur 2 est aussi une IA
         {
-            ai2.StartGame(ECblue, blueSide);  // On lui demande de placer ses pièces
+            ai2.StartGame(player2, p2Side);  // On lui demande de placer ses pièces
         }
         else
         {
-            if (PlacePiece(&C, ECblue, blueSide) == -1)  // On lui demande de placer ses pièces
+            if (PlacePiece(&C, player2, p2Side) == -1)  // On lui demande de placer ses pièces
             {
                 // L'utilisateur a quitté le jeu
                 return EXIT_SUCCESS;
@@ -167,12 +184,12 @@ int main(int argc, char *argv[])
     else  // Aucun joueur n'est une IA
     {
         // On demande à chaque joueur humain de placer ses pièces
-        if (PlacePiece(&C, ECred, redSide) == -1)
+        if (PlacePiece(&C, player1, p1Side) == -1)
         {
             // L'utilisateur a quitté le jeu
             return EXIT_SUCCESS;
         }
-        if (PlacePiece(&C, ECblue, blueSide) == -1)
+        if (PlacePiece(&C, player2, p2Side) == -1)
         {
             // L'utilisateur a quitté le jeu
             return EXIT_SUCCESS;
@@ -207,21 +224,44 @@ int main(int argc, char *argv[])
     }
 
 
-    for (i = 0 ; i < 4 ; i++)
+    if (player1 == ECred)
     {
-        for (j = 0 ; j < SQUARES_BY_SIDE ; j++)
+        for (i = 0 ; i < 4 ; i++)
         {
-            gameState.board[9 - i][j].piece = redSide[i][j];
-            gameState.board[9 - i][j].content = ECred;
+            for (j = 0 ; j < SQUARES_BY_SIDE ; j++)
+            {
+                gameState.board[9 - i][j].piece = p1Side[i][j];
+                gameState.board[9 - i][j].content = player1;
+            }
+        }
+
+        for (i = 0 ; i < 4 ; i++)
+        {
+            for (j = 0 ; j < SQUARES_BY_SIDE ; j++)
+            {
+                gameState.board[i][9 - j].piece = p2Side[i][j];
+                gameState.board[i][9 - j].content = player2;
+            }
         }
     }
-
-    for (i = 0 ; i < 4 ; i++)
+    else
     {
-        for (j = 0 ; j < SQUARES_BY_SIDE ; j++)
+        for (i = 0 ; i < 4 ; i++)
         {
-            gameState.board[i][9 - j].piece = blueSide[i][j];
-            gameState.board[i][9 - j].content = ECblue;
+            for (j = 0 ; j < SQUARES_BY_SIDE ; j++)
+            {
+                gameState.board[9 - i][j].piece = p2Side[i][j];
+                gameState.board[9 - i][j].content = player2;
+            }
+        }
+
+        for (i = 0 ; i < 4 ; i++)
+        {
+            for (j = 0 ; j < SQUARES_BY_SIDE ; j++)
+            {
+                gameState.board[i][9 - j].piece = p1Side[i][j];
+                gameState.board[i][9 - j].content = player1;
+            }
         }
     }
 
@@ -237,13 +277,15 @@ int main(int argc, char *argv[])
     {
         UpdateEvents(&in);
 
+        manageBoard(&gameState, &gameStateCopy, currentPlayer);
+
         if (currentPlayer == player1)  // Le joueur 1 doit jouer
         {
             if (nbHumanPlayers == 1)  // Le joueur 1 est une IA
-                movement = ai1.NextMove(&gameState);
+                movement = ai1.NextMove(&gameStateCopy);
             else  // Le joueur 1 est un humain
             {
-                if (movePiece(&C, currentPlayer, &gameState, &movement, p1Name) == -1)
+                if (movePiece(&C, currentPlayer, &gameStateCopy, &movement, p1Name) == -1)
                 {
                     // L'utilisateur a quitté le jeu
                     return EXIT_SUCCESS;
@@ -253,16 +295,29 @@ int main(int argc, char *argv[])
         else  // Le joueur 2 doit jouer
         {
             if (nbHumanPlayers == 0)  // Le joueur 2 est une IA
-                movement = ai2.NextMove(&gameState);
+                movement = ai2.NextMove(&gameStateCopy);
             else  // Le joueur 2 est un humain
             {
-                if (movePiece(&C, currentPlayer, &gameState, &movement, p2Name) == -1)
+                if (movePiece(&C, currentPlayer, &gameStateCopy, &movement, p2Name) == -1)
                 {
                     // L'utilisateur a quitté le jeu
                     return EXIT_SUCCESS;
                 }
             }
+
+            // On diminue le nombre de coups restant
+            nbMoveLeft--;
         }
+
+        // Si c'est le joueur bleu qui joue, il voit le plateau à l'envers, donc on doit retourner le mouvement
+        if (currentPlayer == ECblue)
+        {
+            movement.start.line = 9 - movement.start.line;
+            movement.start.col = 9 - movement.start.col;
+            movement.end.line = 9 - movement.end.line;
+            movement.end.col = 9 - movement.end.col;
+        }
+
 
         // Si le déplacement est valide, on l'effectue
         if (isValidMove(&gameState, movement, currentPlayer, histMove[currentPlayer - 2]))
@@ -286,14 +341,40 @@ int main(int argc, char *argv[])
                     }
                 }
 
-                // ICI on appelle attack()
-                // 3 conditions
-                // On augmente le nombre de pièces éliminées du joueur attaqué
-                if (currentPlayer == ECred)
-                    gameState.redOut[gameState.board[movement.end.line][movement.end.col].piece]++;
-                else
-                    gameState.blueOut[gameState.board[movement.end.line][movement.end.col].piece]++;
+                result = Attack(gameState.board[movement.start.line][movement.start.col].piece, gameState.board[movement.end.line][movement.end.col].piece);
 
+                switch(result)
+                {
+                    case 0:  // On supprime les deux pièces (elles s'entretuent)
+                        // On augmente le nombre de pièces éliminées pour chaque joueur (ils perdent tous les deux la même pièce)
+                        gameState.redOut[gameState.board[movement.end.line][movement.end.col].piece]++;
+                        gameState.blueOut[gameState.board[movement.end.line][movement.end.col].piece]++;
+                        gameState.board[movement.start.line][movement.start.col].content = ECnone;
+                        gameState.board[movement.start.line][movement.start.col].piece = EPnone;
+                        gameState.board[movement.end.line][movement.end.col].content = ECnone;
+                        gameState.board[movement.end.line][movement.end.col].piece = EPnone;
+                        break;
+
+                    case 1:  // L'attaquant gagne
+                        if (currentPlayer == ECred)
+                            gameState.blueOut[gameState.board[movement.end.line][movement.end.col].piece]++;
+                        else
+                            gameState.redOut[gameState.board[movement.end.line][movement.end.col].piece]++;
+                        gameState.board[movement.end.line][movement.end.col].piece = gameState.board[movement.start.line][movement.start.col].piece;
+                        gameState.board[movement.end.line][movement.end.col].content = gameState.board[movement.start.line][movement.start.col].content;
+                        gameState.board[movement.start.line][movement.start.col].content = ECnone;
+                        gameState.board[movement.start.line][movement.start.col].piece = EPnone;
+                        break;
+
+                    case 2:  // L'attaquant perd
+                        if (currentPlayer == ECred)
+                            gameState.redOut[gameState.board[movement.start.line][movement.start.col].piece]++;
+                        else
+                            gameState.blueOut[gameState.board[movement.start.line][movement.start.col].piece]++;
+                        gameState.board[movement.start.line][movement.start.col].content = ECnone;
+                        gameState.board[movement.start.line][movement.start.col].piece = EPnone;
+                        break;
+                }
             }
             else
             {

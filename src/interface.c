@@ -132,6 +132,9 @@ void LoadImages(Context *C)
     C->imagesMini[EPmarshal] = IMG_Load("images/mini/marshal.png");
     C->imagesMini[EPflag] = IMG_Load("images/mini/flag.png");
 
+    C->mystery[IMGRED] = IMG_Load("images/mini/flag.png");
+    C->mystery[IMGBLUE] = IMG_Load("images/mini/flag.png");
+
     C->board = SDL_LoadBMP("images/plateau.bmp");
 }
 
@@ -155,6 +158,9 @@ void FreeAll(Context *C)
                 SDL_FreeSurface(C->imagesMini[j]);
         }
     }
+
+    SDL_FreeSurface(C->mystery[IMGRED]);
+    SDL_FreeSurface(C->mystery[IMGRED]);
 
     for (i = 0 ; i < 3 ; i++)
         TTF_CloseFont(C->fonts[i]);
@@ -282,7 +288,7 @@ int PlacePiece(Context *C, EColor color, EPiece side[4][10])
             }
         }
 
-        displayInfo(C, NULL, color);
+        DisplayInfo(C, NULL, color);
 
         // Affichage de la pièce à placer
         C->text = TTF_RenderUTF8_Blended(C->fonts[MEDIUMTEXT], getNamePiece(currentPiece), blackColor);
@@ -392,12 +398,12 @@ int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *mo
                 x = j * SQUARE_SIZE;
                 y = i * SQUARE_SIZE;
 
-                if (gameState->board[i][j].piece != EPnone)
+                if (gameState->board[i][j].content != ECnone && gameState->board[i][j].content != EClake)
                 {
-                    if (gameState->board[i][j].content == ECred)
-                        Blit(C->images[IMGRED][gameState->board[i][j].piece], C->screen, x, y);
+                    if (gameState->board[i][j].content == currentPlayer)
+                        Blit(C->images[currentPlayer - 2][gameState->board[i][j].piece], C->screen, x, y);
                     else
-                        Blit(C->images[IMGBLUE][gameState->board[i][j].piece], C->screen, x, y);
+                        Blit(C->mystery[((currentPlayer - 1) % 2)], C->screen, x, y);
                 }
 
                 if (gameStatus == 1)
@@ -411,14 +417,11 @@ int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *mo
             }
         }
 
-        displayInfo(C, gameState, currentPlayer);
+        DisplayInfo(C, gameState, currentPlayer);
 
         // Affichage du nom du joueur qui doit jouer
-        sprintf(&text, name, ", à vous de jouer !");
-        C->text = TTF_RenderUTF8_Blended(C->fonts[SMALLTEXT], text, blackColor);
-        x = WINDOW_WIDTH - (500/2) - (C->text->w/2);  // On centre le texte dans la surface à droite du plateau
-        y = 100;
-        Blit(C->text, C->screen, x, y);
+        sprintf(&text, "%s, à vous de jouer !", name);
+        blitText(C->screen, WINDOW_WIDTH - (500/2), 100, 1, 0, text, C->fonts[MEDIUMTEXT], (SDL_Color) {0, 0, 0});
 
         SDL_Flip(C->screen);  // Affichage de l'écran
 
@@ -495,7 +498,7 @@ int areValidCoords(SPos origin, int i1, int j1, SGameState *gameState, EColor cu
     return 1;
 }
 
-void displayInfo(Context *C, SGameState *gameState, EColor currentPlayer)
+void DisplayInfo(Context *C, SGameState *gameState, EColor currentPlayer)
 {
     int i, x = SQUARE_SIZE * SQUARES_BY_SIDE + 20, y = 270;
     char out[2];

@@ -116,7 +116,7 @@ int isValidMove(SGameState *gameState, SMove move, EColor currentPlayer, SMove h
     return 1;
 }
 
-int attack(EPiece piece1, EPiece piece2)
+int Attack(EPiece piece1, EPiece piece2)
 {
     if (piece2 == EPflag) return 1;  // Attaque sur le drapeau
     if ((piece1 == EPspy) && (piece2 == EPmarshal)) return 1;  // Attaque de l'espion sur le maréchal
@@ -128,4 +128,52 @@ int attack(EPiece piece1, EPiece piece2)
 
     if (piece1 < piece2) return 2;  // Pièce 1 plus faible que Pièce 2
     return (piece1 > piece2);  // 1 si pièce 1 plus forte que pièce 2, 0 sinon
+}
+
+void manageBoard(SGameState *gameState, SGameState *result, EColor currentPlayer)
+{
+    int i, j;
+
+    if (currentPlayer == ECred)
+    {
+        for (i = 0 ; i < SQUARES_BY_SIDE ; i++)
+        {
+            for (j = 0 ; j < SQUARES_BY_SIDE ; j++)
+            {
+                result->board[i][j].content = gameState->board[i][j].content;
+                if (currentPlayer != gameState->board[i][j].content)
+                {
+                    result->board[i][j].piece = EPnone;
+                }
+                else
+                {
+                    result->board[i][j].piece = gameState->board[i][j].piece;
+                }
+            }
+        }
+    }
+    else
+    {
+        for (i = 0 ; i < SQUARES_BY_SIDE ; i++)
+        {
+            for (j = 0 ; j < SQUARES_BY_SIDE ; j++)
+            {
+                result->board[9 - i][9 - j].content = gameState->board[i][j].content;
+                if (currentPlayer != gameState->board[i][j].content)
+                {
+                    result->board[9 - i][9 - j].piece = EPnone;
+                }
+                else
+                {
+                    result->board[9 - i][9 - j].piece = gameState->board[i][j].piece;
+                }
+            }
+        }
+    }
+
+    for (i = 0 ; i < 11 ; i++)
+    {
+        result->redOut[i] = gameState->redOut[i];
+        result->blueOut[i] = gameState->blueOut[i];
+    }
 }

@@ -32,6 +32,7 @@ Contient également les constantes nécessaires
         SDL_Surface *board;  // Surface du plateau de jeu
         SDL_Surface *text;
         SDL_Surface *images[2][12];  // Tableau de pointeurs vers les surfaces de chaque image du jeu
+        SDL_Surface *mystery[2];  // Image à afficher lorsque la case est inconnue
         SDL_Surface *imagesMini[12];  // Tableau de pointeurs vers les surfaces de chaque image du jeu en mini
         TTF_Font *fonts[3];  // Tableau contenant les 3 tailles de texte que l'on va utiliser
     } Context;
@@ -143,7 +144,7 @@ Contient également les constantes nécessaires
      * @param SGameState *gameState     L'état du jeu
      * @param EColor     currentPlayer  Le joueur qui doit jouer
      */
-    void displayInfo(Context *C, SGameState *gameState, EColor currentPlayer);
+    void DisplayInfo(Context *C, SGameState *gameState, EColor currentPlayer);
 
     /**
      * Permet de connaitre le nom d'une pièce en fonction de son type, pour l'affichage
