@@ -177,3 +177,65 @@ void manageBoard(SGameState *gameState, SGameState *result, EColor currentPlayer
         result->blueOut[i] = gameState->blueOut[i];
     }
 }
+
+int VerifInitIA(EPiece pSide[4][10])
+{
+    int i, j;
+    int bomb, spy, scout, miner, sergeant, lieutenant, captain, major, colonel, general, marshal, flag;
+    bomb = spy = scout = miner = sergeant = lieutenant = captain = major = colonel = general = marshal = flag = 0;
+    
+    // On compte le nombre de pièces disposées par l'IA
+    for (i = 0 ; i < 4 ; i++)
+    {
+        for (j = 0 ; j < 10 ; j++)
+        {   
+            switch(pSide[i][j])
+            {
+                case EPbomb:
+                    bomb++;
+                    break;
+                case EPspy:
+                    spy++;
+                    break;
+                case EPscout:
+                    scout++;
+                    break;
+                case EPminer:
+                    miner++;
+                    break;
+                case EPsergeant:
+                    sergeant++;
+                    break;
+                case EPlieutenant:
+                    lieutenant++;
+                    break;
+                case EPcaptain:
+                    captain++;
+                    break;
+                case EPmajor:
+                    major++;
+                    break;
+                case EPcolonel:
+                    colonel++;
+                    break;
+                case EPgeneral:
+                    general++;
+                    break;
+                case EPmarshal:
+                    marshal++;
+                    break;
+                case EPflag:
+                    flag++;
+                    break;
+                    
+                default: return 0;  // Si case vide ou pièce inconnue
+            }
+        }
+    }
+
+    // Si le nombre de pièce ne correspond pas au nombre théorique, on renvoie 0
+    if ((bomb != 6) || (spy != 1) || (scout != 8) || (miner != 5)) return 0;
+    if ((sergeant != 4) || (lieutenant != 4) || (captain != 4) || (major != 3)) return 0;
+    if ((colonel != 2) || (general != 1) || (marshal != 1) || (flag != 1)) return 0;
+    else return 1;
+}
