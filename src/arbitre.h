@@ -32,12 +32,12 @@ Fonctions utilisées pour l'arbitrage du jeu
      * @param  EColor     currentPlayer Joueur qui va jouer le coup
      */
     void manageBoard(SGameState *gameState, SGameState *result, EColor currentPlayer);
-    
+
     /**
      * Vérifie que l'initialisation des pièces par l'IA est correcte
      * @param  EPiece pSide[4][10] Partie du plateau que l'IA a initialisé
      * @return int                 0 si initialisation incorrecte, 1 si correcte
      */
-    int VerifInitAI(EPiece pSide[4][10]);
+    int VerifyInitAI(EPiece pSide[4][10]);
 
 #endif

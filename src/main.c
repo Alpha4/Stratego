@@ -35,6 +35,8 @@ int main(int argc, char *argv[])
     SGameState gameState;  // Le jeu (plateau + pièces éliminées)
     SGameState gameStateCopy;  // Le jeu (plateau + pièces éliminées)
 
+    int stop;  // Variable utilisée dans des while()
+
     int nbHumanPlayers;
 
     SMove histMove[2][3];  // Les trois derniers mouvement du joueur de chaque joueur
@@ -49,13 +51,7 @@ int main(int argc, char *argv[])
 
     SMove movement;
 
-    int nbMoveLeft = atoi(argv[1]);
-
-    if (nbMoveLeft < 1)
-    {
-        fprintf(stderr, "Erreur : nombre maximum de coups incorrect\n");  // Écriture de l'erreur
-        return EXIT_FAILURE;
-    }
+    int nbMoveLeft;
 
 
     /**
@@ -102,10 +98,18 @@ int main(int argc, char *argv[])
      * Chargement des lib si besoin
      */
 
-    // Vérification qu'il y a au moins en paramètre le nombre de joueurs humains
+    // Vérification qu'il y a assez de paramètres
     if (argc < 3)
     {
         fprintf(stderr, "Erreur : pas assez de paramètres\n");  // Écriture de l'erreur
+        return EXIT_FAILURE;
+    }
+
+    nbMoveLeft = atoi(argv[1]);
+
+    if (nbMoveLeft < 1)
+    {
+        fprintf(stderr, "Erreur : nombre maximum de coups incorrect\n");  // Écriture de l'erreur
         return EXIT_FAILURE;
     }
 
@@ -166,11 +170,33 @@ int main(int argc, char *argv[])
 
     if (nbHumanPlayers == 1)  // Le joueur 1 est une IA
     {
-        ai1.StartGame(player1, p1Side);  // On lui demande de placer ses pièces
+        stop = 0;
+        while (!stop)
+        {
+            ai1.StartGame(player1, p1Side);  // On lui demande de placer ses pièces
+            if (VerifyInitAI(p1Side))  // Si les pièces sont bien placées, c'est bon
+                stop = 1;
+            else  // Sinon, on pénalise le joueur et on lui redemande
+            {
+                penalty[player1 - 2]++;
+                ai1.Penalty();
+            }
+        }
 
         if (nbHumanPlayers == 0)  // Le joueur 2 est aussi une IA
         {
-            ai2.StartGame(player2, p2Side);  // On lui demande de placer ses pièces
+            stop = 0;
+            while (!stop)
+            {
+                ai2.StartGame(player2, p2Side);  // On lui demande de placer ses pièces
+                if (VerifyInitAI(p2Side))  // Si les pièces sont bien placées, c'est bon
+                    stop = 1;
+                else  // Sinon, on pénalise le joueur et on lui redemande
+                {
+                    penalty[player2 - 2]++;
+                    ai2.Penalty();
+                }
+            }
         }
         else
         {
