@@ -2,14 +2,16 @@
 #include <stdio.h> // A retirer à la fin ? pas besoin d'I/O pour l'IA logiquement
 #include <stdlib.h>
 #include <time.h>
+
 /* Variables globales de la lib */
 
-SBox boardIA[10][10]; // Notre "sauvegarde" du jeu
+SGameState gameStateIA; // Notre "sauvegarde" du jeu
 EColor colorIA; // Notre couleur de jeu
 EColor colorEnemy; // Couleur de l'ennemi --> pas de recalcul à chauqe utilisation
 int penalty; //Nombre de pénalités déjà jouées
 int i,j; // Coordonnées ligne et colonne
 int random; // Nombre pseudo aléatoire
+
 /* Fonctions du .h */
 
 /**
@@ -41,28 +43,27 @@ void StartMatch()
 void StartGame(const EColor color,EPiece boardInit[4][10])
 {
 	srand(time(NULL)); // Départ de la séquence rand en fonction du temps
-	unsigned int PawnsLeft[11]=[6,1,8,5,4,4,4,3,2,1,1,1] //Tableau des pions restants à placer
+	unsigned int pawnsLeft[11]=[6,1,8,5,4,4,4,3,2,1,1] //Tableau des pions restants à placer
 
 	// Placement du drapeau + alentour : zone 3*2 [5 0 5][0 11 0]
 	random=PseudoRandom(0,7);
 	for (i=0;i<2;i++)
 	{
-		for(j=0;j<j+3;j++)
+		for(j=0;j<3;j++)
 		{
-			if ((j==0 || j==2) && i==1)
+			if ((j==0 || j==2) && i==1) // Lieutenant
 			{
 				boardInit[i][j+random]=5;
-				PawnsLeft[5]--;
+				pawnsLeft[5]--;
 			}
-			else if (j==1 && i=0)
+			else if (j==1 && i=0) //Flag
 			{
 				boardInit[i][j+random]=11;
-				PawnsLeft[11]--;
 			}
-			else
+			else //Bomb
 			{	
 				boardInit[i][j+random]=0;
-				PawnsLeft[0]--;
+				pawnsLeft[0]--;
 			}
 		}
 	}
@@ -78,37 +79,38 @@ void StartGame(const EColor color,EPiece boardInit[4][10])
 				// Placement d'une première pièce
 				do 
 				{
-					random=PseudoRandom(0,8);
-				}while(PawnsLeft[random]==0);
+					random=PseudoRandom(0,8); // Pièce avec une force entre 0 et 8
+				}while(pawnsLeft[random]==0); // Pièce encore disponible au placement ?
 
 				boardInit[i][j]=random;
-				PawnsLeft[random]--;
+				pawnsLeft[random]--;
 
 				// Placement d'une deuxième pièce
 				if (random>3) // Si la première pièce est "forte"
 				{
 					do
 					{
-						random=PseudoRandom(0,3);
-					}while(PawnsLeft[random]==0);
+						random=PseudoRandom(0,3); // Pièce avec une force entre 0 et 3
+					}while(pawnsLeft[random]==0);
 
 					boardInit[i][j+1]=random;
-					PawnsLeft[random]--;
+					pawnsLeft[random]--;
 				}
 				else // Si la première pièce est "faible"
 				{
 					do
 					{
-						random=PseudoRandom(4,8);
-					}while(PawnsLeft[random]==0);
+						random=PseudoRandom(4,8); // Pièce avec une force entre 0 et 3
+					}while(pawnsLeft[random]==0);
 
 					boardInit[i][j+1]=random;
-					PawnsLeft[random]--;
+					pawnsLeft[random]--;
 				}
 			}
 		}
 	}
 
+	//Possibilité de rester bloquer ?? --> si 11 pièces faibles restantes  Après la 1ere phase
 	// Placement des lignes 2 et 3
 	for (i=2;i<4;i++)
 	{
@@ -118,36 +120,35 @@ void StartGame(const EColor color,EPiece boardInit[4][10])
 			do 
 			{
 				random=PseudoRandom(0,10);
-			}while(PawnsLeft[random]==0);
+			}while(pawnsLeft[random]==0);
 
 			boardInit[i][j]=random;
-			PawnsLeft[random]--;
+			pawnsLeft[random]--;
 
 			// Placement d'une deuxième pièce
-			if (random>4) // Si la première pièce est "forte"
+			if (random>3) // Si la première pièce est "forte"
 			{
 				do
 				{
-					random=PseudoRandom(0,4);
-				}while(PawnsLeft[random]==0);
+					random=PseudoRandom(0,3);
+				}while(pawnsLeft[random]==0);
 
 				boardInit[i][j+1]=random;
-				PawnsLeft[random]--;
+				pawnsLeft[random]--;
 			}
 			else // Si la première pièce est "faible"
 			{
 				do
 				{
-					random=PseudoRandom(5,10);
-				}while(PawnsLeft[random]==0);
+					random=PseudoRandom(4,10);
+				}while(pawnsLeft[random]==0);
 
 				boardInit[i][j+1]=random;
-				PawnsLeft[random]--;
+				pawnsLeft[random]--;
 			}
 		}
 	}
 
-	
 	// Stockage des couleurs
 	if (colorIA=color==ECred)//Attribution des couleurs des joueurs
 		colorEnemy=ECblue;
@@ -161,12 +162,20 @@ void StartGame(const EColor color,EPiece boardInit[4][10])
  */
 void EndGame()
 {
-	int i,j;
-	for (i=0; i<4;i++)
+	for (i=0; i<10;i++)
 	{
 		for (j=0;j<10;j++)
 		{
-			boardIA[i][j]=EPnone; //On remplace toute pièce du board par EPnone
+			//On remplace toute pièce du board par EPnone
+			gameStateIA.board[i][j].piece=EPnone;
+
+			 // On replace les SBox "lake"
+			if ((i==4 || i==5) && (j==2 || j==3 || j==6 || j==7))
+				gameStateIA.board[i][j].piece=EClake;
+
+			//On remplace toute autre SBox du board par ECnone
+			else
+				gameStateIA.board[i][j].content=ECnone; 
 		}
 	}
 }
@@ -189,7 +198,7 @@ void EndMatch()
  */
 SMove NextMove(const SGameState * const gameState)
 {
-	updateBoard(gamestate); // Mise à jour de notre board en fonction des changement constatés sur le gamestate
+	updateBoard(gameStateIA); // Mise à jour de notre board en fonction des changement constatés sur le gamestate
 	
 	SMove next;
 	
