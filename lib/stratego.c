@@ -74,7 +74,31 @@ void StartGame(const EColor color,EPiece boardInit[4][10])
 	{
 		for (j=0;j<10;j=j+2)
 		{
-			if (boardInit[i][j]==NULL)
+			if (boardInit[i][j]==NULL && boardInit[i][j+1]!=NULL) // Cas spécial : case non remplie et la suivante est de la zone drapeau
+			{
+				if (boardInit[i][j+1]>3) // La pièce suivante est "forte"
+				{
+					do
+					{
+						random=PseudoRandom(0,3); // Pièce avec une force entre 0 et 3
+					}while(pawnsLeft[random]==0);
+
+					boardInit[i][j]=random;
+					pawnsLeft[random]--;
+				}
+				else // Si la pièce suivante est "faible"
+				{
+					do
+					{
+						random=PseudoRandom(4,8); // Pièce avec une force entre 0 et 3
+					}while(pawnsLeft[random]==0);
+
+					boardInit[i][j]=random;
+					pawnsLeft[random]--;
+				}
+			}
+
+			else if (boardInit[i][j]==NULL) // Pas de pièce "de la zone drapeau" en [i][j]
 			{
 				// Placement d'une première pièce
 				do 
@@ -84,7 +108,15 @@ void StartGame(const EColor color,EPiece boardInit[4][10])
 
 				boardInit[i][j]=random;
 				pawnsLeft[random]--;
+			}
 
+			else // On prend la pièce de cette case pour générer la prochaine pièce si besoin
+			{
+				random=boardInit[i][j];
+			}
+
+			if (boardInit[i][j+1]==NULL) // Pas de pièce de la "zone drapeau" en [i][j+1]
+			{
 				// Placement d'une deuxième pièce
 				if (random>3) // Si la première pièce est "forte"
 				{
@@ -110,7 +142,6 @@ void StartGame(const EColor color,EPiece boardInit[4][10])
 		}
 	}
 
-	//Possibilité de rester bloquer ?? --> si 11 pièces faibles restantes  Après la 1ere phase
 	// Placement des lignes 2 et 3
 	for (i=2;i<4;i++)
 	{
