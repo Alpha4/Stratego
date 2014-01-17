@@ -1,5 +1,3 @@
-- gérer les inversions de plateau pour envoie aux IA et affichage
-   - masquer les type des pièces adverses
 - gérer fin du jeu
    - nbmaxmove atteint -> nb pieces
    - drapeau capturé
