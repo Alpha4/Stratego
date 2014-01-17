@@ -41,15 +41,7 @@ void StartMatch()
 void StartGame(const EColor color,EPiece boardInit[4][10])
 {
 	srand(time(NULL)); // Départ de la séquence rand en fonction du temps
-	int i,j,random;
 	unsigned int PawnsLeft[11]=[6,1,8,5,4,4,4,3,2,1,1,1] //Tableau des pions restants à placer
-
-	boardInit[3]=[6,2,2,5,2,6,3,10,2,6];
-	boardInit[2]=[5,4,0,1,9,2,7,7,8,2];
-	boardinit[1]=[4,0,4,7,8,5,0,5,6,4];
-	boardinit[0]=[2,3,0,2,3,0,11,0,3,3];
-	// Placement en dur des pièces --> a remplacer par qq chose de moins prédictif
-	
 
 	// Placement du drapeau + alentour : zone 3*2 [5 0 5][0 11 0]
 	random=PseudoRandom(0,7);
