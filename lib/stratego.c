@@ -11,6 +11,7 @@ EColor colorEnemy; // Couleur de l'ennemi --> pas de recalcul à chauqe utilisat
 int penalty; //Nombre de pénalités déjà jouées
 int i,j; // Coordonnées ligne et colonne
 int random; // Nombre pseudo aléatoire
+int turn=1; // Compteur de tours (uniquement les notres -> utile une fois pour le NextMove)
 
 /* Fonctions du .h */
 
@@ -229,7 +230,10 @@ void EndMatch()
  */
 SMove NextMove(const SGameState * const gameState)
 {
-	updateBoard(gameStateIA); // Mise à jour de notre board en fonction des changement constatés sur le gamestate
+	if (turn==1)
+		gameStateIA.board=*gameState.board; //copie du contenu en dur pour le premier tour
+
+	updateBoard(gameState); // Mise à jour de notre board en fonction des changement constatés sur le gamestate
 	
 	SMove next;
 	
