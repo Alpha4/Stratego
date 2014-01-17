@@ -8,7 +8,8 @@ SBox boardIA[10][10]; // Notre "sauvegarde" du jeu
 EColor colorIA; // Notre couleur de jeu
 EColor colorEnemy; // Couleur de l'ennemi --> pas de recalcul à chauqe utilisation
 int penalty; //Nombre de pénalités déjà jouées
-
+int i,j; // Coordonnées ligne et colonne
+int random; // Nombre pseudo aléatoire
 /* Fonctions du .h */
 
 /**
@@ -40,6 +41,8 @@ void StartMatch()
 void StartGame(const EColor color,EPiece boardInit[4][10])
 {
 	srand(time(NULL)); // Départ de la séquence rand en fonction du temps
+	int i,j,random;
+	unsigned int PawnsLeft[11]=[6,1,8,5,4,4,4,3,2,1,1,1] //Tableau des pions restants à placer
 
 	boardInit[3]=[6,2,2,5,2,6,3,10,2,6];
 	boardInit[2]=[5,4,0,1,9,2,7,7,8,2];
@@ -47,28 +50,113 @@ void StartGame(const EColor color,EPiece boardInit[4][10])
 	boardinit[0]=[2,3,0,2,3,0,11,0,3,3];
 	// Placement en dur des pièces --> a remplacer par qq chose de moins prédictif
 	
-	//placer groupe de pièce drapeau + alentour --> zone de 3*3 ou 3*2 sur les lignes les plus basses
+
+	// Placement du drapeau + alentour : zone 3*2 [5 0 5][0 11 0]
+	random=PseudoRandom(0,7);
+	for (i=0;i<2;i++)
+	{
+		for(j=0;j<j+3;j++)
+		{
+			if ((j==0 || j==2) && i==1)
+			{
+				boardInit[i][j+random]=5;
+				PawnsLeft[5]--;
+			}
+			else if (j==1 && i=0)
+			{
+				boardInit[i][j+random]=11;
+				PawnsLeft[11]--;
+			}
+			else
+			{	
+				boardInit[i][j+random]=0;
+				PawnsLeft[0]--;
+			}
+		}
+	}
 	
 	
-	//placer les premieres lignes
+	// Placement des lignes 0 et 1
+	for (i=0;i<2;i++)
+	{
+		for (j=0;j<10;j=j+2)
+		{
+			if (boardInit[i][j]==NULL)
+			{
+				// Placement d'une première pièce
+				do 
+				{
+					random=PseudoRandom(0,8);
+				}while(PawnsLeft[random]==0);
+
+				boardInit[i][j]=random;
+				PawnsLeft[random]--;
+
+				// Placement d'une deuxième pièce
+				if (random>3) // Si la première pièce est "forte"
+				{
+					do
+					{
+						random=PseudoRandom(0,3);
+					}while(PawnsLeft[random]==0);
+
+					boardInit[i][j+1]=random;
+					PawnsLeft[random]--;
+				}
+				else // Si la première pièce est "faible"
+				{
+					do
+					{
+						random=PseudoRandom(4,8);
+					}while(PawnsLeft[random]==0);
+
+					boardInit[i][j+1]=random;
+					PawnsLeft[random]--;
+				}
+			}
+		}
+	}
+
+	// Placement des lignes 2 et 3
+	for (i=2;i<4;i++)
+	{
+		for (j=0;j<10;j=j+2)
+		{
+			// Placement d'une première pièce
+			do 
+			{
+				random=PseudoRandom(0,10);
+			}while(PawnsLeft[random]==0);
+
+			boardInit[i][j]=random;
+			PawnsLeft[random]--;
+
+			// Placement d'une deuxième pièce
+			if (random>4) // Si la première pièce est "forte"
+			{
+				do
+				{
+					random=PseudoRandom(0,4);
+				}while(PawnsLeft[random]==0);
+
+				boardInit[i][j+1]=random;
+				PawnsLeft[random]--;
+			}
+			else // Si la première pièce est "faible"
+			{
+				do
+				{
+					random=PseudoRandom(5,10);
+				}while(PawnsLeft[random]==0);
+
+				boardInit[i][j+1]=random;
+				PawnsLeft[random]--;
+			}
+		}
+	}
+
 	
-	//placer les lignes de front
-	/*
-		Pièce 0 : 6
-		Pièce 1 : 1
-		Pièce 2 : 8
-		Pièce 3 : 5
-		Pièce 4 : 4
-		Pièce 5 : 4
-		Pièce 6 : 4
-		Pièce 7 : 3
-		Pièce 8 : 2
-		Pièce 9 : 1
-		Pièce 10 : 1
-		Pièce 11 : 1
-	*/
-		
-	
+	// Stockage des couleurs
 	if (colorIA=color==ECred)//Attribution des couleurs des joueurs
 		colorEnemy=ECblue;
 	else
