@@ -1,21 +1,24 @@
 #include "stratego.h"
-
+#include <stdio.h> // A retirer √† la fin ? pas besoin d'I/O pour l'IA logiquement
+#include <stdlib.h>
+#include <time.h>
 /* Variables globales de la lib */
 
 SBox boardIA[10][10]; // Notre "sauvegarde" du jeu
 EColor colorIA; // Notre couleur de jeu
-int penalty; //Nombre de pÈnalitÈs dÈj‡ jouÈes
+EColor colorEnemy; // Couleur de l'ennemi --> pas de recalcul √† chauqe utilisation
+int penalty; //Nombre de p√©nalit√©s d√©j√† jou√©es
 
 /* Fonctions du .h */
 
 /**
  * Initialiser la librairie
  * @param char name[50]
- *	nom associÈ ‡ la librairie
+ *	nom associ√© √† la librairie
  */
 void InitLibrary(char name[50])
 {
-	name="A_TROUVER";
+	name="StrateRand"; //Jeu de mot Stratego Random / Stratego errant xD
 }
 
 /**
@@ -24,6 +27,7 @@ void InitLibrary(char name[50])
 void StartMatch()
 {
 	// QUOI FAIRE ICI ?
+	printf("StartMatch");
 }
 
 /**
@@ -35,15 +39,41 @@ void StartMatch()
  */
 void StartGame(const EColor color,EPiece boardInit[4][10])
 {
+	srand(time(NULL)); // D√©part de la s√©quence rand en fonction du temps
+
 	boardInit[3]=[6,2,2,5,2,6,3,10,2,6];
 	boardInit[2]=[5,4,0,1,9,2,7,7,8,2];
 	boardinit[1]=[4,0,4,7,8,5,0,5,6,4];
 	boardinit[0]=[2,3,0,2,3,0,11,0,3,3];
-	// Placement en dur des piËces --> a remplacer par qq chose de moins prÈdictif
+	// Placement en dur des pi√®ces --> a remplacer par qq chose de moins pr√©dictif
 	
-	colorIA=color; //RÈcupÈration de notre couleur
+	//placer groupe de pi√®ce drapeau + alentour --> zone de 3*3 ou 3*2 sur les lignes les plus basses
 	
-	updateBoard(); // A dÈfinir (update du board)
+	
+	//placer les premieres lignes
+	
+	//placer les lignes de front
+	/*
+		Pi√®ce 0 : 6
+		Pi√®ce 1 : 1
+		Pi√®ce 2 : 8
+		Pi√®ce 3 : 5
+		Pi√®ce 4 : 4
+		Pi√®ce 5 : 4
+		Pi√®ce 6 : 4
+		Pi√®ce 7 : 3
+		Pi√®ce 8 : 2
+		Pi√®ce 9 : 1
+		Pi√®ce 10 : 1
+		Pi√®ce 11 : 1
+	*/
+		
+	
+	if (colorIA=color==ECred)//Attribution des couleurs des joueurs
+		colorEnemy=ECblue;
+	else
+		colorEnemy=ECred;
+	
 }
 
 /**
@@ -56,7 +86,7 @@ void EndGame()
 	{
 		for (j=0;j<10;j++)
 		{
-			boardIA[i][j]=12; //On remplace toute piËce du board par EPnone
+			boardIA[i][j]=EPnone; //On remplace toute pi√®ce du board par EPnone
 		}
 	}
 }
@@ -66,57 +96,82 @@ void EndGame()
  */
 void EndMatch()
 {
-	// libÈrer la mÈmoire ?
+	// lib√©rer la m√©moire ?
+	printf("EndMatch");
 }
 
 /**
- * Prise de dÈcision de la part de l'IA
+ * Prise de d√©cision de la part de l'IA
  * @param const SGameState * const gameState
- *	l'Ètat du jeu courant
+ *	l'√©tat du jeu courant
  * @return SMove
- *	mouvement ‡ effectuer par l'IA
+ *	mouvement √† effectuer par l'IA
  */
 SMove NextMove(const SGameState * const gameState)
 {
-	updateBoard(gamestate); // Mise ‡ jour de notre board en fonction des changement constatÈs sur le gamestate
+	updateBoard(gamestate); // Mise √† jour de notre board en fonction des changement constat√©s sur le gamestate
 	
 	SMove next;
 	
-	// Prendre une piËce de la ligne la plus avancÈe et la faire avancer ou dÈplacement sur le cÙtÈ si Lake face ‡ elle.
+	// Si l'on peut gagner une attaque de mani√®re certaine √† ce tour le faire
+	// Sinon d√©placer une pi√®ce qui le peut au hasard
 	
 	
 }
 
 /**
- * Indication du rÈsultat d'une attaque (rÈsultat envoyÈ ‡ tous les joueurs)
+ * Indication du r√©sultat d'une attaque (r√©sultat envoy√© √† tous les joueurs)
  * @param SPos armyPos
- *	position de l'ÈlÈment de l'armÈe du joueur (attaquant ou attaquÈe)
+ *	position de l'√©l√©ment de l'arm√©e du joueur (attaquant ou attaqu√©e)
  * @param EPiece armyPiece
- *	type de de l'ÈlÈment de l'armÈe du joueur (attaquant ou attaquÈe)
+ *	type de de l'√©l√©ment de l'arm√©e du joueur (attaquant ou attaqu√©e)
  * @param SPos enemyPos
- *	position de l'ÈlÈment de l'ennemi (attaquant ou attaquÈe)
+ *	position de l'√©l√©ment de l'ennemi (attaquant ou attaqu√©e)
  * @param EPiece enemyPiece
- *	type de de l'ÈlÈment de l'ennemi (attaquant ou attaquÈe)
+ *	type de de l'√©l√©ment de l'ennemi (attaquant ou attaqu√©e)
  */
 void AttackResult(SPos armyPos,EPiece armyPiece,SPos enemyPos,EPiece enemyPiece)
 {
-	updateBoard() // Mettre ‡ jour le board en fonction de l'attaque
-	//faire directement dans la fonction la maj ? --> certainement
+	// Mettre √† jour le board en fonction de l'attaque
 	
-	//Tester si il y a des piËces spÈciales parmi celles en jeu dans l'attaque
+	//Tester si il y a des pi√®ces sp√©ciales parmi celles en jeu dans l'attaque
 	// Si oui tester en fonction
 	
 	// Sinon cas global : qui a la plus grosse ?
-	
+	//si √©galit√© les deux sont √©limin√©es
 	
 		
 }
 
 /**
- * Indication d'une pÈnalitÈe pour rËgle non respectÈe -> coup prÈcÈdent annulÈ
+ * Indication d'une p√©nalit√©e pour r√®gle non respect√©e -> coup pr√©c√©dent annul√©
  */
 void Penalty()
 {
 	penalty++;
 }
+
+/* Nos fonctions sp√©cifiques */
+
+/**
+ * G√©n√©ration d'un nombre pseudo al√©atoire ddans les bornes pr√©cis√©es
+ * @param int a
+ *  borne inf√©rieure 
+ * @param int b
+ *  borne sup√©rieure
+ * @return int 
+ *  nombre pseudo-al√©atoire contenue entre les bornes a et b
+ */
+int PseudoRandom(int a,int b)
+{
+	return rand()%(b-a) +a;
+}
+
+
+
+
+
+
+
+
 
