@@ -1,6 +1,4 @@
 - gérer fin du jeu
-   - nbmaxmove atteint -> nb pieces
-   - drapeau capturé
+   - nnMoveLeft == 0
    - plus de démineur + drapeau adverse entouré de bombes
    - il ne reste plus que des pièces fixes -> égalité
-   - nbMaxMove
