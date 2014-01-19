@@ -27,9 +27,9 @@ Fonctions utilisées pour l'arbitrage du jeu
 
     /**
      * Configure le plateau qui doit être envoyé au joueur (invesion plateau, anonymage des pièces adverses)
-     * @param  SGameState gameState     Etat du jeu vu par l'arbitre
-     * @param  SGameState result        Etat du jeu modifié envoyé au joueur
-     * @param  EColor     currentPlayer Joueur qui va jouer le coup
+     * @param SGameState gameState     Etat du jeu vu par l'arbitre
+     * @param SGameState result        Etat du jeu modifié envoyé au joueur
+     * @param EColor     currentPlayer Joueur qui va jouer le coup
      */
     void manageBoard(SGameState *gameState, SGameState *result, EColor currentPlayer);
 

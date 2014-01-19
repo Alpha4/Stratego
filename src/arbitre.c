@@ -181,25 +181,22 @@ void manageBoard(SGameState *gameState, SGameState *result, EColor currentPlayer
 int VerifyInitAI(EPiece pSide[4][10])
 {
     int i, j;
-    int tabPieces[2][12] = {0};
-
-    tabPieces[0][0] = EPbomb;
-    for (j = 1 ; j < 12 ; j++)
-        tabPieces[0][j] = getNextPiece(tabPieces[0][j - 1]);
+    int tabPieces[12] = {0};
 
     // On compte le nombre de pièces disposées par l'IA
     for (i = 0 ; i < 4 ; i++)
     {
         for (j = 0 ; j < 10 ; j++)
         {
-            if (pSide[i][j] == EPnone) return 0;
-            tabPiece[1][pSide[i][j]]++;
+            if (pSide[i][j] < 0 || pSide[i][j] > 11) return 0;
+            tabPieces[pSide[i][j]]++;
         }
     }
+
     // On compare le nombre des différentes pièces sur le plateau et leur nombre théorique
     for (j = 0 ; j < 12 ; j++)
     {
-        if (tabPieces[1][j] != getNumberOfPiece(tabPieces[0][j])) return 0;
+        if (tabPieces[j] != getNumberOfPiece(j)) return 0;
     }
 
     return 1;
