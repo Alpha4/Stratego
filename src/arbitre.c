@@ -201,3 +201,51 @@ int VerifyInitAI(EPiece pSide[4][10])
 
     return 1;
 }
+
+int isGameFinished(SGameState *gameState, int penalty[2], EColor player1, EColor player2)
+{
+    int i, j;
+    int f1 = 0, f2 = 0;  // 1 si le flag existe toujours
+    int m1 = 0, m2 = 0;  // 1 si le joueur à au moins une pièce qui peut bouger
+
+    // La partie n'a pas commencé, on teste uniquement les pénalités au cas où le joueur a mal placé ses pièces plusieurs fois
+    if (gameState == NULL)
+    {
+        if (penalty[player1 - 2] > MAX_PENALTY)
+            return player2;
+        if (penalty[player2 - 2] > MAX_PENALTY)
+            return player1;
+    }
+    else  // On vérifie l'état du plateau pour savoir si quelqu'un a gagné
+    {
+        // On parcours le plateau pour récupérer les informations dont on a besoin
+        for (i = 0 ; i < 10 ; i++)
+        {
+            for (j = 0 ; j < 10 ; j++)
+            {
+                if (gameState->board[i][j].piece == EPflag)
+                {
+                    if (gameState->board[i][j].content == player1)
+                        f1 = 1;
+                    else
+                        f2 = 1;
+                }
+                if (gameState->board[i][j].piece != EPflag && gameState->board[i][j].piece != EPbomb)
+                {
+                    if (gameState->board[i][j].content == player1)
+                        m1 = 1;
+                    else
+                        m2 = 1;
+                }
+            }
+        }
+
+        // On vérifie ensuite l'état de ces informations
+        if (f1 = 0 || m1 == 0)  // Le joueur 1 n'a plus de flag ou ne peut plus bouger
+            return player2;
+        if (f2 = 0 || m2 == 0)  // Le joueur 2 n'a plus de flag ou ne peut plus bouger
+            return player1;
+    }
+
+    return 0;
+}

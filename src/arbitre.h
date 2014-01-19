@@ -7,6 +7,8 @@ Fonctions utilisées pour l'arbitrage du jeu
 #ifndef _ARBITRE_H
     #define _ARBITRE_H
 
+    #define MAX_PENALTY 3
+
     /**
      * Vérifie si un coup est valide
      * @param  SGameState gameState     Etat du jeu avant le coup
@@ -39,5 +41,15 @@ Fonctions utilisées pour l'arbitrage du jeu
      * @return int                 0 si initialisation incorrecte, 1 si correcte
      */
     int VerifyInitAI(EPiece pSide[4][10]);
+
+    /**
+     * Vérifie si un des joueurs a gagné la partie
+     * @param  SGameState *gameState Le plateau du jeu
+     * @param  int        penalty[2] Le nombre de pénalités de chaque joueur
+     * @param  EColor     player1    Le joueur 1
+     * @param  EColor     player2    Le joueur 2
+     * @return int                   player1 si player1 gagne, player2 si player2 gagne, 0 si la partie n'est pas terminée
+     */
+    int isGameFinished(SGameState *gameState, int penalty[2], EColor player1, EColor player2);
 
 #endif
