@@ -53,6 +53,8 @@ int main(int argc, char *argv[])
 
     int nbMoveLeft;
 
+    int result;
+
 
     /**
      * Variables concernant la gestion de la SDL
@@ -65,7 +67,6 @@ int main(int argc, char *argv[])
 
     int i, j;
     int x, y;
-    int result;
 
     SDL_Color blackColor = {0, 0, 0};  // Couleur noire pour le texte
 
@@ -180,6 +181,11 @@ int main(int argc, char *argv[])
             {
                 penalty[player1 - 2]++;
                 ai1.Penalty();
+                if (isGameFinished(NULL, penalty, player1, player2) == player2)  // Le joueur 2 a gagné car le joueur 1 a trop de pénalités
+                {
+                    DisplayEnd(&C, p2Name);
+                    return EXIT_SUCCESS;  // On quitte le programme
+                }
             }
         }
 
@@ -195,6 +201,11 @@ int main(int argc, char *argv[])
                 {
                     penalty[player2 - 2]++;
                     ai2.Penalty();
+                    if (isGameFinished(NULL, penalty, player1, player2) == player1)  // Le joueur 1 a gagné car le joueur 2 a trop de pénalités
+                    {
+                        DisplayEnd(&C, p1Name);
+                        return EXIT_SUCCESS;  // On quitte le programme
+                    }
                 }
             }
         }
@@ -425,6 +436,20 @@ int main(int argc, char *argv[])
                 if (nbHumanPlayers == 0)  // Le joueur 2 est une IA
                     ai2.Penalty();
             }
+        }
+
+        // On vérifie si la parite est terminée
+        result = isGameFinished(&gameState, penalty, player1, player2);
+
+        if (result == player1)
+        {
+            DisplayEnd(&C, p1Name);
+            return EXIT_SUCCESS;
+        }
+        else if (result == player2)
+        {
+            DisplayEnd(&C, p2Name);
+            return EXIT_SUCCESS;
         }
 
         // C'est maintenant à l'autre joueur de jouer

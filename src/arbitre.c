@@ -241,9 +241,9 @@ int isGameFinished(SGameState *gameState, int penalty[2], EColor player1, EColor
         }
 
         // On vérifie ensuite l'état de ces informations
-        if (f1 = 0 || m1 == 0)  // Le joueur 1 n'a plus de flag ou ne peut plus bouger
+        if (f1 == 0 || m1 == 0)  // Le joueur 1 n'a plus de flag ou ne peut plus bouger
             return player2;
-        if (f2 = 0 || m2 == 0)  // Le joueur 2 n'a plus de flag ou ne peut plus bouger
+        if (f2 == 0 || m2 == 0)  // Le joueur 2 n'a plus de flag ou ne peut plus bouger
             return player1;
     }
 

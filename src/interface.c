@@ -336,7 +336,7 @@ int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *mo
 
     SDL_Color blackColor = {0, 0, 0};  // Couleur noire pour le texte
 
-    // Surface qui noircit les cases du plateau où une la pièce sélectionnée ne peut se déplacer
+    // Surface qui noircit les cases du plateau où la pièce sélectionnée ne peut se déplacer
     SDL_Surface *noMansLand;
     noMansLand = SDL_CreateRGBSurface(SDL_HWSURFACE, SQUARE_SIZE, SQUARE_SIZE, 32, 0, 0, 0, 0);
     SDL_FillRect(noMansLand, NULL, SDL_MapRGB(C->screen->format, 0, 0, 0));
@@ -520,6 +520,38 @@ void DisplayInfo(Context *C, SGameState *gameState, EColor currentPlayer)
 
             y += 30;
         }
+    }
+}
+
+void DisplayEnd(Context *C, char winner[50])
+{
+    int x, y;
+
+    Input in;
+    memset(&in, 0, sizeof(in));
+
+    char text[70];  // Stocke du texte à afficher
+
+    SDL_Surface *frame1, *frame2;
+    frame1 = SDL_CreateRGBSurface(SDL_HWSURFACE, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 32, 0, 0, 0, 0);
+    SDL_FillRect(frame1, NULL, SDL_MapRGB(C->screen->format, 0, 0, 0));
+    frame2 = SDL_CreateRGBSurface(SDL_HWSURFACE, WINDOW_WIDTH / 2 - 4, WINDOW_HEIGHT / 2 - 4, 32, 0, 0, 0, 0);
+    SDL_FillRect(frame2, NULL, SDL_MapRGB(C->screen->format, 240, 240, 240));
+
+    while (!in.quit)
+    {
+        UpdateEvents(&in);
+
+        Blit(frame1, C->screen, WINDOW_WIDTH / 4, WINDOW_HEIGHT / 4);
+        Blit(frame2, C->screen, WINDOW_WIDTH / 4 + 2, WINDOW_HEIGHT / 4 + 2);
+
+        // Affichage du nom du joueur qui doit jouer
+        sprintf(&text, "%s a gagné !", winner);
+        blitText(C->screen, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 1, 1, text, C->fonts[MEDIUMTEXT], (SDL_Color) {0, 0, 0});
+
+        SDL_Flip(C->screen);  // Affichage de l'écran
+
+        SDL_Delay(30);  // Attente de 30ms entre chaque tour de boucle pour en pas surcharger le CPU
     }
 }
 

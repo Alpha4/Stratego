@@ -10,8 +10,8 @@ Contient également les constantes nécessaires
 
     #define SQUARE_SIZE     64  // Taille en pixels d'une case du plateau
     #define SQUARES_BY_SIDE 10  // Nombre de cases par coté du plateau
-    #define WINDOW_WIDTH    SQUARE_SIZE * SQUARES_BY_SIDE + 500  // On laisse 500px à droite du plateau pour de l'affichage
-    #define WINDOW_HEIGHT   SQUARE_SIZE * SQUARES_BY_SIDE
+    #define WINDOW_WIDTH    ((SQUARE_SIZE * SQUARES_BY_SIDE) + 500)  // On laisse 500px à droite du plateau pour de l'affichage
+    #define WINDOW_HEIGHT   (SQUARE_SIZE * SQUARES_BY_SIDE)
 
     // Pour simplifier l'affichage des images
     #define IMGRED  0
@@ -145,6 +145,13 @@ Contient également les constantes nécessaires
      * @param EColor     currentPlayer  Le joueur qui doit jouer
      */
     void DisplayInfo(Context *C, SGameState *gameState, EColor currentPlayer);
+
+    /**
+     * Affichage à la fin du jeu
+     * @param Context *C         Le contecte utilisé pour l'affichage
+     * @param char    winner[50] Le nom du gagnant
+     */
+    void DisplayEnd(Context *C, char winner[50]);
 
     /**
      * Permet de connaitre le nom d'une pièce en fonction de son type, pour l'affichage
