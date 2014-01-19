@@ -1,7 +1,7 @@
-#include "stratego.h"
 #include <stdio.h> // A retirer à la fin ? pas besoin d'I/O pour l'IA logiquement
 #include <stdlib.h>
 #include <time.h>
+#include "straterand.h"
 
 /* Variables globales de la lib */
 
@@ -12,10 +12,6 @@ int penalty; //Nombre de pénalités déjà jouées
 int i,j; // Coordonnées ligne et colonne
 int randomInt; // Nombre pseudo aléatoire
 int turn=1; // Compteur de tours (uniquement les notres -> utile une fois pour le NextMove)
-
-/* Déclarations de nos fonctions supplémentaires */
-
-int PseudoRandom(int a,int b);
 
 /* Fonctions du .h */
 
@@ -95,7 +91,7 @@ void StartGame(const EColor color,EPiece boardInit[4][10])
 				{
 					do
 					{
-						randomInt=Pseudorandom(4,8); // Pièce avec une force entre 0 et 3
+						randomInt=PseudoRandom(4,8); // Pièce avec une force entre 0 et 3
 					}while(pawnsLeft[randomInt]==0);
 
 					boardInit[i][j]=randomInt;
