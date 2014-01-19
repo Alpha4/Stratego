@@ -11,7 +11,8 @@ EColor colorEnemy; // Couleur de l'ennemi --> pas de recalcul à chauqe utilisat
 int penalty; //Nombre de pénalités déjà jouées
 int i,j; // Coordonnées ligne et colonne
 int randomInt; // Nombre pseudo aléatoire
-int turn=1; // Compteur de tours (uniquement les notres -> utile une fois pour le NextMove)
+int turn; // Compteur de tours (uniquement les notres -> utile une fois pour le NextMove)
+SMove last; // Notre dernier mouvement effectué
 
 /* Fonctions du .h */
 
@@ -43,6 +44,7 @@ void StartMatch()
  */
 void StartGame(const EColor color,EPiece boardInit[4][10])
 {
+	turn=0; // Nombre de tours remis à 0
 	srand(time(NULL)); // Départ de la séquence rand en fonction du temps
 	unsigned int pawnsLeft[11]={6,1,8,5,4,4,4,3,2,1,1}; //Tableau des pions restants à placer
 
@@ -194,6 +196,9 @@ void StartGame(const EColor color,EPiece boardInit[4][10])
  */
 void EndGame()
 {
+	/* INUTILE ?? 
+	   Vu qu'on copie le premier Gamestate du premier appel de NextMove
+	*/
 	for (i=0; i<10;i++)
 	{
 		for (j=0;j<10;j++)
@@ -232,7 +237,8 @@ SMove NextMove(const SGameState * const gameState)
 {
 
 	// Mise à jour de notre gameState
-	if (turn==1)
+	if (turn==0)
+	{
 		for (i=0;i<10;i++)
 		{
 			for(j=0;j<10;j++)
@@ -241,6 +247,13 @@ SMove NextMove(const SGameState * const gameState)
 				gameStateIA.board[i][j].content=gameState->board[i][j].content;
 			}
 		}
+
+		for (i = 0 ; i < 11 ; i++)
+   		{
+	        gameStateIA.redOut[i] = 0;
+	        gameStateIA.blueOut[i] = 0;
+	    }
+	}
 	else
 	{
 		printf("test\n");
@@ -250,8 +263,8 @@ SMove NextMove(const SGameState * const gameState)
 	
 	// Si l'on peut gagner une attaque de manière certaine à ce tour le faire
 	// Sinon déplacer une pièce qui le peut au hasard
-	
-	
+	last=next; // on met à jour notre dernier coup
+	return next;
 }
 
 /**
@@ -299,10 +312,15 @@ void AttackResult(SPos armyPos,EPiece armyPiece,SPos enemyPos,EPiece enemyPiece)
     // Marshal vs Spy
     else if((armyPiece==10 && enemyPiece==1) || (armyPiece==1 && enemyPiece==10))
     {
-    	// L'attaquant est le gagnant
+    	// On regarde s'il s'agit de notre attaque
+    	// i.e.: armyPos est la position de départ de notre dernier move.
+    	if (last.start.line==armyPos.line && last.start.col==armyPos.col)
+    		result==1;
+    	else
+    		result=-1;
     }
 
-    
+
 	// Cas global :
 	else if(armyPiece<enemyPiece)
         result = -1; // Attaque perdue
@@ -320,9 +338,9 @@ void AttackResult(SPos armyPos,EPiece armyPiece,SPos enemyPos,EPiece enemyPiece)
 		gameStateIA.board[enemyPos.line][enemyPos.col].content=ECnone;
 		gameStateIA.board[enemyPos.line][enemyPos.col].piece=EPnone;
 		if (colorEnemy==ECred)
-			redOut[enemyPiece]--;
+			redOut[enemyPiece]++;
 		else
-			blueOut[enemyPiece]--;
+			blueOut[enemyPiece]++;
 	}
 	else if (result == -1)
 	{
@@ -330,25 +348,25 @@ void AttackResult(SPos armyPos,EPiece armyPiece,SPos enemyPos,EPiece enemyPiece)
 		gameStateIA.board[armyPos.line][armyPos.col].content=ECnone;
 		gameStateIA.board[armyPos.line][armyPos.col].piece=EPnone;
 		if (colorIA==ECred)
-			redOut[armyPiece]--;
+			redOut[armyPiece]++;
 		else
-			blueOut[armyPiece]--;
+			blueOut[armyPiece]++;
 
 		// On découvre la valeur d'une pièce ennemie toujours en jeu
 		gameStateIA.board[enemyPos.line][enemyPos.col].piece=enemyPiece;
 	}
-	else /:Les deux pièces disparaissent
+	else //Les deux pièces disparaissent
 	{
 		gameStateIA.board[enemyPos.line][enemyPos.col].content=ECnone;
 		gameStateIA.board[enemyPos.line][enemyPos.col].piece=EPnone;
 		gameStateIA.board[armyPos.line][armyPos.col].content=ECnone;
 		gameStateIA.board[armyPos.line][armyPos.col].piece=EPnone;
 		if (colorIA==ECred)
-			redOut[armyPiece]--;
-			blueOut[enemyPiece]--;
+			redOut[armyPiece]++;
+			blueOut[enemyPiece]++;
 		else
-			blueOut[armyPiece]--;
-			redOut[enemyPiece]--;
+			blueOut[armyPiece]++;
+			redOut[enemyPiece]++;
 	}
 
 }
