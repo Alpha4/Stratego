@@ -267,15 +267,90 @@ SMove NextMove(const SGameState * const gameState)
  */
 void AttackResult(SPos armyPos,EPiece armyPiece,SPos enemyPos,EPiece enemyPiece)
 {
-	// Mettre à jour le board en fonction de l'attaque
+	int result; // 0 --> égalité ; 1 --> Win ; -1 --> Lose
 	
-	//Tester si il y a des pièces spéciales parmi celles en jeu dans l'attaque
-	// Si oui tester en fonction
 	
-	// Sinon cas global : qui a la plus grosse ?
-	//si égalité les deux sont éliminées
-	
-		
+	// Cas spéciaux
+	if (armyPiece==11) // Notre drapeau est pris
+        result = -1;
+
+    else if (enemyPiece==11) // On a pris le leur
+        result = 1;
+
+    // Une de nos bombes est en jeu
+    else if (armyPiece==0)
+    {
+    	if (enemyPiece==3)
+    		result = -1;
+
+   		else
+    		result = 1;
+    }
+
+    // Une de leurs bombes est en jeu
+    else if (enemyPiece==0)
+    {
+    	if(armyPiece==3)
+    		result=1;
+    	else
+    		result=-1;
+    }
+
+    // Marshal vs Spy
+    else if((armyPiece==10 && enemyPiece==1) || (armyPiece==1 && enemyPiece==10))
+    {
+    	// L'attaquant est le gagnant
+    }
+
+    
+	// Cas global :
+	else if(armyPiece<enemyPiece)
+        result = -1; // Attaque perdue
+    
+    else if (armyPiece>enemyPiece)
+        result = 1; // Attaque remportée
+    
+    else
+    	result = 0; // Égalité
+
+    // Mettre à jour le board en fonction de l'attaque
+	if (result == 1)
+	{
+		// Suppression de la pièce éliminée
+		gameStateIA.board[enemyPos.line][enemyPos.col].content=ECnone;
+		gameStateIA.board[enemyPos.line][enemyPos.col].piece=EPnone;
+		if (colorEnemy==ECred)
+			redOut[enemyPiece]--;
+		else
+			blueOut[enemyPiece]--;
+	}
+	else if (result == -1)
+	{
+		// Suppression de la pièce éliminée
+		gameStateIA.board[armyPos.line][armyPos.col].content=ECnone;
+		gameStateIA.board[armyPos.line][armyPos.col].piece=EPnone;
+		if (colorIA==ECred)
+			redOut[armyPiece]--;
+		else
+			blueOut[armyPiece]--;
+
+		// On découvre la valeur d'une pièce ennemie toujours en jeu
+		gameStateIA.board[enemyPos.line][enemyPos.col].piece=enemyPiece;
+	}
+	else /:Les deux pièces disparaissent
+	{
+		gameStateIA.board[enemyPos.line][enemyPos.col].content=ECnone;
+		gameStateIA.board[enemyPos.line][enemyPos.col].piece=EPnone;
+		gameStateIA.board[armyPos.line][armyPos.col].content=ECnone;
+		gameStateIA.board[armyPos.line][armyPos.col].piece=EPnone;
+		if (colorIA==ECred)
+			redOut[armyPiece]--;
+			blueOut[enemyPiece]--;
+		else
+			blueOut[armyPiece]--;
+			redOut[enemyPiece]--;
+	}
+
 }
 
 /**
