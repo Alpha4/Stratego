@@ -210,8 +210,6 @@ int PlacePiece(Context *C, EColor color, EPiece side[4][10])
     Input in;
     memset(&in, 0, sizeof(in));
 
-    SDL_Color blackColor = {0, 0, 0};  // Couleur noire pour le texte
-
     EPiece currentPiece;  // Prochaine pièce que le joueur doit placer
     int nbCurrentPieceLeft;  // Nombre de currentPiece qu'il reste à placer
 
@@ -291,20 +289,17 @@ int PlacePiece(Context *C, EColor color, EPiece side[4][10])
         DisplayInfo(C, NULL, color);
 
         // Affichage de la pièce à placer
-        C->text = TTF_RenderUTF8_Blended(C->fonts[MEDIUMTEXT], getNamePiece(currentPiece), blackColor);
-        x = WINDOW_WIDTH - (500/2) - (C->text->w/2);  // On centre le texte dans la surface à droite du plateau
+        x = WINDOW_WIDTH - (500/2);
         y = 150;
-        Blit(C->text, C->screen, x, y);
+        blitText(C->screen, x, y, 1, 0, getNamePiece(currentPiece), C->fonts[MEDIUMTEXT], (SDL_Color) {0, 0, 0});
 
         // Affichage de la couleur du joueur
-        if (color == ECred)
-            C->text = TTF_RenderUTF8_Blended(C->fonts[MEDIUMTEXT], "Joueur Rouge : ", blackColor);
-        else
-            C->text = TTF_RenderUTF8_Blended(C->fonts[MEDIUMTEXT], "Joueur Bleu : ", blackColor);
-        x = WINDOW_WIDTH - (500/2) - (C->text->w/2);  // On centre le texte dans la surface à droite du plateau
+        x = WINDOW_WIDTH - (500/2);  // On centre le texte dans la surface à droite du plateau
         y = 100;
-        Blit(C->text, C->screen, x, y);
-
+        if (color == ECred)
+            blitText(C->screen, x, y, 1, 0, "Joueur Rouge : ", C->fonts[MEDIUMTEXT], (SDL_Color) {0, 0, 0});
+        else
+            blitText(C->screen, x, y, 1, 0, "Joueur Bleu : ", C->fonts[MEDIUMTEXT], (SDL_Color) {0, 0, 0});
 
         SDL_Flip(C->screen);  // Affichage de l'écran
 
@@ -333,8 +328,6 @@ int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *mo
     EColor colorOpponent;
 
     char text[70];  // Stocke du texte à afficher
-
-    SDL_Color blackColor = {0, 0, 0};  // Couleur noire pour le texte
 
     // Surface qui noircit les cases du plateau où la pièce sélectionnée ne peut se déplacer
     SDL_Surface *noMansLand;
@@ -525,8 +518,6 @@ void DisplayInfo(Context *C, SGameState *gameState, EColor currentPlayer)
 
 void DisplayEnd(Context *C, char winner[50])
 {
-    int x, y;
-
     Input in;
     memset(&in, 0, sizeof(in));
 
