@@ -254,15 +254,55 @@ SMove NextMove(const SGameState * const gameState)
 	        gameStateIA.blueOut[i] = 0;
 	    }
 	}
-	else
+	else // Maj lorsque l'autre équipe à move sans attack
 	{
-		printf("test\n");
+		EPiece temp;
+		SPos pos;
+		int flag1=1; // flag pour sortir si on trouve les 2 différences
+		int flag2= 1;
+		while (i<10 && (flag1 || flag2))
+		{
+			while(j<10 && (flag1 || flag2))
+			{
+				if(gameStateIA.board[i][j].content!=gameState->board[i][j].content)
+				{
+					// La case était vide --> on récupère la position
+					if (gameStateIA.board[i][j].content==ECnone)
+					{
+						pos.line=i;
+						pos.col=j;
+						flag1=0;
+					}
+					// La case était occupée --> on récupère la pièce qui s'y trouvait et on la vide
+					else
+					{
+						temp=gameState->board[i][j].piece;
+						gameStateIA.board[i][j].piece=EPnone;
+						gameStateIA.board[i][j].content=ECnone;
+						flag2=0;
+					}
+				}
+			}
+		}
+		if (!(flag1 && flag2)) // On a trouvé une différence, on remplace la pièce dès fois qu'on la connaissait déjà
+		{
+			gameStateIA.board[pos.line][pos.col].piece=temp;
+			gameStateIA.board[pos.line][pos.col].content=colorEnemy;
+		}
 	}
 	
 	SMove next;
 	
 	// Si l'on peut gagner une attaque de manière certaine à ce tour le faire
 	// Sinon déplacer une pièce qui le peut au hasard
+	
+	// Si pas d'attaque maj de notre tableau
+	if (gameStateIA.board[next.end.line][next.end.col].content==ECnone)
+	{
+		gameStateIA.board[next.end.line][next.end.col].content=colorIA;
+		gameStateIA.board[next.end.line][next.end.col].piece=gameStateIA.board[next.start.line][next.start.col].piece;
+	}
+	
 	last=next; // on met à jour notre dernier coup
 	return next;
 }
@@ -281,7 +321,10 @@ SMove NextMove(const SGameState * const gameState)
 void AttackResult(SPos armyPos,EPiece armyPiece,SPos enemyPos,EPiece enemyPiece)
 {
 	int result; // 0 --> égalité ; 1 --> Win ; -1 --> Lose
-	
+
+	// 0 --> faux (on nous attaque) ; 1 --> vrai (on attaque)
+    // i.e.: armyPos est la position de départ de notre dernier move.
+	int attacking=(last.start.line==armyPos.line && last.start.col==armyPos.col);
 	
 	// Cas spéciaux
 	if (armyPiece==11) // Notre drapeau est pris
@@ -313,9 +356,8 @@ void AttackResult(SPos armyPos,EPiece armyPiece,SPos enemyPos,EPiece enemyPiece)
     else if((armyPiece==10 && enemyPiece==1) || (armyPiece==1 && enemyPiece==10))
     {
     	// On regarde s'il s'agit de notre attaque
-    	// i.e.: armyPos est la position de départ de notre dernier move.
-    	if (last.start.line==armyPos.line && last.start.col==armyPos.col)
-    		result==1;
+    	if (attacking)
+    		result=1;
     	else
     		result=-1;
     }
@@ -334,26 +376,47 @@ void AttackResult(SPos armyPos,EPiece armyPiece,SPos enemyPos,EPiece enemyPiece)
     // Mettre à jour le board en fonction de l'attaque
 	if (result == 1)
 	{
-		// Suppression de la pièce éliminée
-		gameStateIA.board[enemyPos.line][enemyPos.col].content=ECnone;
-		gameStateIA.board[enemyPos.line][enemyPos.col].piece=EPnone;
-		if (colorEnemy==ECred)
-			redOut[enemyPiece]++;
+		// Nous sommes les initiateurs de l'attaque
+		if (attacking)
+		{
+			gameStateIA.board[enemyPos.line][enemyPos.col].content=colorIA;
+			gameStateIA.board[enemyPos.line][enemyPos.col].piece=armyPiece;
+		}
+		//On nous a attaqué
 		else
-			blueOut[enemyPiece]++;
+		{
+			// Suppression de la pièce éliminée
+			gameStateIA.board[enemyPos.line][enemyPos.col].content=ECnone;
+			gameStateIA.board[enemyPos.line][enemyPos.col].piece=EPnone;
+		}
+		
+		if (colorEnemy==ECred)
+			gameStateIA.redOut[enemyPiece]++;
+		else
+			gameStateIA.blueOut[enemyPiece]++;
+		
 	}
 	else if (result == -1)
 	{
-		// Suppression de la pièce éliminée
-		gameStateIA.board[armyPos.line][armyPos.col].content=ECnone;
-		gameStateIA.board[armyPos.line][armyPos.col].piece=EPnone;
-		if (colorIA==ECred)
-			redOut[armyPiece]++;
+		// Nous sommes les initiateurs de l'attaque
+		if (attacking)
+		{
+			// Suppression de la pièce éliminée
+			gameStateIA.board[armyPos.line][armyPos.col].content=ECnone;
+			gameStateIA.board[armyPos.line][armyPos.col].piece=EPnone;
+			// On découvre la valeur d'une pièce ennemie toujours en jeu
+			gameStateIA.board[enemyPos.line][enemyPos.col].piece=enemyPiece;
+		}
+		// On nous a attaqué
 		else
-			blueOut[armyPiece]++;
-
-		// On découvre la valeur d'une pièce ennemie toujours en jeu
-		gameStateIA.board[enemyPos.line][enemyPos.col].piece=enemyPiece;
+		{
+			gameStateIA.board[armyPos.line][armyPos.col].content=colorEnemy;
+			gameStateIA.board[armyPos.line][armyPos.col].piece=enemyPiece;
+		}
+		if (colorIA==ECred)
+			gameStateIA.redOut[armyPiece]++;
+		else
+			gameStateIA.blueOut[armyPiece]++;
 	}
 	else //Les deux pièces disparaissent
 	{
@@ -362,13 +425,16 @@ void AttackResult(SPos armyPos,EPiece armyPiece,SPos enemyPos,EPiece enemyPiece)
 		gameStateIA.board[armyPos.line][armyPos.col].content=ECnone;
 		gameStateIA.board[armyPos.line][armyPos.col].piece=EPnone;
 		if (colorIA==ECred)
-			redOut[armyPiece]++;
-			blueOut[enemyPiece]++;
+		{
+			gameStateIA.redOut[armyPiece]++;
+			gameStateIA.blueOut[enemyPiece]++;
+		}
 		else
-			blueOut[armyPiece]++;
-			redOut[enemyPiece]++;
+		{
+			gameStateIA.blueOut[armyPiece]++;
+			gameStateIA.redOut[enemyPiece]++;
+		}
 	}
-
 }
 
 /**
