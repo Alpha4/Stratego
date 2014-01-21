@@ -71,117 +71,52 @@ void StartGame(const EColor color,EPiece boardInit[4][10])
 		}
 	}
 	
-	
-	// Placement des lignes 0 et 1
-	for (i=0;i<2;i++)
+	// Placement des lignes 0 à 4
+	for (i=0;i<4;i++)
 	{
 		for (j=0;j<10;j=j+2)
 		{
+			//Première pièce
 			if (boardInit[i][j]==NULL && boardInit[i][j+1]!=NULL) // Cas spécial : case non remplie et la suivante est de la zone drapeau
 			{
 				if (boardInit[i][j+1]>3) // La pièce suivante est "forte"
 				{
-					do
-					{
-						randomInt=PseudoRandom(0,3); // Pièce avec une force entre 0 et 3
-					}while(pawnsLeft[randomInt]==0);
-
-					boardInit[i][j]=randomInt;
-					pawnsLeft[randomInt]--;
+					
+					boardInit[i][j]=PlacePiece(0,3,pawnsLeft); // On place la pièce
 				}
 				else // Si la pièce suivante est "faible"
 				{
-					do
-					{
-						randomInt=PseudoRandom(4,8); // Pièce avec une force entre 0 et 3
-					}while(pawnsLeft[randomInt]==0);
-
-					boardInit[i][j]=randomInt;
-					pawnsLeft[randomInt]--;
+					boardInit[i][j]=PlacePiece(4,8,pawnsLeft);
 				}
 			}
 
-			else if (boardInit[i][j]==NULL) // Pas de pièce "de la zone drapeau" en [i][j]
+			else if (boardInit[i][j]==NULL && i<2) // Pas de pièce "de la zone drapeau" en [i][j]
 			{
 				// Placement d'une première pièce
-				do 
-				{
-					randomInt=PseudoRandom(0,8); // Pièce avec une force entre 0 et 8
-				}while(pawnsLeft[randomInt]==0); // Pièce encore disponible au placement ?
-
-				boardInit[i][j]=randomInt;
-				pawnsLeft[randomInt]--;
+				boardInit[i][j]=PlacePiece(0,8,pawnsLeft);
 			}
 
-			else // On prend la pièce de cette case pour générer la prochaine pièce si besoin
-			{
-				randomInt=boardInit[i][j];
-			}
-
-			if (boardInit[i][j+1]==NULL) // Pas de pièce de la "zone drapeau" en [i][j+1]
+			else
+				boardInit[i][j]=PlacePiece(0,10,pawnsLeft);
+			
+			//Deuxième pièce
+			if (boardInit[i][j+1]==NULL) // Pas de pièce de la "zone drapeau" en [i][j+1] (Test inutile pour les lignes 2 et 3)
 			{
 				// Placement d'une deuxième pièce
-				if (randomInt>3) // Si la première pièce est "forte"
+				if (boardInit[i][j]>3) // Si la première pièce est "forte"
 				{
-					do
-					{
-						randomInt=PseudoRandom(0,3); // Pièce avec une force entre 0 et 3
-					}while(pawnsLeft[randomInt]==0);
-
-					boardInit[i][j+1]=randomInt;
-					pawnsLeft[randomInt]--;
+					boardInit[i][j+1]=PlacePiece(0,3,pawnsLeft);
 				}
-				else // Si la première pièce est "faible"
+				else if (i<2) // Si la première pièce est "faible" 
 				{
-					do
-					{
-						randomInt=PseudoRandom(4,8); // Pièce avec une force entre 0 et 3
-					}while(pawnsLeft[randomInt]==0);
-
-					boardInit[i][j+1]=randomInt;
-					pawnsLeft[randomInt]--;
+					boardInit[i][j+1]=PlacePiece(4,8,pawnsLeft);
 				}
+				else //Ligne 2 et 3 
+					boardInit[i][j+1]=PlacePiece(4,10,pawnsLeft);
 			}
 		}
 	}
 
-	// Placement des lignes 2 et 3
-	for (i=2;i<4;i++)
-	{
-		for (j=0;j<10;j=j+2)
-		{
-			// Placement d'une première pièce
-			do 
-			{
-				randomInt=PseudoRandom(0,10);
-			}while(pawnsLeft[randomInt]==0);
-
-			boardInit[i][j]=randomInt;
-			pawnsLeft[randomInt]--;
-
-			// Placement d'une deuxième pièce
-			if (randomInt>3) // Si la première pièce est "forte"
-			{
-				do
-				{
-					randomInt=PseudoRandom(0,3);
-				}while(pawnsLeft[randomInt]==0);
-
-				boardInit[i][j+1]=randomInt;
-				pawnsLeft[randomInt]--;
-			}
-			else // Si la première pièce est "faible"
-			{
-				do
-				{
-					randomInt=PseudoRandom(4,10);
-				}while(pawnsLeft[randomInt]==0);
-
-				boardInit[i][j+1]=randomInt;
-				pawnsLeft[randomInt]--;
-			}
-		}
-	}
 
 	// Stockage des couleurs
 	if ((colorIA=color)==ECred)//Attribution des couleurs des joueurs
@@ -259,7 +194,7 @@ SMove NextMove(const SGameState * const gameState)
 		EPiece temp;
 		SPos pos;
 		int flag1=1; // flag pour sortir si on trouve les 2 différences
-		int flag2= 1;
+		int flag2=1;
 		while (i<10 && (flag1 || flag2))
 		{
 			while(j<10 && (flag1 || flag2))
@@ -461,8 +396,32 @@ int PseudoRandom(int a,int b)
 	return rand()%(b-a) +a;
 }
 
+/**
+ * Placement d'une pièce dans le boardinit
+ * @param int i
+ * 	ligne i
+ * @param int j
+ * 	colonne j
+ * @param int forcMin
+ * 	force minimum de la pièce
+ * @param int forceMax
+ * 	force maximum de la pièce
+ * @param unsigned int pawnsLeft[11]
+ * 	tableau des pièces restantes à palcer
+ * @param boardInit[4][10]
+ *	tableau à remplir
+ */
+int PlacePiece (int forceMin, int forceMax, unsigned int pawnsLeft[])
+{
+	int nextPiece;
+	do
+	{
+		nextPiece=PseudoRandom(forceMin,forceMax); // Pièce avec une force entre forceMin et forceMax
+	}while(pawnsLeft[nextPiece]==0); // Pièce encore disponible au placement ?
 
-
+	pawnsLeft[nextPiece]--; // On retire la pièce du tableau de pièces à placer
+	return nextPiece;
+}
 
 
 
