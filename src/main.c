@@ -36,6 +36,7 @@ int main(int argc, char *argv[])
     SGameState gameStateCopy;  // Le jeu (plateau + pièces éliminées)
 
     int stop;  // Variable utilisée dans des while()
+    int g;  // Utilisé pour des boucles for()
 
     int nbHumanPlayers;
 
@@ -67,8 +68,6 @@ int main(int argc, char *argv[])
 
     int i, j;
     int x, y;
-
-    SDL_Color blackColor = {0, 0, 0};  // Couleur noire pour le texte
 
     /**
      * Variables concernant la gestion des lib
@@ -154,10 +153,10 @@ int main(int argc, char *argv[])
 
 
     /**
-     * Initialisation de la partie
+     * Initialisation du match
      */
 
-    if (nbHumanPlayers == 1)  // Le joueur 1 est une IA
+    if (nbHumanPlayers <= 1)  // Le joueur 1 est une IA
     {
         ai1.InitLibrary(p1Name);  // On lui demande son nom
         ai1.StartMatch();  // On l'initialise
@@ -169,339 +168,357 @@ int main(int argc, char *argv[])
         }
     }
 
-    if (nbHumanPlayers == 1)  // Le joueur 1 est une IA
+    for (g = 1 ; g <= NB_GAMES ; g++)
     {
-        stop = 0;
-        while (!stop)
-        {
-            ai1.StartGame(player1, p1Side);  // On lui demande de placer ses pièces
-            if (VerifyInitAI(p1Side))  // Si les pièces sont bien placées, c'est bon
-                stop = 1;
-            else  // Sinon, on pénalise le joueur et on lui redemande
-            {
-                penalty[player1 - 2]++;
-                ai1.Penalty();
-                if (isGameFinished(NULL, penalty, player1, player2) == player2)  // Le joueur 2 a gagné car le joueur 1 a trop de pénalités
-                {
-                    DisplayEnd(&C, p2Name);
-                    return EXIT_SUCCESS;  // On quitte le programme
-                }
-            }
-        }
-
-        if (nbHumanPlayers == 0)  // Le joueur 2 est aussi une IA
+        /**
+         * Initialisation de la game
+         */
+        if (nbHumanPlayers <= 1)  // Le joueur 1 est une IA
         {
             stop = 0;
             while (!stop)
             {
-                ai2.StartGame(player2, p2Side);  // On lui demande de placer ses pièces
-                if (VerifyInitAI(p2Side))  // Si les pièces sont bien placées, c'est bon
+                ai1.StartGame(player1, p1Side);  // On lui demande de placer ses pièces
+                if (VerifyInitAI(p1Side))  // Si les pièces sont bien placées, c'est bon
                     stop = 1;
                 else  // Sinon, on pénalise le joueur et on lui redemande
                 {
-                    penalty[player2 - 2]++;
-                    ai2.Penalty();
-                    if (isGameFinished(NULL, penalty, player1, player2) == player1)  // Le joueur 1 a gagné car le joueur 2 a trop de pénalités
+                    penalty[player1 - 2]++;
+                    ai1.Penalty();
+                    if (isGameFinished(NULL, penalty, player1, player2) == player2)  // Le joueur 2 a gagné car le joueur 1 a trop de pénalités
                     {
-                        DisplayEnd(&C, p1Name);
+                        DisplayEnd(&C, p2Name);
                         return EXIT_SUCCESS;  // On quitte le programme
                     }
                 }
             }
+
+            if (nbHumanPlayers == 0)  // Le joueur 2 est aussi une IA
+            {
+                stop = 0;
+                while (!stop)
+                {
+                    ai2.StartGame(player2, p2Side);  // On lui demande de placer ses pièces
+                    if (VerifyInitAI(p2Side))  // Si les pièces sont bien placées, c'est bon
+                        stop = 1;
+                    else  // Sinon, on pénalise le joueur et on lui redemande
+                    {
+                        penalty[player2 - 2]++;
+                        ai2.Penalty();
+                        if (isGameFinished(NULL, penalty, player1, player2) == player1)  // Le joueur 1 a gagné car le joueur 2 a trop de pénalités
+                        {
+                            DisplayEnd(&C, p1Name);
+                            return EXIT_SUCCESS;  // On quitte le programme
+                        }
+                    }
+                }
+            }
+            else
+            {
+                if (PlacePiece(&C, player2, p2Side) == -1)  // On lui demande de placer ses pièces
+                {
+                    // L'utilisateur a quitté le jeu
+                    return EXIT_SUCCESS;
+                }
+            }
         }
-        else
+        else  // Aucun joueur n'est une IA
         {
-            if (PlacePiece(&C, player2, p2Side) == -1)  // On lui demande de placer ses pièces
+            // On demande à chaque joueur humain de placer ses pièces
+            if (PlacePiece(&C, player1, p1Side) == -1)
+            {
+                // L'utilisateur a quitté le jeu
+                return EXIT_SUCCESS;
+            }
+            if (PlacePiece(&C, player2, p2Side) == -1)
             {
                 // L'utilisateur a quitté le jeu
                 return EXIT_SUCCESS;
             }
         }
-    }
-    else  // Aucun joueur n'est une IA
-    {
-        // On demande à chaque joueur humain de placer ses pièces
-        if (PlacePiece(&C, player1, p1Side) == -1)
-        {
-            // L'utilisateur a quitté le jeu
-            return EXIT_SUCCESS;
-        }
-        if (PlacePiece(&C, player2, p2Side) == -1)
-        {
-            // L'utilisateur a quitté le jeu
-            return EXIT_SUCCESS;
-        }
-    }
 
 
-    /*
-     * Remplissage de gameState
-     */
-
-    for (i = 0 ; i < SQUARES_BY_SIDE ; i++)
-    {
-        for (j = 0 ; j < SQUARES_BY_SIDE ; j++)
-        {
-            gameState.board[i][j].piece = EPnone;
-            gameState.board[i][j].content = ECnone;
-        }
-    }
-
-    // Placement des lacs (ligne 4 et 5, colonnes 2, 3, 6 et 7)
-    for (i = 4 ; i <= 5 ; i++)
-    {
-        for (j = 2 ; j <= 7 ; j++)
-        {
-            if (j != 4 && j != 5)
-            {
-                gameState.board[j][j].piece = EPnone;
-                gameState.board[i][j].content = EClake;
-            }
-        }
-    }
-
-
-    if (player1 == ECred)
-    {
-        for (i = 0 ; i < 4 ; i++)
-        {
-            for (j = 0 ; j < SQUARES_BY_SIDE ; j++)
-            {
-                gameState.board[9 - i][j].piece = p1Side[i][j];
-                gameState.board[9 - i][j].content = player1;
-            }
-        }
-
-        for (i = 0 ; i < 4 ; i++)
-        {
-            for (j = 0 ; j < SQUARES_BY_SIDE ; j++)
-            {
-                gameState.board[i][9 - j].piece = p2Side[i][j];
-                gameState.board[i][9 - j].content = player2;
-            }
-        }
-    }
-    else
-    {
-        for (i = 0 ; i < 4 ; i++)
-        {
-            for (j = 0 ; j < SQUARES_BY_SIDE ; j++)
-            {
-                gameState.board[9 - i][j].piece = p2Side[i][j];
-                gameState.board[9 - i][j].content = player2;
-            }
-        }
-
-        for (i = 0 ; i < 4 ; i++)
-        {
-            for (j = 0 ; j < SQUARES_BY_SIDE ; j++)
-            {
-                gameState.board[i][9 - j].piece = p1Side[i][j];
-                gameState.board[i][9 - j].content = player1;
-            }
-        }
-    }
-
-    // Initialisation du nombre de pièces éliminées pour chaque joueur
-    for (i = 0 ; i < 11 ; i++)
-    {
-        gameState.redOut[i] = 0;
-        gameState.blueOut[i] = 0;
-    }
-
-    // Boucle qui attends que l'utilisateur ferme le programme pour s'arrêter
-    while (!in.quit)
-    {
-        UpdateEvents(&in);
-
-        manageBoard(&gameState, &gameStateCopy, currentPlayer);
-
-        if (currentPlayer == player1)  // Le joueur 1 doit jouer
-        {
-            if (nbHumanPlayers == 1)  // Le joueur 1 est une IA
-                movement = ai1.NextMove(&gameStateCopy);
-            else  // Le joueur 1 est un humain
-            {
-                if (movePiece(&C, currentPlayer, &gameStateCopy, &movement, p1Name) == -1)
-                {
-                    // L'utilisateur a quitté le jeu
-                    return EXIT_SUCCESS;
-                }
-            }
-        }
-        else  // Le joueur 2 doit jouer
-        {
-            if (nbHumanPlayers == 0)  // Le joueur 2 est une IA
-                movement = ai2.NextMove(&gameStateCopy);
-            else  // Le joueur 2 est un humain
-            {
-                if (movePiece(&C, currentPlayer, &gameStateCopy, &movement, p2Name) == -1)
-                {
-                    // L'utilisateur a quitté le jeu
-                    return EXIT_SUCCESS;
-                }
-            }
-
-            // On diminue le nombre de coups restant
-            nbMoveLeft--;
-        }
-
-        // Si c'est le joueur bleu qui joue, il voit le plateau à l'envers, donc on doit retourner le mouvement
-        if (currentPlayer == ECblue)
-        {
-            movement.start.line = 9 - movement.start.line;
-            movement.start.col = 9 - movement.start.col;
-            movement.end.line = 9 - movement.end.line;
-            movement.end.col = 9 - movement.end.col;
-        }
-
-
-        // Si le déplacement est valide, on l'effectue
-        if (isValidMove(&gameState, movement, currentPlayer, histMove[currentPlayer - 2]))
-        {
-            if (gameState.board[movement.end.line][movement.end.col].piece != EPnone)  // Il y a une pièce sur la case où le joueur se déplace, c'est donc une attaque
-            {
-                // On envoie l'info aux IA si nécessaire
-                if (nbHumanPlayers == 1)  // Le joueur 1 est une IA
-                {
-                    if (currentPlayer == player1)
-                        ai1.AttackResult(movement.start, gameState.board[movement.start.line][movement.start.col].piece, movement.end, gameState.board[movement.end.line][movement.end.col].piece);
-                    else
-                        ai1.AttackResult(movement.end, gameState.board[movement.end.line][movement.end.col].piece, movement.start, gameState.board[movement.start.line][movement.start.col].piece);
-
-                    if (nbHumanPlayers == 0)  // Le joueur 2 est aussi une IA
-                    {
-                        if (currentPlayer == player2)
-                            ai2.AttackResult(movement.start, gameState.board[movement.start.line][movement.start.col].piece, movement.end, gameState.board[movement.end.line][movement.end.col].piece);
-                        else
-                            ai2.AttackResult(movement.end, gameState.board[movement.end.line][movement.end.col].piece, movement.start, gameState.board[movement.start.line][movement.start.col].piece);
-                    }
-                }
-
-                result = Attack(gameState.board[movement.start.line][movement.start.col].piece, gameState.board[movement.end.line][movement.end.col].piece);
-
-                switch(result)
-                {
-                    case 0:  // On supprime les deux pièces (elles s'entretuent)
-                        // On augmente le nombre de pièces éliminées pour chaque joueur (ils perdent tous les deux la même pièce)
-                        gameState.redOut[gameState.board[movement.end.line][movement.end.col].piece]++;
-                        gameState.blueOut[gameState.board[movement.end.line][movement.end.col].piece]++;
-                        gameState.board[movement.start.line][movement.start.col].content = ECnone;
-                        gameState.board[movement.start.line][movement.start.col].piece = EPnone;
-                        gameState.board[movement.end.line][movement.end.col].content = ECnone;
-                        gameState.board[movement.end.line][movement.end.col].piece = EPnone;
-                        break;
-
-                    case 1:  // L'attaquant gagne
-                        if (currentPlayer == ECred)
-                            gameState.blueOut[gameState.board[movement.end.line][movement.end.col].piece]++;
-                        else
-                            gameState.redOut[gameState.board[movement.end.line][movement.end.col].piece]++;
-                        gameState.board[movement.end.line][movement.end.col].piece = gameState.board[movement.start.line][movement.start.col].piece;
-                        gameState.board[movement.end.line][movement.end.col].content = gameState.board[movement.start.line][movement.start.col].content;
-                        gameState.board[movement.start.line][movement.start.col].content = ECnone;
-                        gameState.board[movement.start.line][movement.start.col].piece = EPnone;
-                        break;
-
-                    case 2:  // L'attaquant perd
-                        if (currentPlayer == ECred)
-                            gameState.redOut[gameState.board[movement.start.line][movement.start.col].piece]++;
-                        else
-                            gameState.blueOut[gameState.board[movement.start.line][movement.start.col].piece]++;
-                        gameState.board[movement.start.line][movement.start.col].content = ECnone;
-                        gameState.board[movement.start.line][movement.start.col].piece = EPnone;
-                        break;
-                }
-            }
-            else
-            {
-                gameState.board[movement.end.line][movement.end.col].piece = gameState.board[movement.start.line][movement.start.col].piece;
-                gameState.board[movement.end.line][movement.end.col].content = gameState.board[movement.start.line][movement.start.col].content;
-                gameState.board[movement.start.line][movement.start.col].content = ECnone;
-                gameState.board[movement.start.line][movement.start.col].piece = EPnone;
-            }
-        }
-        else
-        {
-            penalty[currentPlayer - 2]++;  // On augmente le compteur de pénalité du joueur
-
-            // On envoie l'info à l'IA si besoin
-            if (currentPlayer == player1)  // Le joueur 1 a joué
-            {
-                if (nbHumanPlayers == 1)  // Le joueur 1 est une IA
-                    ai1.Penalty();
-            }
-            else  // Le joueur a joué
-            {
-                if (nbHumanPlayers == 0)  // Le joueur 2 est une IA
-                    ai2.Penalty();
-            }
-        }
-
-        // On vérifie si la parite est terminée
-        result = isGameFinished(&gameState, penalty, player1, player2);
-
-        if (result == player1)
-        {
-            DisplayEnd(&C, p1Name);
-            return EXIT_SUCCESS;
-        }
-        else if (result == player2)
-        {
-            DisplayEnd(&C, p2Name);
-            return EXIT_SUCCESS;
-        }
-
-        // C'est maintenant à l'autre joueur de jouer
-        if (currentPlayer == player1)
-            currentPlayer = player2;
-        else
-            currentPlayer = player1;
-
-        // Effacement de l'écran
-        SDL_FillRect(C.screen, NULL, SDL_MapRGB(C.screen->format, 255, 255, 255));
-
-        // Affichage du plateau
-        Blit(C.board, C.screen, 0, 0);
+        /*
+         * Remplissage de gameState
+         */
 
         for (i = 0 ; i < SQUARES_BY_SIDE ; i++)
         {
             for (j = 0 ; j < SQUARES_BY_SIDE ; j++)
             {
-                x = j * SQUARE_SIZE;
-                y = i * SQUARE_SIZE;
+                gameState.board[i][j].piece = EPnone;
+                gameState.board[i][j].content = ECnone;
+            }
+        }
 
-                if (gameState.board[i][j].piece != EPnone)
+        // Placement des lacs (ligne 4 et 5, colonnes 2, 3, 6 et 7)
+        for (i = 4 ; i <= 5 ; i++)
+        {
+            for (j = 2 ; j <= 7 ; j++)
+            {
+                if (j != 4 && j != 5)
                 {
-                    if (gameState.board[i][j].content == ECred)
-                        Blit(C.images[IMGRED][gameState.board[i][j].piece], C.screen, x, y);
-                    else
-                        Blit(C.images[IMGBLUE][gameState.board[i][j].piece], C.screen, x, y);
+                    gameState.board[j][j].piece = EPnone;
+                    gameState.board[i][j].content = EClake;
                 }
             }
         }
 
-        // Affichage du nom du jeu
-        C.text = TTF_RenderUTF8_Blended(C.fonts[BIGTEXT], "Stratego", blackColor);
-        x = WINDOW_WIDTH - (500/2) - (C.text->w/2);  // On centre le texte dans la surface à droite du plateau
-        y = 5;
-        Blit(C.text, C.screen, x, y);
 
-        // Affichage des noms des joueurs (pour afficher en dessous le nombre de pièces perdues par le joueur)
-        C.text = TTF_RenderUTF8_Blended(C.fonts[MEDIUMTEXT], p1Name, blackColor);
-        x = WINDOW_WIDTH - 500 + 20;
-        y = 70;
-        Blit(C.text, C.screen, x, y);
+        if (player1 == ECred)
+        {
+            for (i = 0 ; i < 4 ; i++)
+            {
+                for (j = 0 ; j < SQUARES_BY_SIDE ; j++)
+                {
+                    gameState.board[9 - i][j].piece = p1Side[i][j];
+                    gameState.board[9 - i][j].content = player1;
+                }
+            }
 
-        C.text = TTF_RenderUTF8_Blended(C.fonts[MEDIUMTEXT], p2Name, blackColor);
-        x = WINDOW_WIDTH - 500 + 20;
-        y = WINDOW_HEIGHT / 2;
-        Blit(C.text, C.screen, x, y);
+            for (i = 0 ; i < 4 ; i++)
+            {
+                for (j = 0 ; j < SQUARES_BY_SIDE ; j++)
+                {
+                    gameState.board[i][9 - j].piece = p2Side[i][j];
+                    gameState.board[i][9 - j].content = player2;
+                }
+            }
+        }
+        else
+        {
+            for (i = 0 ; i < 4 ; i++)
+            {
+                for (j = 0 ; j < SQUARES_BY_SIDE ; j++)
+                {
+                    gameState.board[9 - i][j].piece = p2Side[i][j];
+                    gameState.board[9 - i][j].content = player2;
+                }
+            }
+
+            for (i = 0 ; i < 4 ; i++)
+            {
+                for (j = 0 ; j < SQUARES_BY_SIDE ; j++)
+                {
+                    gameState.board[i][9 - j].piece = p1Side[i][j];
+                    gameState.board[i][9 - j].content = player1;
+                }
+            }
+        }
+
+        // Initialisation du nombre de pièces éliminées pour chaque joueur
+        for (i = 0 ; i < 11 ; i++)
+        {
+            gameState.redOut[i] = 0;
+            gameState.blueOut[i] = 0;
+        }
+
+        // Boucle qui attends que l'utilisateur ferme le programme pour s'arrêter
+        while (!in.quit)
+        {
+            UpdateEvents(&in);
+
+            manageBoard(&gameState, &gameStateCopy, currentPlayer); // On fait une copie du plateau en cachant les types des pièces adverses et le plaçant dans le bon sens
+
+            if (currentPlayer == player1)  // Le joueur 1 doit jouer
+            {
+                if (nbHumanPlayers <= 1)  // Le joueur 1 est une IA
+                    movement = ai1.NextMove(&gameStateCopy);
+                else  // Le joueur 1 est un humain
+                {
+                    if (movePiece(&C, currentPlayer, &gameStateCopy, &movement, p1Name) == -1)
+                    {
+                        // L'utilisateur a quitté le jeu
+                        return EXIT_SUCCESS;
+                    }
+                }
+            }
+            else  // Le joueur 2 doit jouer
+            {
+                if (nbHumanPlayers == 0)  // Le joueur 2 est une IA
+                    movement = ai2.NextMove(&gameStateCopy);
+                else  // Le joueur 2 est un humain
+                {
+                    if (movePiece(&C, currentPlayer, &gameStateCopy, &movement, p2Name) == -1)
+                    {
+                        // L'utilisateur a quitté le jeu
+                        return EXIT_SUCCESS;
+                    }
+                }
+
+                // On diminue le nombre de coups restant
+                nbMoveLeft--;
+            }
+
+            // Si c'est le joueur bleu qui joue, il voit le plateau à l'envers, donc on doit retourner le mouvement
+            if (currentPlayer == ECblue)
+            {
+                movement.start.line = 9 - movement.start.line;
+                movement.start.col = 9 - movement.start.col;
+                movement.end.line = 9 - movement.end.line;
+                movement.end.col = 9 - movement.end.col;
+            }
 
 
-        SDL_Flip(C.screen);  // Affichage de l'écran
+            // Si le déplacement est valide, on l'effectue
+            if (isValidMove(&gameState, movement, currentPlayer, histMove[currentPlayer - 2]))
+            {
+                if (gameState.board[movement.end.line][movement.end.col].piece != EPnone)  // Il y a une pièce sur la case où le joueur se déplace, c'est donc une attaque
+                {
+                    // On envoie l'info aux IA si nécessaire
+                    if (nbHumanPlayers <= 1)  // Le joueur 1 est une IA
+                    {
+                        if (currentPlayer == player1)
+                            ai1.AttackResult(movement.start, gameState.board[movement.start.line][movement.start.col].piece, movement.end, gameState.board[movement.end.line][movement.end.col].piece);
+                        else
+                            ai1.AttackResult(movement.end, gameState.board[movement.end.line][movement.end.col].piece, movement.start, gameState.board[movement.start.line][movement.start.col].piece);
 
-        SDL_Delay(30);  // Attente de 30ms entre chaque tour de boucle pour en pas surcharger le CPU
+                        if (nbHumanPlayers == 0)  // Le joueur 2 est aussi une IA
+                        {
+                            if (currentPlayer == player2)
+                                ai2.AttackResult(movement.start, gameState.board[movement.start.line][movement.start.col].piece, movement.end, gameState.board[movement.end.line][movement.end.col].piece);
+                            else
+                                ai2.AttackResult(movement.end, gameState.board[movement.end.line][movement.end.col].piece, movement.start, gameState.board[movement.start.line][movement.start.col].piece);
+                        }
+                    }
+
+                    result = Attack(gameState.board[movement.start.line][movement.start.col].piece, gameState.board[movement.end.line][movement.end.col].piece);
+
+                    switch(result)
+                    {
+                        case 0:  // On supprime les deux pièces (elles s'entretuent)
+                            // On augmente le nombre de pièces éliminées pour chaque joueur (ils perdent tous les deux la même pièce)
+                            gameState.redOut[gameState.board[movement.end.line][movement.end.col].piece]++;
+                            gameState.blueOut[gameState.board[movement.end.line][movement.end.col].piece]++;
+                            gameState.board[movement.start.line][movement.start.col].content = ECnone;
+                            gameState.board[movement.start.line][movement.start.col].piece = EPnone;
+                            gameState.board[movement.end.line][movement.end.col].content = ECnone;
+                            gameState.board[movement.end.line][movement.end.col].piece = EPnone;
+                            break;
+
+                        case 1:  // L'attaquant gagne
+                            if (currentPlayer == ECred)
+                                gameState.blueOut[gameState.board[movement.end.line][movement.end.col].piece]++;
+                            else
+                                gameState.redOut[gameState.board[movement.end.line][movement.end.col].piece]++;
+                            gameState.board[movement.end.line][movement.end.col].piece = gameState.board[movement.start.line][movement.start.col].piece;
+                            gameState.board[movement.end.line][movement.end.col].content = gameState.board[movement.start.line][movement.start.col].content;
+                            gameState.board[movement.start.line][movement.start.col].content = ECnone;
+                            gameState.board[movement.start.line][movement.start.col].piece = EPnone;
+                            break;
+
+                        case 2:  // L'attaquant perd
+                            if (currentPlayer == ECred)
+                                gameState.redOut[gameState.board[movement.start.line][movement.start.col].piece]++;
+                            else
+                                gameState.blueOut[gameState.board[movement.start.line][movement.start.col].piece]++;
+                            gameState.board[movement.start.line][movement.start.col].content = ECnone;
+                            gameState.board[movement.start.line][movement.start.col].piece = EPnone;
+                            break;
+                    }
+                }
+                else
+                {
+                    gameState.board[movement.end.line][movement.end.col].piece = gameState.board[movement.start.line][movement.start.col].piece;
+                    gameState.board[movement.end.line][movement.end.col].content = gameState.board[movement.start.line][movement.start.col].content;
+                    gameState.board[movement.start.line][movement.start.col].content = ECnone;
+                    gameState.board[movement.start.line][movement.start.col].piece = EPnone;
+                }
+            }
+            else
+            {
+                penalty[currentPlayer - 2]++;  // On augmente le compteur de pénalité du joueur
+
+                // On envoie l'info à l'IA si besoin
+                if (currentPlayer == player1)  // Le joueur 1 a joué
+                {
+                    if (nbHumanPlayers <= 1)  // Le joueur 1 est une IA
+                        ai1.Penalty();
+                }
+                else  // Le joueur 2 a joué
+                {
+                    if (nbHumanPlayers == 0)  // Le joueur 2 est une IA
+                        ai2.Penalty();
+                }
+            }
+
+            // Si il n'y a que des IAs, on affiche le plateau entre chaque tour pour pouvoir suivre le déroulement de la partie
+            if (nbHumanPlayers == 0)
+            {
+                // Effacement de l'écran
+                SDL_FillRect(C.screen, NULL, SDL_MapRGB(C.screen->format, 255, 255, 255));
+
+                // Affichage du plateau
+                Blit(C.board, C.screen, 0, 0);
+
+                for (i = 0 ; i < SQUARES_BY_SIDE ; i++)
+                {
+                    for (j = 0 ; j < SQUARES_BY_SIDE ; j++)
+                    {
+                        x = j * SQUARE_SIZE;
+                        y = i * SQUARE_SIZE;
+
+                        if (gameState.board[i][j].piece != EPnone)
+                        {
+                            if (gameState.board[i][j].content == ECred)
+                                Blit(C.images[IMGRED][gameState.board[i][j].piece], C.screen, x, y);
+                            else
+                                Blit(C.images[IMGBLUE][gameState.board[i][j].piece], C.screen, x, y);
+                        }
+                    }
+                }
+
+                DisplayInfo(&C, &gameState, currentPlayer);
+
+                SDL_Flip(C.screen);  // Affichage de l'écran
+            }
+
+            // On vérifie si la parite est terminée
+            result = isGameFinished(&gameState, penalty, player1, player2);
+
+            if (result == player1)  // Le joueur 1 a gagné
+            {
+                if (nbHumanPlayers > 0)  // On a au moins un joueur humain
+                {
+                    if (nbHumanPlayers == 1)  // On a également une IA
+                        ai1.EndGame();
+
+                    DisplayEnd(&C, p1Name);  // On affiche le gagnant au joueur humain
+                }
+                else  // On a deux IAs
+                {
+                    ai1.EndGame();
+                    ai2.EndGame();
+                }
+
+                break;  // On sort du while pour passer au tour suivant
+            }
+            else if (result == player2)  // Le joueur 2 a gagné
+            {
+                if (nbHumanPlayers > 0)  // On a au moins un joueur humain
+                {
+                    if (nbHumanPlayers == 1)  // On a également une IA
+                        ai1.EndGame();
+
+                    DisplayEnd(&C, p2Name);  // On affiche le gagnant au joueur humain
+                }
+                else  // On a deux IAs
+                {
+                    ai1.EndGame();
+                    ai2.EndGame();
+                }
+
+                break;  // On sort du while pour passer au tour suivant
+            }
+
+            // C'est maintenant à l'autre joueur de jouer
+            if (currentPlayer == player1)
+                currentPlayer = player2;
+            else
+                currentPlayer = player1;
+
+            SDL_Delay(30);  // Attente de 30ms entre chaque tour de boucle pour en pas surcharger le CPU
+        }
     }
 
 
@@ -512,12 +529,16 @@ int main(int argc, char *argv[])
      * Libération des ressources des libs ouvertes
      */
 
-    if (nbHumanPlayers == 1)  // Le joueur 1 est une IA
+    if (nbHumanPlayers <= 1)  // Le joueur 1 est une IA
     {
+        ai1.EndMatch();
         dlclose(ai1.lib);
 
         if (nbHumanPlayers == 0)  // Le joueur 2 est aussi une IA
+        {
+            ai2.EndMatch();
             dlclose(ai2.lib);
+        }
     }
 
     return EXIT_SUCCESS;

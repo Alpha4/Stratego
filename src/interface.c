@@ -154,13 +154,16 @@ void FreeAll(Context *C)
         for (j = 0 ; j < 12 ; j++)
         {
             SDL_FreeSurface(C->images[i][j]);
-            if (j != 12)
-                SDL_FreeSurface(C->imagesMini[j]);
         }
     }
 
+    for (i = 0 ; i < 11 ; i++)
+    {
+        SDL_FreeSurface(C->imagesMini[i]);
+    }
+
     SDL_FreeSurface(C->mystery[IMGRED]);
-    SDL_FreeSurface(C->mystery[IMGRED]);
+    SDL_FreeSurface(C->mystery[IMGBLUE]);
 
     for (i = 0 ; i < 3 ; i++)
         TTF_CloseFont(C->fonts[i]);
@@ -529,7 +532,7 @@ void DisplayEnd(Context *C, char winner[50])
     frame2 = SDL_CreateRGBSurface(SDL_HWSURFACE, WINDOW_WIDTH / 2 - 4, WINDOW_HEIGHT / 2 - 4, 32, 0, 0, 0, 0);
     SDL_FillRect(frame2, NULL, SDL_MapRGB(C->screen->format, 240, 240, 240));
 
-    while (!in.quit)
+    while (!in.key[SDLK_RETURN])
     {
         UpdateEvents(&in);
 
@@ -539,11 +542,15 @@ void DisplayEnd(Context *C, char winner[50])
         // Affichage du nom du joueur qui doit jouer
         sprintf(&text, "%s a gagné !", winner);
         blitText(C->screen, WINDOW_WIDTH / 2, WINDOW_HEIGHT / 2, 1, 1, text, C->fonts[MEDIUMTEXT], (SDL_Color) {0, 0, 0});
+        blitText(C->screen, WINDOW_WIDTH / 2, 3 * WINDOW_HEIGHT / 4 - 20, 1, 1, "Appuyez sur Entrée pour continuer", C->fonts[MEDIUMTEXT], (SDL_Color) {0, 0, 0});
 
         SDL_Flip(C->screen);  // Affichage de l'écran
 
         SDL_Delay(30);  // Attente de 30ms entre chaque tour de boucle pour en pas surcharger le CPU
     }
+
+    SDL_FreeSurface(frame1);
+    SDL_FreeSurface(frame2);
 }
 
 char* getNamePiece(EPiece piece)

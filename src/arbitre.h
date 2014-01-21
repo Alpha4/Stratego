@@ -7,7 +7,8 @@ Fonctions utilisées pour l'arbitrage du jeu
 #ifndef _ARBITRE_H
     #define _ARBITRE_H
 
-    #define MAX_PENALTY 3
+    #define MAX_PENALTY 2
+    #define NB_GAMES 3
 
     /**
      * Vérifie si un coup est valide

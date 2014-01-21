@@ -30,7 +30,6 @@ Contient également les constantes nécessaires
         SDL_Surface *screen;  // La fenêtre
         int XRES, YRES;  // Résolution de la fenêtre
         SDL_Surface *board;  // Surface du plateau de jeu
-        SDL_Surface *text;
         SDL_Surface *images[2][12];  // Tableau de pointeurs vers les surfaces de chaque image du jeu
         SDL_Surface *mystery[2];  // Image à afficher lorsque la case est inconnue
         SDL_Surface *imagesMini[12];  // Tableau de pointeurs vers les surfaces de chaque image du jeu en mini
