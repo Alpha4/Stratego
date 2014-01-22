@@ -202,11 +202,12 @@ int VerifyInitAI(EPiece pSide[4][10])
     return 1;
 }
 
-int isGameFinished(SGameState *gameState, int penalty[2], EColor player1, EColor player2)
+int isGameFinished(SGameState *gameState, int penalty[2], EColor player1, EColor player2, int nbMoveLeft)
 {
     int i, j;
     int f1 = 0, f2 = 0;  // 1 si le flag existe toujours
     int m1 = 0, m2 = 0;  // 1 si le joueur à au moins une pièce qui peut bouger
+    int nbPiecesOutRed = 0, nbPiecesOutBlue = 0;
 
     // La partie n'a pas commencé, on teste uniquement les pénalités au cas où le joueur a mal placé ses pièces plusieurs fois
     if (gameState == NULL)
@@ -240,11 +241,43 @@ int isGameFinished(SGameState *gameState, int penalty[2], EColor player1, EColor
             }
         }
 
-        // On vérifie ensuite l'état de ces informations
-        if (f1 == 0 || m1 == 0)  // Le joueur 1 n'a plus de flag ou ne peut plus bouger
+        if (f1 == 0)  // Le joueur 1 n'a plus de flag
             return player2;
-        if (f2 == 0 || m2 == 0)  // Le joueur 2 n'a plus de flag ou ne peut plus bouger
+        if (f2 == 0)  // Le joueur 2 n'a plus de flag
             return player1;
+
+        // On vérifie ensuite l'état de ces informations
+        if (m1 == 0 && m2 == 0)
+        {
+            for (i = 0 ; i < 11 ; i++)
+            {
+                nbPiecesOutBlue += gameState->blueOut[i];
+                nbPiecesOutRed += gameState->redOut[i];
+            }
+
+            if (nbPiecesOutRed < nbPiecesOutBlue)
+                return ECred;
+            else if (nbPiecesOutRed > nbPiecesOutBlue)
+                return ECblue;
+            else
+                return -1;  // Egalité
+        }
+
+        if (nbMoveLeft == 0)
+        {
+            for (i = 0 ; i < 11 ; i++)
+            {
+                nbPiecesOutBlue += gameState->blueOut[i];
+                nbPiecesOutRed += gameState->redOut[i];
+            }
+
+            if (nbPiecesOutRed < nbPiecesOutBlue)
+                return ECred;
+            else if (nbPiecesOutRed > nbPiecesOutBlue)
+                return ECblue;
+            else
+                return -1;  // Egalité
+        }
     }
 
     return 0;

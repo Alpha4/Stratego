@@ -49,8 +49,9 @@ Fonctions utilisées pour l'arbitrage du jeu
      * @param  int        penalty[2] Le nombre de pénalités de chaque joueur
      * @param  EColor     player1    Le joueur 1
      * @param  EColor     player2    Le joueur 2
-     * @return int                   player1 si player1 gagne, player2 si player2 gagne, 0 si la partie n'est pas terminée
+     * @param  int        nbMoveLeft Nombre de coups restant
+     * @return int                   player1 si player1 gagne, player2 si player2 gagne, 0 si la partie n'est pas terminée, -1 si il y a égalité
      */
-    int isGameFinished(SGameState *gameState, int penalty[2], EColor player1, EColor player2);
+    int isGameFinished(SGameState *gameState, int penalty[2], EColor player1, EColor player2, int nbMoveLeft);
 
 #endif

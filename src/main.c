@@ -173,6 +173,9 @@ int main(int argc, char *argv[])
         /**
          * Initialisation de la game
          */
+
+        nbMoveLeft = atoi(argv[1]);
+
         if (nbHumanPlayers <= 1)  // Le joueur 1 est une IA
         {
             stop = 0;
@@ -185,7 +188,7 @@ int main(int argc, char *argv[])
                 {
                     penalty[player1 - 2]++;
                     ai1.Penalty();
-                    if (isGameFinished(NULL, penalty, player1, player2) == player2)  // Le joueur 2 a gagné car le joueur 1 a trop de pénalités
+                    if (isGameFinished(NULL, penalty, player1, player2, nbMoveLeft) == player2)  // Le joueur 2 a gagné car le joueur 1 a trop de pénalités
                     {
                         DisplayEnd(&C, p2Name);
                         return EXIT_SUCCESS;  // On quitte le programme
@@ -205,7 +208,7 @@ int main(int argc, char *argv[])
                     {
                         penalty[player2 - 2]++;
                         ai2.Penalty();
-                        if (isGameFinished(NULL, penalty, player1, player2) == player1)  // Le joueur 1 a gagné car le joueur 2 a trop de pénalités
+                        if (isGameFinished(NULL, penalty, player1, player2, nbMoveLeft) == player1)  // Le joueur 1 a gagné car le joueur 2 a trop de pénalités
                         {
                             DisplayEnd(&C, p1Name);
                             return EXIT_SUCCESS;  // On quitte le programme
@@ -215,7 +218,7 @@ int main(int argc, char *argv[])
             }
             else
             {
-                if (PlacePiece(&C, player2, p2Side) == -1)  // On lui demande de placer ses pièces
+                if (PlacePiece(&C, player2, p2Side, penalty, nbMoveLeft) == -1)  // On lui demande de placer ses pièces
                 {
                     // L'utilisateur a quitté le jeu
                     return EXIT_SUCCESS;
@@ -225,12 +228,12 @@ int main(int argc, char *argv[])
         else  // Aucun joueur n'est une IA
         {
             // On demande à chaque joueur humain de placer ses pièces
-            if (PlacePiece(&C, player1, p1Side) == -1)
+            if (PlacePiece(&C, player1, p1Side, penalty, nbMoveLeft) == -1)
             {
                 // L'utilisateur a quitté le jeu
                 return EXIT_SUCCESS;
             }
-            if (PlacePiece(&C, player2, p2Side) == -1)
+            if (PlacePiece(&C, player2, p2Side, penalty, nbMoveLeft) == -1)
             {
                 // L'utilisateur a quitté le jeu
                 return EXIT_SUCCESS;
@@ -326,7 +329,7 @@ int main(int argc, char *argv[])
                     movement = ai1.NextMove(&gameStateCopy);
                 else  // Le joueur 1 est un humain
                 {
-                    if (movePiece(&C, currentPlayer, &gameStateCopy, &movement, p1Name) == -1)
+                    if (movePiece(&C, currentPlayer, &gameStateCopy, &movement, p1Name, penalty, nbMoveLeft) == -1)
                     {
                         // L'utilisateur a quitté le jeu
                         return EXIT_SUCCESS;
@@ -339,7 +342,7 @@ int main(int argc, char *argv[])
                     movement = ai2.NextMove(&gameStateCopy);
                 else  // Le joueur 2 est un humain
                 {
-                    if (movePiece(&C, currentPlayer, &gameStateCopy, &movement, p2Name) == -1)
+                    if (movePiece(&C, currentPlayer, &gameStateCopy, &movement, p2Name, penalty, nbMoveLeft) == -1)
                     {
                         // L'utilisateur a quitté le jeu
                         return EXIT_SUCCESS;
@@ -468,13 +471,13 @@ int main(int argc, char *argv[])
                     }
                 }
 
-                DisplayInfo(&C, &gameState, currentPlayer);
+                DisplayInfo(&C, &gameState, currentPlayer, penalty, nbMoveLeft);
 
                 SDL_Flip(C.screen);  // Affichage de l'écran
             }
 
             // On vérifie si la parite est terminée
-            result = isGameFinished(&gameState, penalty, player1, player2);
+            result = isGameFinished(&gameState, penalty, player1, player2, nbMoveLeft);
 
             if (result == player1)  // Le joueur 1 a gagné
             {
@@ -510,12 +513,32 @@ int main(int argc, char *argv[])
 
                 break;  // On sort du while pour passer au tour suivant
             }
+            else if (result == -1)
+            {
+                if (nbHumanPlayers > 0)  // On a au moins un joueur humain
+                {
+                    if (nbHumanPlayers == 1)  // On a également une IA
+                        ai1.EndGame();
+
+                    DisplayEnd(&C, NULL);  // On affiche le gagnant au joueur humain
+                }
+                else  // On a deux IAs
+                {
+                    ai1.EndGame();
+                    ai2.EndGame();
+                }
+
+                break;  // On sort du while pour passer au tour suivant
+            }
 
             // C'est maintenant à l'autre joueur de jouer
             if (currentPlayer == player1)
                 currentPlayer = player2;
             else
+            {
                 currentPlayer = player1;
+                nbMoveLeft--;
+            }
 
             SDL_Delay(30);  // Attente de 30ms entre chaque tour de boucle pour en pas surcharger le CPU
         }

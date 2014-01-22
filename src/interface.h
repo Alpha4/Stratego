@@ -111,9 +111,11 @@ Contient également les constantes nécessaires
      * @param  Context *C          Le contexte de l'affichage du jeu
      * @param  Ecolor  color       La couleur du joueur
      * @param  EPiece  side[4][10] La partie du plateau de jeu sur laquelle le joueur place ses pièces
+     * @param  int     penalty[2]  Nombre de penalités par joueur
+     * @param  int     nbMoveLeft  Nombre de coups restant
      * @return int                 1 si coordonnées valide, 0 sinon
      */
-    int PlacePiece(Context *C, EColor color, EPiece side[4][10]);
+    int PlacePiece(Context *C, EColor color, EPiece side[4][10], int penalty[2], int nbMoveLeft);
 
     /**
      * Permet à un joueur humain de déplacer une pièce
@@ -121,19 +123,21 @@ Contient également les constantes nécessaires
      * @param  EColor     currentPlayer Le joueur qui doit jouer
      * @param  SGameState *gameState    Le plateau du jeu
      * @param  SMove      *movement     Variable qui va stocker le déplacement choisi par le joueur
-     * @param  char        name[50]     Nom du joueur
+     * @param  char       name[50]      Nom du joueur
+     * @param  int        penalty[2]    Nombre de penalités par joueur
+     * @param  int        nbMoveLeft    Nombre de coups restant
      * @return int                      -1 si le joueur à quitté le jeu, 0 sinon
      */
-    int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *movement, char name[50]);
+    int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *movement, char name[50], int penalty[2], int nbMoveLeft);
 
     /**
      * Vérifie si les coordonnées demandées sont une destination possible pour la pièce (pour l'affichage)
-     * @param  SPos       origin     L'origine du déplacement
-     * @param  int        i1          Ligne du déplacement demandé
-     * @param  int        j1          Colonne du déplacement demandé
-     * @param  SGameState *gameState Le plateau du jeu
+     * @param  SPos       origin        L'origine du déplacement
+     * @param  int        i1            Ligne du déplacement demandé
+     * @param  int        j1            Colonne du déplacement demandé
+     * @param  SGameState *gameState    Le plateau du jeu
      * @param  EColor     currentPlayer Le joueur qui doit jouer
-     * @return int                   1 si coordonnées valide, 0 sinon
+     * @return int                      1 si coordonnées valide, 0 sinon
      */
     int areValidCoords(SPos origin, int i1, int j1, SGameState *gameState, EColor currentPlayer);
 
@@ -142,8 +146,10 @@ Contient également les constantes nécessaires
      * @param Context    *C             Le contexte de l'affichage du jeu
      * @param SGameState *gameState     L'état du jeu
      * @param EColor     currentPlayer  Le joueur qui doit jouer
+     * @param int        penalty[2]     Nombre de penalités par joueur
+     * @param int        nbMoveLeft     Nombre de coups restant
      */
-    void DisplayInfo(Context *C, SGameState *gameState, EColor currentPlayer);
+    void DisplayInfo(Context *C, SGameState *gameState, EColor currentPlayer, int penalty[2], int nbMoveLeft);
 
     /**
      * Affichage à la fin du jeu
