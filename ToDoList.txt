@@ -1,6 +1,7 @@
-- gérer fin du jeu
-   - nnMoveLeft == 0
-   - plus de démineur + drapeau adverse entouré de bombes
-   - il ne reste plus que des pièces fixes -> égalité
+- rajouter Ã  la fonction isGameFinished() de l'arbitre les cas restants de fin du jeu
+  -> plus de dÃ©mineur + drapeau adverse entourÃ© de bombes
+  -> un joueur ne peut plus bouger (ses piÃ¨ces restantes sont entourÃ©es de bombes)
+  -> autres chose peut-etre ??
+
 - afficher nb de pÃ©nalitÃ©s
 - afficher nb coups restants ?
