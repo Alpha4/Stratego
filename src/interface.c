@@ -135,14 +135,15 @@ void LoadImages(Context *C)
     C->mystery[IMGRED] = IMG_Load("images/mini/flag.png");
     C->mystery[IMGBLUE] = IMG_Load("images/mini/flag.png");
 
-    C->board = SDL_LoadBMP("images/plateau.bmp");
+    C->board = IMG_Load("images/plateau.jpg");
+    C->outTable = IMG_Load("images/tableau.png");
 }
 
 void LoadFonts(Context *C)
 {
-    C->fonts[SMALLTEXT] = TTF_OpenFont("DejaVuSans.ttf", 18);
-    C->fonts[MEDIUMTEXT] = TTF_OpenFont("DejaVuSans.ttf", 24);
-    C->fonts[BIGTEXT] = TTF_OpenFont("DejaVuSans.ttf", 56);
+    C->fonts[SMALLTEXT] = TTF_OpenFont("OCRAStd.ttf", 20);
+    C->fonts[MEDIUMTEXT] = TTF_OpenFont("OCRAStd.ttf", 24);
+    C->fonts[BIGTEXT] = TTF_OpenFont("OCRAStd.ttf", 56);
 }
 
 void FreeAll(Context *C)
@@ -293,12 +294,12 @@ int PlacePiece(Context *C, EColor color, EPiece side[4][10], int penalty[2], int
 
         // Affichage de la pièce à placer
         x = WINDOW_WIDTH - (500/2);
-        y = 150;
+        y = 160;
         blitText(C->screen, x, y, 1, 0, getNamePiece(currentPiece), C->fonts[MEDIUMTEXT], (SDL_Color) {0, 0, 0});
 
         // Affichage de la couleur du joueur
         x = WINDOW_WIDTH - (500/2);  // On centre le texte dans la surface à droite du plateau
-        y = 100;
+        y = 120;
         if (color == ECred)
             blitText(C->screen, x, y, 1, 0, "Joueur Rouge : ", C->fonts[MEDIUMTEXT], (SDL_Color) {0, 0, 0});
         else
@@ -417,7 +418,7 @@ int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *mo
 
         // Affichage du nom du joueur qui doit jouer
         sprintf(&text, "%s, à vous de jouer !", name);
-        blitText(C->screen, WINDOW_WIDTH - (500/2), 100, 1, 0, text, C->fonts[MEDIUMTEXT], (SDL_Color) {0, 0, 0});
+        blitText(C->screen, WINDOW_WIDTH - (500/2), 150, 1, 0, text, C->fonts[MEDIUMTEXT], (SDL_Color) {0, 0, 0});
 
         SDL_Flip(C->screen);  // Affichage de l'écran
 
@@ -496,25 +497,33 @@ int areValidCoords(SPos origin, int i1, int j1, SGameState *gameState, EColor cu
 
 void DisplayInfo(Context *C, SGameState *gameState, EColor currentPlayer, int penalty[2], int nbMoveLeft)
 {
-    int i, x = SQUARE_SIZE * SQUARES_BY_SIDE + 20, y = 270;
+    int i, x = SQUARE_SIZE * SQUARES_BY_SIDE + 78, y = 270;
     char out[2];
 
     // Affichage du nom du jeu
-    blitText(C->screen, WINDOW_WIDTH - (500/2), 5, 1, 0, "Stratego", C->fonts[BIGTEXT], (SDL_Color) {0, 0, 0});
+    // blitText(C->screen, WINDOW_WIDTH - (500/2), 5, 1, 0, "Stratego", C->fonts[BIGTEXT], (SDL_Color) {0, 0, 0});
 
     if (gameState != NULL)
     {
-        blitText(C->screen, SQUARE_SIZE * SQUARES_BY_SIDE + 20, 200, 0, 0, "Pièces éliminées", C->fonts[MEDIUMTEXT], (SDL_Color) {0, 0, 0});
+        blitText(C->screen, SQUARE_SIZE * SQUARES_BY_SIDE + 20, 220, 0, 0, "Pièces éliminées :", C->fonts[MEDIUMTEXT], (SDL_Color) {0, 0, 0});
+
+        SDL_Surface *underline;
+        underline = SDL_CreateRGBSurface(SDL_HWSURFACE, 320, 2, 32, 0, 0, 0, 0);
+        SDL_FillRect(underline, NULL, SDL_MapRGB(C->screen->format, 0, 0, 0));
+        Blit(underline, C->screen, 660, 250);
+        SDL_FreeSurface(underline);
+
+        Blit(C->outTable, C->screen, 710, 268);
 
         for (i = 0 ; i < 11 ; i++)
         {
             Blit(C->imagesMini[i], C->screen, x, y);
             sprintf(&out, "%d", gameState->redOut[i]);
-            blitText(C->screen, x + 55, y + 15, 0, 1, out, C->fonts[SMALLTEXT], (SDL_Color) {255, 0, 0});
+            blitText(C->screen, x + 51, y + 15, 0, 1, out, C->fonts[SMALLTEXT], (SDL_Color) {255, 0, 0});
             sprintf(&out, "%d", gameState->blueOut[i]);
-            blitText(C->screen, x + 95, y + 15, 0, 1, out, C->fonts[SMALLTEXT], (SDL_Color) {0, 0, 255});
+            blitText(C->screen, x + 92, y + 15, 0, 1, out, C->fonts[SMALLTEXT], (SDL_Color) {0, 0, 255});
 
-            y += 30;
+            y += 32;
         }
     }
 }
