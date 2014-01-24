@@ -31,7 +31,6 @@ void InitLibrary(char name[50])
  */
 void StartMatch()
 {
-	// QUOI FAIRE ICI ?
 	printf("StartMatch");
 }
 
@@ -131,6 +130,7 @@ void StartGame(const EColor color,EPiece boardInit[4][10])
  */
 void EndGame()
 {
+	printf("EndGame");
 	/* INUTILE ?? 
 	   Vu qu'on copie le premier Gamestate du premier appel de NextMove
 	*/
@@ -195,6 +195,8 @@ SMove NextMove(const SGameState * const gameState)
 		SPos pos;
 		int flag1=1; // flag pour sortir si on trouve les 2 différences
 		int flag2=1;
+		i=0;
+		j=0;
 		while (i<10 && (flag1 || flag2))
 		{
 			while(j<10 && (flag1 || flag2))
@@ -217,7 +219,9 @@ SMove NextMove(const SGameState * const gameState)
 						flag2=0;
 					}
 				}
+				j++;
 			}
+			i++;
 		}
 		if (!(flag1 && flag2)) // On a trouvé une différence, on remplace la pièce dès fois qu'on la connaissait déjà
 		{
@@ -227,10 +231,42 @@ SMove NextMove(const SGameState * const gameState)
 	}
 	
 	SMove next;
+	// Déplacer la première pièce qui le peut
+	i=9;
+	j=9;
+	int noMove=1;
+	int direction;
+	while (i>=0 && noMove)
+	{
+		while(j>=0 && noMove)
+		{
+			if((direction=canMove(gameStateIA,i,j)!=0)
+			{
+				next.start.line=i;
+				next.start.col=j;
+				noMove=0;
+			}
+			j++;
+		}
+	}
 	
-	// Si l'on peut gagner une attaque de manière certaine à ce tour le faire
-	// Sinon déplacer une pièce qui le peut au hasard
-	
+	if (direction==1)
+	{
+		next.end.line=next.start.line+1;
+	}
+	else if (direction==2)
+	{
+		next.end.col=next.start.col+1;
+	}
+	else if (direction==3)
+	{
+		next.end.line=next.start.line-1;
+	}
+	else if (direction==4)
+	{
+		next.end.line=next.start.col-1;
+	}
+
 	// Si pas d'attaque maj de notre tableau
 	if (gameStateIA.board[next.end.line][next.end.col].content==ECnone)
 	{
@@ -397,19 +433,13 @@ int PseudoRandom(int a,int b)
 }
 
 /**
- * Placement d'une pièce dans le boardinit
- * @param int i
- * 	ligne i
- * @param int j
- * 	colonne j
+ * Placement d'une pièce
  * @param int forcMin
  * 	force minimum de la pièce
  * @param int forceMax
  * 	force maximum de la pièce
  * @param unsigned int pawnsLeft[11]
  * 	tableau des pièces restantes à palcer
- * @param boardInit[4][10]
- *	tableau à remplir
  */
 int PlacePiece (int forceMin, int forceMax, unsigned int pawnsLeft[])
 {
@@ -423,6 +453,64 @@ int PlacePiece (int forceMin, int forceMax, unsigned int pawnsLeft[])
 	return nextPiece;
 }
 
+/**
+ * Renvoie un entier donnant une direction ou 0 si la pièce ne peut bouger.
+ * @param int a
+ *  coord ligne 
+ * @param int b
+ *  coord colonne
+ * @return int 
+ *  direction : 
+ *		0 --> ne peut pas bouger
+ *		1 --> i+1
+ *		2 --> j+1
+ *		3 --> i-1
+ *		4 --> j-1
+ */
+int canMove(SGameState gs,int a,int b)
+{
+	int dirPossibles[4]={0,0,0,0}; // i+1 | j+1 | i-1 | j-1
+	int nbDirs=0;
+
+	if (gs.board[a+1][b].content==ECnone || gs.board[a+1][b].content==colorEnemy)
+	{
+		dirPossibles[0]=1;
+		nbDirs++;
+	}
+	if (gs.board[a][b+1].content==ECnone || gs.board[a][b+1].content==colorEnemy)
+	{
+		dirPossibles[1]=1;
+		nbDirs++;
+	}
+
+	if (gs.board[a-1][b].content==ECnone || gs.board[a-1][b].content==colorEnemy)
+	{
+		dirPossibles[2]=1;
+		nbDirs++;
+	}
+
+	if (gs.board[a][b-1].content==ECnone || gs.board[a][b-1].content==colorEnemy)
+	{
+		dirPossibles[3]=1;
+		nbDirs++;
+	}
+
+	if (nbDirs==0)
+		return 0;
+
+	int numDir=PseudoRandom(1,nbDirs);
+	int compt; // compteur pour la boucle à suivre
+	int count=0; // Compteur du nombre de directions valides déjà passée en revue
+
+	for (compt=0;compt<4;compt++)
+	{
+		if (dirPossibles[cd]==1)
+			count++;
+		if (count==numDir)
+			return compt+1;		
+	}
+
+}
 
 
 

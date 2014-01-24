@@ -71,6 +71,32 @@ typedef struct
  */
 int PseudoRandom(int a,int b);
 
+/**
+ * Placement d'une pièce
+ * @param int forcMin
+ * 	force minimum de la pièce
+ * @param int forceMax
+ * 	force maximum de la pièce
+ * @param unsigned int pawnsLeft[11]
+ * 	tableau des pièces restantes à palcer
+ */
+int PlacePiece (int forceMin, int forceMax, unsigned int pawnsLeft[]);
+
+/**
+ * Renvoie un entier donnant une direction ou 0 si la pièce ne peut bouger.
+ * @param int a
+ *  coord ligne 
+ * @param int b
+ *  coord colonne
+ * @return int direction : 
+ *		0 --> ne peut pas bouger
+ *		1 --> i+1
+ *		2 --> j+1
+ *		-1 --> i-1
+ *		-2 --> j-1
+ */
+int canMove(SGameState gs,int a,int b);
+
 /* Fonctions du .h */
 
 /**
