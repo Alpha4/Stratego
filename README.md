@@ -2,6 +2,7 @@ Stratego
 ========
 
 Pour compiler:
+
 $ make
 
 Cela compilera l'interface, et également la librairie qui se trouve dans lib/
