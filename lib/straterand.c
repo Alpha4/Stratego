@@ -88,16 +88,15 @@ void StartGame(const EColor color,EPiece boardInit[4][10])
 				}
 			}
 
-			else if (boardInit[i][j]==EPnone && i<2) // Pas de pièce "de la zone drapeau" en [i][j]
+			else if (boardInit[i][j]==EPnone) // Pas de pièce "de la zone drapeau" en [i][j]
 			{
 				// Placement d'une première pièce
-				boardInit[i][j]=PlacePiece(0,8,pawnsLeft);
-			}
-
-			else
-			{
-				boardInit[i][j]=PlacePiece(0,10,pawnsLeft);
-			}
+				if (i<2)				
+					boardInit[i][j]=PlacePiece(0,8,pawnsLeft);
+			
+				else
+					boardInit[i][j]=PlacePiece(0,10,pawnsLeft);
+			}			
 			
 			//Deuxième pièce
 			if (boardInit[i][j+1]==EPnone) // Pas de pièce de la "zone drapeau" en [i][j+1] (Test inutile pour les lignes 2 et 3)
