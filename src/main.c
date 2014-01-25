@@ -239,7 +239,7 @@ int main(int argc, char *argv[])
             }
             else
             {
-                if (PlacePiece(&C, player2, p2Side, penalty, nbMoveLeft) == -1)  // On lui demande de placer ses pièces
+                if (PlacePiece(&C, player2, p2Side, penalty) == -1)  // On lui demande de placer ses pièces
                 {
                     // L'utilisateur a quitté le jeu
                     // Si la partie est quitté avant d'être finie, on termine la ligne du fichier de résultat pour ne pas avoir de problème lors de la prochaine partie
@@ -252,7 +252,7 @@ int main(int argc, char *argv[])
         else  // Aucun joueur n'est une IA
         {
             // On demande à chaque joueur humain de placer ses pièces
-            if (PlacePiece(&C, player1, p1Side, penalty, nbMoveLeft) == -1)
+            if (PlacePiece(&C, player1, p1Side, penalty) == -1)
             {
                 // L'utilisateur a quitté le jeu
                 // Si la partie est quitté avant d'être finie, on termine la ligne du fichier de résultat pour ne pas avoir de problème lors de la prochaine partie
@@ -260,7 +260,7 @@ int main(int argc, char *argv[])
                     saveResult("-1", NB_GAMES);
                 return EXIT_SUCCESS;
             }
-            if (PlacePiece(&C, player2, p2Side, penalty, nbMoveLeft) == -1)
+            if (PlacePiece(&C, player2, p2Side, penalty) == -1)
             {
                 // L'utilisateur a quitté le jeu
                 // Si la partie est quitté avant d'être finie, on termine la ligne du fichier de résultat pour ne pas avoir de problème lors de la prochaine partie

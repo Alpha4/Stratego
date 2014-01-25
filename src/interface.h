@@ -114,10 +114,9 @@ Contient également les constantes nécessaires
      * @param  Ecolor  color       La couleur du joueur
      * @param  EPiece  side[4][10] La partie du plateau de jeu sur laquelle le joueur place ses pièces
      * @param  int     penalty[2]  Nombre de penalités par joueur
-     * @param  int     nbMoveLeft  Nombre de coups restant
      * @return int                 1 si coordonnées valide, 0 sinon
      */
-    int PlacePiece(Context *C, EColor color, EPiece side[4][10], int penalty[2], int nbMoveLeft);
+    int PlacePiece(Context *C, EColor color, EPiece side[4][10], int penalty[2]);
 
     /**
      * Permet à un joueur humain de déplacer une pièce

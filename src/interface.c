@@ -212,7 +212,7 @@ int blitText(SDL_Surface *dst, int x, int y, int centerX, int centerY, char* tex
     }
 }
 
-int PlacePiece(Context *C, EColor color, EPiece side[4][10], int penalty[2], int nbMoveLeft)
+int PlacePiece(Context *C, EColor color, EPiece side[4][10], int penalty[2])
 {
     int continuer = 1;
     int i, j;
@@ -297,7 +297,7 @@ int PlacePiece(Context *C, EColor color, EPiece side[4][10], int penalty[2], int
             }
         }
 
-        DisplayInfo(C, NULL, color, penalty, nbMoveLeft);
+        DisplayInfo(C, NULL, color, penalty, 0);
 
         // Affichage de la pièce à placer
         x = WINDOW_WIDTH - (500/2);
