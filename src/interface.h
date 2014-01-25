@@ -32,7 +32,7 @@ Contient également les constantes nécessaires
         SDL_Surface *board;  // Surface du plateau de jeu
         SDL_Surface *outTable;  // Surface du plateau de jeu
         SDL_Surface *images[2][12];  // Tableau de pointeurs vers les surfaces de chaque image du jeu
-        SDL_Surface *mystery[2];  // Image à afficher lorsque la case est inconnue
+        SDL_Surface *mystery;  // Image à afficher lorsque la case est inconnue
         SDL_Surface *imagesMini[12];  // Tableau de pointeurs vers les surfaces de chaque image du jeu en mini
         TTF_Font *fonts[3];  // Tableau contenant les 3 tailles de texte que l'on va utiliser
     } Context;

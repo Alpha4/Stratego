@@ -132,8 +132,7 @@ void LoadImages(Context *C)
     C->imagesMini[EPmarshal] = IMG_Load("images/mini/marshal.png");
     C->imagesMini[EPflag] = IMG_Load("images/mini/flag.png");
 
-    C->mystery[IMGRED] = IMG_Load("images/mini/flag.png");
-    C->mystery[IMGBLUE] = IMG_Load("images/mini/flag.png");
+    C->mystery = IMG_Load("images/mystery.png");
 
     C->board = IMG_Load("images/plateau.jpg");
     C->outTable = IMG_Load("images/tableau.png");
@@ -163,8 +162,7 @@ void FreeAll(Context *C)
         SDL_FreeSurface(C->imagesMini[i]);
     }
 
-    SDL_FreeSurface(C->mystery[IMGRED]);
-    SDL_FreeSurface(C->mystery[IMGBLUE]);
+    SDL_FreeSurface(C->mystery);
 
     for (i = 0 ; i < 3 ; i++)
         TTF_CloseFont(C->fonts[i]);
@@ -400,7 +398,7 @@ int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *mo
                     if (gameState->board[i][j].content == currentPlayer)
                         Blit(C->images[currentPlayer - 2][gameState->board[i][j].piece], C->screen, x, y);
                     else
-                        Blit(C->mystery[((currentPlayer - 1) % 2)], C->screen, x, y);
+                        Blit(C->mystery, C->screen, x, y);
                 }
 
                 if (gameStatus == 1)
