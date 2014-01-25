@@ -242,7 +242,7 @@ SMove NextMove(const SGameState * const gameState)
 	{
 		while(j>=0 && noMove)
 		{
-			if((direction=canMove(gameStateIA,i,j))!=0)
+			if((gameStateIA.board[i][j].EColor==colorIA) && (direction=canMove(gameStateIA,i,j))!=0)
 			{
 				next.start.line=i;
 				next.start.col=j;
