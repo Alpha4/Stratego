@@ -235,11 +235,11 @@ SMove NextMove(const SGameState * const gameState)
 	SMove next;
 	// Déplacer la première pièce qui le peut --> A remplacer par déplaceer une pièce aléatoirement parmi celles qui peuvent
 	i=9;
-	j=9;
 	int noMove=1;
 	int direction;
 	while (i>=0 && noMove)
 	{
+		j=9;
 		while(j>=0 && noMove)
 		{
 			direction=canMove(gameStateIA,i,j);
