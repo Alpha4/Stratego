@@ -10,7 +10,7 @@ objDir = obj
 binDir = .
 
 # debug option (=1 for debugging ; =0 no include debug information)
-debug = 0
+debug = 1
 
 # compiler options
 CFlags = -Wall

@@ -1,7 +1,9 @@
+all: lib
+
 clean:
 	rm -rf *.o
 	rm -rf *.so
 
 lib:
-	gcc -c -fPIC straterand.c -o straterand.o
-	gcc -shared -fPIC straterand.o -o straterand.so
+	gcc -fPIC -c straterand.c -Wall
+	gcc -shared straterand.o -o straterand.so -Wall

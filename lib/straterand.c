@@ -31,7 +31,6 @@ void InitLibrary(char name[50])
  */
 void StartMatch()
 {
-	printf("StartMatch");
 }
 
 /**
@@ -63,13 +62,13 @@ void StartGame(const EColor color,EPiece boardInit[4][10])
 				boardInit[i][j+randomInt]=11;
 			}
 			else //Bomb
-			{	
+			{
 				boardInit[i][j+randomInt]=0;
 				pawnsLeft[0]--;
 			}
 		}
 	}
-	
+
 	// Placement des lignes 0 à 4
 	for (i=0;i<4;i++)
 	{
@@ -80,39 +79,39 @@ void StartGame(const EColor color,EPiece boardInit[4][10])
 			{
 				if (boardInit[i][j+1]>3) // La pièce suivante est "forte"
 				{
-					boardInit[i][j]=PlacePiece(0,3,pawnsLeft); // On place la pièce
+					boardInit[i][j]=ChoosePiece(0,3,pawnsLeft); // On place la pièce
 				}
 				else // Si la pièce suivante est "faible"
 				{
-					boardInit[i][j]=PlacePiece(4,8,pawnsLeft);
+					boardInit[i][j]=ChoosePiece(4,8,pawnsLeft);
 				}
 			}
 
 			else if (boardInit[i][j]==EPnone) // Pas de pièce "de la zone drapeau" en [i][j]
 			{
 				// Placement d'une première pièce
-				if (i<2)				
-					boardInit[i][j]=PlacePiece(0,8,pawnsLeft);
-			
+				if (i<2)
+					boardInit[i][j]=ChoosePiece(0,8,pawnsLeft);
+
 				else
-					boardInit[i][j]=PlacePiece(0,10,pawnsLeft);
-			}			
-			
+					boardInit[i][j]=ChoosePiece(0,10,pawnsLeft);
+			}
+
 			//Deuxième pièce
 			if (boardInit[i][j+1]==EPnone) // Pas de pièce de la "zone drapeau" en [i][j+1] (Test inutile pour les lignes 2 et 3)
 			{
 				// Placement d'une deuxième pièce
 				if (boardInit[i][j]>3) // Si la première pièce est "forte"
 				{
-					boardInit[i][j+1]=PlacePiece(0,3,pawnsLeft);
+					boardInit[i][j+1]=ChoosePiece(0,3,pawnsLeft);
 				}
-				else if (i<2) // Si la première pièce est "faible" 
+				else if (i<2) // Si la première pièce est "faible"
 				{
-					boardInit[i][j+1]=PlacePiece(4,8,pawnsLeft);
+					boardInit[i][j+1]=ChoosePiece(4,8,pawnsLeft);
 				}
 				else //Ligne 2 et 3
 				{
-					boardInit[i][j+1]=PlacePiece(4,10,pawnsLeft);
+					boardInit[i][j+1]=ChoosePiece(4,10,pawnsLeft);
 				}
 			}
 		}
@@ -124,7 +123,7 @@ void StartGame(const EColor color,EPiece boardInit[4][10])
 		colorEnemy=ECblue;
 	else
 		colorEnemy=ECred;
-	
+
 }
 
 /**
@@ -132,8 +131,7 @@ void StartGame(const EColor color,EPiece boardInit[4][10])
  */
 void EndGame()
 {
-	printf("EndGame");
-	/* INUTILE ?? 
+	/* INUTILE ??
 	   Vu qu'on copie le premier Gamestate du premier appel de NextMove
 	*/
 	for (i=0; i<10;i++)
@@ -149,7 +147,7 @@ void EndGame()
 
 			//On remplace toute autre SBox du board par ECnone
 			else
-				gameStateIA.board[i][j].content=ECnone; 
+				gameStateIA.board[i][j].content=ECnone;
 		}
 	}
 }
@@ -159,8 +157,6 @@ void EndGame()
  */
 void EndMatch()
 {
-	// libérer la mémoire ?
-	printf("EndMatch");
 }
 
 /**
@@ -231,7 +227,7 @@ SMove NextMove(const SGameState * const gameState)
 			gameStateIA.board[pos.line][pos.col].content=colorEnemy;
 		}
 	}
-	
+
 	SMove next;
 	// Déplacer la première pièce qui le peut --> A remplacer par déplaceer une pièce aléatoirement parmi celles qui peuvent
 	i=9;
@@ -253,7 +249,7 @@ SMove NextMove(const SGameState * const gameState)
 		}
 		i--;
 	}
-	
+
 	if (direction==1)
 	{
 		next.end.line=next.start.line+1;
@@ -281,7 +277,7 @@ SMove NextMove(const SGameState * const gameState)
 		gameStateIA.board[next.end.line][next.end.col].content=colorIA;
 		gameStateIA.board[next.end.line][next.end.col].piece=gameStateIA.board[next.start.line][next.start.col].piece;
 	}
-	
+
 	last=next; // on met à jour notre dernier coup
 	return next;
 }
@@ -304,7 +300,7 @@ void AttackResult(SPos armyPos,EPiece armyPiece,SPos enemyPos,EPiece enemyPiece)
 	// 0 --> faux (on nous attaque) ; 1 --> vrai (on attaque)
     // i.e.: armyPos est la position de départ de notre dernier move.
 	int attacking=(last.start.line==armyPos.line && last.start.col==armyPos.col);
-	
+
 	// Cas spéciaux
 	if (armyPiece==11) // Notre drapeau est pris
         result = -1;
@@ -345,10 +341,10 @@ void AttackResult(SPos armyPos,EPiece armyPiece,SPos enemyPos,EPiece enemyPiece)
 	// Cas global :
 	else if(armyPiece<enemyPiece)
         result = -1; // Attaque perdue
-    
+
     else if (armyPiece>enemyPiece)
         result = 1; // Attaque remportée
-    
+
     else
     	result = 0; // Égalité
 
@@ -368,12 +364,12 @@ void AttackResult(SPos armyPos,EPiece armyPiece,SPos enemyPos,EPiece enemyPiece)
 			gameStateIA.board[enemyPos.line][enemyPos.col].content=ECnone;
 			gameStateIA.board[enemyPos.line][enemyPos.col].piece=EPnone;
 		}
-		
+
 		if (colorEnemy==ECred)
 			gameStateIA.redOut[enemyPiece]++;
 		else
 			gameStateIA.blueOut[enemyPiece]++;
-		
+
 	}
 	else if (result == -1)
 	{
@@ -429,10 +425,10 @@ void Penalty()
 /**
  * Génération d'un nombre pseudo aléatoire ddans les bornes précisées
  * @param int a
- *  borne inférieure 
+ *  borne inférieure
  * @param int b
  *  borne supérieure
- * @return int 
+ * @return int
  *  nombre pseudo-aléatoire contenue entre les bornes a et b
  */
 int PseudoRandom(int a,int b)
@@ -449,7 +445,7 @@ int PseudoRandom(int a,int b)
  * @param unsigned int pawnsLeft[11]
  * 	tableau des pièces restantes à palcer
  */
-int PlacePiece (int forceMin, int forceMax, unsigned int pawnsLeft[])
+int ChoosePiece (int forceMin, int forceMax, unsigned int pawnsLeft[])
 {
 	int nextPiece;
 	do
@@ -464,11 +460,11 @@ int PlacePiece (int forceMin, int forceMax, unsigned int pawnsLeft[])
 /**
  * Renvoie un entier donnant une direction ou 0 si la pièce ne peut bouger.
  * @param int a
- *  coord ligne 
+ *  coord ligne
  * @param int b
  *  coord colonne
- * @return int 
- *  direction : 
+ * @return int
+ *  direction :
  *		0 --> ne peut pas bouger
  *		1 --> i+1
  *		2 --> j+1
@@ -515,7 +511,7 @@ int canMove(SGameState gs,int a,int b)
 		if (dirPossibles[compt]==1)
 			count++;
 		if (count==numDir)
-			return compt+1;		
+			return compt+1;
 	}
 
 }
