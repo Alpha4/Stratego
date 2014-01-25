@@ -271,7 +271,7 @@ SMove NextMove(const SGameState * const gameState)
 	}
 	else if (direction==4)
 	{
-		next.end.line=next.start.col-1;
+		next.end.col=next.start.col-1;
 		next.end.line=next.start.line;
 	}
 
