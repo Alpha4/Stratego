@@ -178,6 +178,15 @@ int main(int argc, char *argv[])
 
         penalty[0] = penalty[1] = 0;
 
+        for (i = 0 ; i < 4 ; i++)
+        {
+            for (j = 0 ; j < 10 ; j++)
+            {
+                p1Side[i][j] = EPnone;
+                p2Side[i][j] = EPnone;
+            }
+        }
+
         if (nbHumanPlayers <= 1)  // Le joueur 1 est une IA
         {
             stop = 0;
