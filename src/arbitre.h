@@ -60,5 +60,13 @@ Fonctions utilisées pour l'arbitrage du jeu
      * @param int   round  Le numéro du round actuel
      */
     void saveResult(char* winner, int round);
+    
+    /**
+     * Vérifie si au moins un coup est possible pour un joueur
+     * @param  SGameState *gameState Le plateau du jeu
+     * @param  EColor     player     Couleur du joueur à vérifier
+     * @return int                   1 si il y a au moins un coup possible, 0 sinon
+     */
+    int isOneMovePossible(SGameState *gameState, EColor player);
 
 #endif
