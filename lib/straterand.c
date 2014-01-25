@@ -248,25 +248,30 @@ SMove NextMove(const SGameState * const gameState)
 				next.start.col=j;
 				noMove=0;
 			}
-			j++;
+			j--;
 		}
+		i--;
 	}
 	
 	if (direction==1)
 	{
 		next.end.line=next.start.line+1;
+		next.end.col=next.start.col;
 	}
 	else if (direction==2)
 	{
 		next.end.col=next.start.col+1;
+		next.endline=next.start.line;
 	}
 	else if (direction==3)
 	{
 		next.end.line=next.start.line-1;
+		next.end.col=next.start.col;
 	}
 	else if (direction==4)
 	{
 		next.end.line=next.start.col-1;
+		next.endline=next.start.line;
 	}
 
 	// Si pas d'attaque maj de notre tableau
