@@ -240,7 +240,7 @@ SMove NextMove(const SGameState * const gameState)
 	{
 		while(j>=0 && noMove)
 		{
-			if((direction=canMove(gameStateIA,i,j)!=0)
+			if((direction=canMove(gameStateIA,i,j))!=0)
 			{
 				next.start.line=i;
 				next.start.col=j;
@@ -504,7 +504,7 @@ int canMove(SGameState gs,int a,int b)
 
 	for (compt=0;compt<4;compt++)
 	{
-		if (dirPossibles[cd]==1)
+		if (dirPossibles[compt]==1)
 			count++;
 		if (count==numDir)
 			return compt+1;		
