@@ -15,11 +15,11 @@ debug = 0
 # compiler options
 CFlags = -Wall
 # linker options
-LDFlags = -rdynamic
+LDFlags = -rdynamic -Lc:/Library/Frameworks
 # library names
 libs = SDL SDL_image SDL_ttf dl
 # additionnal library directories
-libDir = libs/
+libDir = /Library/Frameworks
 # additionnal include directories
 incDir =
 

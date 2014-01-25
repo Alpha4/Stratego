@@ -9,8 +9,8 @@ Fonctions gérant l'interface, notamment les fonctions gérant les interractions
 #include <stdlib.h>
 #include <dlfcn.h>
 #include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
-#include <SDL/SDL_ttf.h>
+#include <SDL_image/SDL_image.h>
+#include <SDL_ttf/SDL_ttf.h>
 
 #include "stratego.h"
 #include "interface.h"
