@@ -76,7 +76,7 @@ void StartGame(const EColor color,EPiece boardInit[4][10])
 		for (j=0;j<10;j=j+2)
 		{
 			//Première pièce
-			if (boardInit[i][j]==NULL && boardInit[i][j+1]!=NULL) // Cas spécial : case non remplie et la suivante est de la zone drapeau
+			if (boardInit[i][j]==EPnone && boardInit[i][j+1]!=EPnone) // Cas spécial : case non remplie et la suivante est de la zone drapeau
 			{
 				if (boardInit[i][j+1]>3) // La pièce suivante est "forte"
 				{
@@ -89,7 +89,7 @@ void StartGame(const EColor color,EPiece boardInit[4][10])
 				}
 			}
 
-			else if (boardInit[i][j]==NULL && i<2) // Pas de pièce "de la zone drapeau" en [i][j]
+			else if (boardInit[i][j]==EPnone && i<2) // Pas de pièce "de la zone drapeau" en [i][j]
 			{
 				// Placement d'une première pièce
 				boardInit[i][j]=PlacePiece(0,8,pawnsLeft);
@@ -99,7 +99,7 @@ void StartGame(const EColor color,EPiece boardInit[4][10])
 				boardInit[i][j]=PlacePiece(0,10,pawnsLeft);
 			
 			//Deuxième pièce
-			if (boardInit[i][j+1]==NULL) // Pas de pièce de la "zone drapeau" en [i][j+1] (Test inutile pour les lignes 2 et 3)
+			if (boardInit[i][j+1]==EPnone) // Pas de pièce de la "zone drapeau" en [i][j+1] (Test inutile pour les lignes 2 et 3)
 			{
 				// Placement d'une deuxième pièce
 				if (boardInit[i][j]>3) // Si la première pièce est "forte"
