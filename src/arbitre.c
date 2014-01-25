@@ -276,6 +276,32 @@ int isGameFinished(SGameState *gameState, int penalty[2], EColor player1, EColor
             else
                 return -1;  // Egalité
         }
+        
+        // On vérifie que les joueurs peuvent faire un mouvement
+        mPossible1 = isOneMovePossible(gameState, player1);
+        mPossible2 = isOneMovePossible(gameState, player2);
+        if (mPossible1 == 0)
+        {
+            if (mPossible2 == 1)
+                return player2;
+            else  // Aucun joueur ne peut bouger donc on détermine le vainqueur par rapport au nombre de pièces
+            {
+                for (i = 0 ; i < 11 ; i++)
+                {
+                    nbPiecesOutBlue += gameState->blueOut[i];
+                    nbPiecesOutRed += gameState->redOut[i];
+                }
+
+                if (nbPiecesOutRed < nbPiecesOutBlue)
+                    return ECred;
+                else if (nbPiecesOutRed > nbPiecesOutBlue)
+                    return ECblue;
+                else
+                    return -1;  // Egalité
+            }
+        }
+        if (mPossible1 == 1 && mPossible2 == 0)
+            return player1;
     }
 
     return 0;
@@ -296,4 +322,95 @@ void saveResult(char* winner, int round)
         fclose(file);  // On ferme le fichier
     }
 
+}
+
+int isOneMovePossible(SGameState *gameState, EColor player)
+{
+    int i, j;
+	EColor player2;
+	
+	if (player == ECblue) 
+		player2 = ECred;
+	else 
+		player2 = ECblue;
+
+    for (i = 1 ; i <= 8 ; i++)
+    {
+        for (j = 1 ; j <= 8 ; j++)  // On vérifie les cases de [1,1] à [8,8]
+        {
+            if (gameState->board[i][j].content == player && gameState->board[i][j].piece != EPbomb && gameState->board[i][j].piece != EPflag)  // Il y a une pièce du joueur sur la case, qui est ni une bombe, ni le drapeau
+            {
+                if (gameState->board[i+1][j].content == ECnone || gameState->board[i-1][j].content == ECnone || gameState->board[i][j+1].content == ECnone || gameState->board[i][j-1].content == ECnone)
+                    return 1;
+                if (gameState->board[i+1][j].content == ECnone || gameState->board[i-1][j].content == ECnone || gameState->board[i][j+1].content == ECnone || gameState->board[i][j-1].content == ECnone)
+                    return 1;
+		
+                if (gameState->board[i+1][j].content == player2 || gameState->board[i-1][j].content == player2 || gameState->board[i][j+1].content == player2 || gameState->board[i][j-1].content == player2)
+                    return 1;
+                if (gameState->board[i+1][j].content == player2 || gameState->board[i-1][j].content == player2 || gameState->board[i][j+1].content == player2 || gameState->board[i][j-1].content == player2)
+                    return 1;
+            }
+        }
+	
+        if (gameState->board[i][0].content == player && gameState->board[i][0].piece != EPbomb && gameState->board[i][0].piece != EPflag)  // On vérifie la colonne de gauche sans ses extrémités : [1,0], [2,0]...[8,0]
+        {
+            if (gameState->board[i+1][0].content == ECnone || gameState->board[i-1][0].content == ECnone || gameState->board[i][1].content == ECnone)
+                return 1;
+	    if (gameState->board[i+1][0].content == player2 || gameState->board[i-1][0].content == player2 || gameState->board[i][1].content == player2)
+                return 1;
+        }
+	
+        if (gameState->board[i][9].content == player && gameState->board[i][9].piece != EPbomb && gameState->board[i][9].piece != EPflag)  // On vérifie la colonne de droite sans ses extrémités : [1,9], [2,9]...[8,9]
+        {
+            if (gameState->board[i+1][9].content == ECnone || gameState->board[i-1][9].content == ECnone || gameState->board[i][8].content == ECnone)
+                return 1;
+	    if (gameState->board[i+1][9].content == player2 || gameState->board[i-1][9].content == player2 || gameState->board[i][8].content == player2)
+                return 1;
+        }
+    }
+
+    for (j = 1 ; j <= 8 ; j++)
+    {
+        if (gameState->board[0][j].content == player && gameState->board[0][j].piece != EPbomb && gameState->board[0][j].piece != EPflag)  // On vérifie la ligne du bas sans ses extrémités : [0,1], [0,2]...[0,8]
+        {
+            if (gameState->board[0][j+1].content == ECnone || gameState->board[0][j-1].content == ECnone || gameState->board[1][j].content == ECnone)
+                return 1;
+	    if (gameState->board[0][j+1].content == player2 || gameState->board[0][j-1].content == player2 || gameState->board[1][j].content == player2)
+                return 1;
+        }
+	
+        if (gameState->board[9][j].content == player && gameState->board[9][j].piece != EPbomb && gameState->board[9][j].piece != EPflag)  // On vérifie la ligne du haut sans ses extrémités : [9,1], [9,2]...[9,8]
+        {
+            if (gameState->board[9][j+1].content == ECnone || gameState->board[9][j-1].content == ECnone || gameState->board[8][j].content == ECnone)
+                return 1;
+	    if (gameState->board[9][j+1].content == player2 || gameState->board[9][j-1].content == player2 || gameState->board[8][j].content == player2)
+                return 1;
+        }
+    }
+
+    if (gameState->board[0][0].content == player && gameState->board[0][0].piece != EPbomb && gameState->board[0][0].piece != EPflag)  // On vérifie la case [0][0]
+    {
+        if (gameState->board[1][0].content == ECnone || gameState->board[0][1].content == ECnone) return 1;
+	if (gameState->board[1][0].content == player2 || gameState->board[0][1].content == player2) return 1;
+    }
+
+    if (gameState->board[0][9].content == player && gameState->board[0][9].piece != EPbomb && gameState->board[0][9].piece != EPflag)  // On vérifie la case [0][9]
+    {
+        if (gameState->board[1][9].content == ECnone || gameState->board[0][8].content == ECnone) return 1;
+        if (gameState->board[1][9].content == player2 || gameState->board[0][8].content == player2) return 1;
+    }
+
+    if (gameState->board[9][0].content == player && gameState->board[9][0].piece != EPbomb && gameState->board[9][0].piece != EPflag)  // On vérifie la case [9][0]
+    {
+        if (gameState->board[8][0].content == ECnone || gameState->board[9][1].content == ECnone) return 1;
+        if (gameState->board[8][0].content == player2 || gameState->board[9][1].content == player2) return 1;
+    }
+
+    if (gameState->board[9][9].content == player && gameState->board[9][9].piece != EPbomb && gameState->board[9][9].piece != EPflag)  // On vérifie la case [9][9]
+    {
+        if (gameState->board[9][8].content == ECnone || gameState->board[8][9].content == ECnone) return 1;
+        if (gameState->board[9][8].content == player2 || gameState->board[8][9].content == player2) return 1;
+    }
+
+    return 0;
 }
