@@ -297,7 +297,7 @@ int PlacePiece(Context *C, EColor color, EPiece side[4][10], int penalty[2])
             }
         }
 
-        DisplayInfo(C, NULL, color, penalty, 0);
+        DisplayInfo(C, NULL, color, penalty, 0, NULL);
 
         // Affichage de la pièce à placer
         x = WINDOW_WIDTH - (500/2);
@@ -325,7 +325,7 @@ int PlacePiece(Context *C, EColor color, EPiece side[4][10], int penalty[2])
         return 0;
 }
 
-int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *movement, char name[50], int penalty[2], int nbMoveLeft)
+int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *movement, char name[50], int penalty[2], int nbMoveLeft, SBox *lastWinner)
 {
     int continuer = 1;
     int i, j;
@@ -421,7 +421,7 @@ int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *mo
             }
         }
 
-        DisplayInfo(C, gameState, currentPlayer, penalty, nbMoveLeft);
+        DisplayInfo(C, gameState, currentPlayer, penalty, nbMoveLeft, lastWinner);
 
         // Affichage du nom du joueur qui doit jouer
         sprintf(&text, "%s, à vous de jouer !", name);
@@ -502,7 +502,7 @@ int areValidCoords(SPos origin, int i1, int j1, SGameState *gameState, EColor cu
     return 1;
 }
 
-void DisplayInfo(Context *C, SGameState *gameState, EColor currentPlayer, int penalty[2], int nbMoveLeft)
+void DisplayInfo(Context *C, SGameState *gameState, EColor currentPlayer, int penalty[2], int nbMoveLeft, SBox *lastWinner)
 {
     int i, x = SQUARE_SIZE * SQUARES_BY_SIDE + 78, y = 270;
     char out[3];
@@ -533,11 +533,21 @@ void DisplayInfo(Context *C, SGameState *gameState, EColor currentPlayer, int pe
             y += 32;
         }
 
-        Blit(C->penalty[IMGRED][penalty[ECred - 2]], C->screen, 900, 400);
-        Blit(C->penalty[IMGBLUE][penalty[ECblue - 2]], C->screen, 900, 460);
+        Blit(C->penalty[IMGRED][penalty[ECred - 2]], C->screen, 900, 460);
+        Blit(C->penalty[IMGBLUE][penalty[ECblue - 2]], C->screen, 900, 500);
 
         sprintf(&out, "%d", nbMoveLeft);
         blitText(C->screen, SQUARE_SIZE * SQUARES_BY_SIDE + 420, 560, 1, 1, out, C->fonts[MEDIUMTEXT], (SDL_Color) {0, 0, 0});
+
+        if (lastWinner != NULL)
+        {
+            if (lastWinner->content != ECnone && lastWinner->piece != EPnone)
+            {
+                blitText(C->screen, SQUARE_SIZE * SQUARES_BY_SIDE + 340, 295, 1, 1, "Gagnant de la", C->fonts[SMALLTEXT], (SDL_Color) {0, 0, 0});
+                blitText(C->screen, SQUARE_SIZE * SQUARES_BY_SIDE + 340, 320, 1, 1, "dernière attaque :", C->fonts[SMALLTEXT], (SDL_Color) {0, 0, 0});
+                Blit(C->images[lastWinner->content - 2][lastWinner->piece], C->screen, 950, 350);
+            }
+        }
     }
 }
 

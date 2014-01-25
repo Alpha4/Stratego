@@ -13,7 +13,7 @@ binDir = .
 debug = 0
 
 # compiler options
-CFlags = -Wall
+CFlags =
 # linker options
 LDFlags = -rdynamic
 # library names

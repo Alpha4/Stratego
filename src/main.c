@@ -56,6 +56,7 @@ int main(int argc, char *argv[])
 
     int result;
 
+    SBox lastWinner;
 
     /**
      * Variables concernant la gestion de la SDL
@@ -173,6 +174,9 @@ int main(int argc, char *argv[])
         /**
          * Initialisation de la game
          */
+
+        lastWinner.content = ECnone;
+        lastWinner.piece = EPnone;
 
         nbMoveLeft = atoi(argv[1]);
 
@@ -359,7 +363,7 @@ int main(int argc, char *argv[])
                     movement = ai1.NextMove(&gameStateCopy);
                 else  // Le joueur 1 est un humain
                 {
-                    if (movePiece(&C, currentPlayer, &gameStateCopy, &movement, p1Name, penalty, nbMoveLeft) == -1)
+                    if (movePiece(&C, currentPlayer, &gameStateCopy, &movement, p1Name, penalty, nbMoveLeft, &lastWinner) == -1)
                     {
                         // L'utilisateur a quitté le jeu
                         // Si la partie est quitté avant d'être finie, on termine la ligne du fichier de résultat pour ne pas avoir de problème lors de la prochaine partie
@@ -375,7 +379,7 @@ int main(int argc, char *argv[])
                     movement = ai2.NextMove(&gameStateCopy);
                 else  // Le joueur 2 est un humain
                 {
-                    if (movePiece(&C, currentPlayer, &gameStateCopy, &movement, p2Name, penalty, nbMoveLeft) == -1)
+                    if (movePiece(&C, currentPlayer, &gameStateCopy, &movement, p2Name, penalty, nbMoveLeft, &lastWinner) == -1)
                     {
                         // L'utilisateur a quitté le jeu
                         // Si la partie est quitté avant d'être finie, on termine la ligne du fichier de résultat pour ne pas avoir de problème lors de la prochaine partie
@@ -441,6 +445,8 @@ int main(int argc, char *argv[])
                             gameState.board[movement.end.line][movement.end.col].content = gameState.board[movement.start.line][movement.start.col].content;
                             gameState.board[movement.start.line][movement.start.col].content = ECnone;
                             gameState.board[movement.start.line][movement.start.col].piece = EPnone;
+                            lastWinner.content = gameState.board[movement.end.line][movement.end.col].content;
+                            lastWinner.piece = gameState.board[movement.end.line][movement.end.col].piece;
                             break;
 
                         case 2:  // L'attaquant perd
@@ -450,6 +456,8 @@ int main(int argc, char *argv[])
                                 gameState.blueOut[gameState.board[movement.start.line][movement.start.col].piece]++;
                             gameState.board[movement.start.line][movement.start.col].content = ECnone;
                             gameState.board[movement.start.line][movement.start.col].piece = EPnone;
+                            lastWinner.content = gameState.board[movement.end.line][movement.end.col].content;
+                            lastWinner.piece = gameState.board[movement.end.line][movement.end.col].piece;
                             break;
                     }
                 }
@@ -504,12 +512,12 @@ int main(int argc, char *argv[])
                     }
                 }
 
-                DisplayInfo(&C, &gameState, currentPlayer, penalty, nbMoveLeft);
+                DisplayInfo(&C, &gameState, currentPlayer, penalty, nbMoveLeft, &lastWinner);
 
                 SDL_Flip(C.screen);  // Affichage de l'écran
             }
 
-            DisplayInfo(&C, &gameState, currentPlayer, penalty, nbMoveLeft);
+            DisplayInfo(&C, &gameState, currentPlayer, penalty, nbMoveLeft, &lastWinner);
             SDL_Flip(C.screen);  // Affichage de l'écran
 
             // On vérifie si la parite est terminée

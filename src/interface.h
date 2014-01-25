@@ -127,9 +127,10 @@ Contient également les constantes nécessaires
      * @param  char       name[50]      Nom du joueur
      * @param  int        penalty[2]    Nombre de penalités par joueur
      * @param  int        nbMoveLeft    Nombre de coups restant
+     * @param SBox        *lastWinner   Vainqueur de la dernière attaque
      * @return int                      -1 si le joueur à quitté le jeu, 0 sinon
      */
-    int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *movement, char name[50], int penalty[2], int nbMoveLeft);
+    int movePiece(Context *C, EColor currentPlayer, SGameState *gameState, SMove *movement, char name[50], int penalty[2], int nbMoveLeft, SBox *lastWinner);
 
     /**
      * Vérifie si les coordonnées demandées sont une destination possible pour la pièce (pour l'affichage)
@@ -149,8 +150,9 @@ Contient également les constantes nécessaires
      * @param EColor     currentPlayer  Le joueur qui doit jouer
      * @param int        penalty[2]     Nombre de penalités par joueur
      * @param int        nbMoveLeft     Nombre de coups restant
+     * @param SBox       *lastWinner    Vainqueur de la dernière attaque
      */
-    void DisplayInfo(Context *C, SGameState *gameState, EColor currentPlayer, int penalty[2], int nbMoveLeft);
+    void DisplayInfo(Context *C, SGameState *gameState, EColor currentPlayer, int penalty[2], int nbMoveLeft, SBox *lastWinner);
 
     /**
      * Affichage à la fin du jeu
