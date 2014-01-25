@@ -261,7 +261,7 @@ SMove NextMove(const SGameState * const gameState)
 	else if (direction==2)
 	{
 		next.end.col=next.start.col+1;
-		next.endline=next.start.line;
+		next.end.line=next.start.line;
 	}
 	else if (direction==3)
 	{
@@ -271,7 +271,7 @@ SMove NextMove(const SGameState * const gameState)
 	else if (direction==4)
 	{
 		next.end.line=next.start.col-1;
-		next.endline=next.start.line;
+		next.end.line=next.start.line;
 	}
 
 	// Si pas d'attaque maj de notre tableau
