@@ -209,15 +209,13 @@ int isGameFinished(SGameState *gameState, int penalty[2], EColor player1, EColor
     int m1 = 0, m2 = 0;  // 1 si le joueur à au moins une pièce qui peut bouger
     int nbPiecesOutRed = 0, nbPiecesOutBlue = 0;
 
-    // La partie n'a pas commencé, on teste uniquement les pénalités au cas où le joueur a mal placé ses pièces plusieurs fois
-    if (gameState == NULL)
-    {
-        if (penalty[player1 - 2] > MAX_PENALTY)
-            return player2;
-        if (penalty[player2 - 2] > MAX_PENALTY)
-            return player1;
-    }
-    else  // On vérifie l'état du plateau pour savoir si quelqu'un a gagné
+    // On teste d'abord les pénalités
+    if (penalty[player1 - 2] > MAX_PENALTY)
+        return player2;
+    if (penalty[player2 - 2] > MAX_PENALTY)
+        return player1;
+
+    if (gameState != NULL)  // On vérifie l'état du plateau pour savoir si quelqu'un a gagné
     {
         // On parcours le plateau pour récupérer les informations dont on a besoin
         for (i = 0 ; i < 10 ; i++)

@@ -176,6 +176,8 @@ int main(int argc, char *argv[])
 
         nbMoveLeft = atoi(argv[1]);
 
+        penalty[0] = penalty[1] = 0;
+
         if (nbHumanPlayers <= 1)  // Le joueur 1 est une IA
         {
             stop = 0;
@@ -193,6 +195,10 @@ int main(int argc, char *argv[])
                         saveResult(p2Name, g);
                         if (nbHumanPlayers!= 0)
                             DisplayEnd(&C, p2Name);
+
+                        // Si la partie est quitté avant d'être finie, on termine la ligne du fichier de résultat pour ne pas avoir de problème lors de la prochaine partie
+                        if (g > 1)
+                            saveResult("-1", NB_GAMES);
                         return EXIT_SUCCESS;  // On quitte le programme
                     }
                 }
@@ -213,7 +219,10 @@ int main(int argc, char *argv[])
                         if (isGameFinished(NULL, penalty, player1, player2, nbMoveLeft) == player1)  // Le joueur 1 a gagné car le joueur 2 a trop de pénalités
                         {
                             saveResult(p1Name, g);
-                            DisplayEnd(&C, p1Name);
+
+                            // Si la partie est quitté avant d'être finie, on termine la ligne du fichier de résultat pour ne pas avoir de problème lors de la prochaine partie
+                            if (g > 1)
+                                saveResult("-1", NB_GAMES);
                             return EXIT_SUCCESS;  // On quitte le programme
                         }
                     }
@@ -224,6 +233,9 @@ int main(int argc, char *argv[])
                 if (PlacePiece(&C, player2, p2Side, penalty, nbMoveLeft) == -1)  // On lui demande de placer ses pièces
                 {
                     // L'utilisateur a quitté le jeu
+                    // Si la partie est quitté avant d'être finie, on termine la ligne du fichier de résultat pour ne pas avoir de problème lors de la prochaine partie
+                    if (g > 1)
+                        saveResult("-1", NB_GAMES);
                     return EXIT_SUCCESS;
                 }
             }
@@ -234,11 +246,17 @@ int main(int argc, char *argv[])
             if (PlacePiece(&C, player1, p1Side, penalty, nbMoveLeft) == -1)
             {
                 // L'utilisateur a quitté le jeu
+                // Si la partie est quitté avant d'être finie, on termine la ligne du fichier de résultat pour ne pas avoir de problème lors de la prochaine partie
+                if (g > 1)
+                    saveResult("-1", NB_GAMES);
                 return EXIT_SUCCESS;
             }
             if (PlacePiece(&C, player2, p2Side, penalty, nbMoveLeft) == -1)
             {
                 // L'utilisateur a quitté le jeu
+                // Si la partie est quitté avant d'être finie, on termine la ligne du fichier de résultat pour ne pas avoir de problème lors de la prochaine partie
+                if (g > 1)
+                    saveResult("-1", NB_GAMES);
                 return EXIT_SUCCESS;
             }
         }
@@ -335,6 +353,9 @@ int main(int argc, char *argv[])
                     if (movePiece(&C, currentPlayer, &gameStateCopy, &movement, p1Name, penalty, nbMoveLeft) == -1)
                     {
                         // L'utilisateur a quitté le jeu
+                        // Si la partie est quitté avant d'être finie, on termine la ligne du fichier de résultat pour ne pas avoir de problème lors de la prochaine partie
+                        if (g > 1)
+                            saveResult("-1", NB_GAMES);
                         return EXIT_SUCCESS;
                     }
                 }
@@ -348,12 +369,12 @@ int main(int argc, char *argv[])
                     if (movePiece(&C, currentPlayer, &gameStateCopy, &movement, p2Name, penalty, nbMoveLeft) == -1)
                     {
                         // L'utilisateur a quitté le jeu
+                        // Si la partie est quitté avant d'être finie, on termine la ligne du fichier de résultat pour ne pas avoir de problème lors de la prochaine partie
+                        if (g > 1)
+                            saveResult("-1", NB_GAMES);
                         return EXIT_SUCCESS;
                     }
                 }
-
-                // On diminue le nombre de coups restant
-                nbMoveLeft--;
             }
 
             // Si c'est le joueur bleu qui joue, il voit le plateau à l'envers, donc on doit retourner le mouvement
@@ -479,6 +500,9 @@ int main(int argc, char *argv[])
                 SDL_Flip(C.screen);  // Affichage de l'écran
             }
 
+            DisplayInfo(&C, &gameState, currentPlayer, penalty, nbMoveLeft);
+            SDL_Flip(C.screen);  // Affichage de l'écran
+
             // On vérifie si la parite est terminée
             result = isGameFinished(&gameState, penalty, player1, player2, nbMoveLeft);
 
@@ -553,6 +577,9 @@ int main(int argc, char *argv[])
         }
     }
 
+    // Si la partie est quitté avant d'être finie, on termine la ligne du fichier de résultat pour ne pas avoir de problème lors de la prochaine partie
+    if (in.quit && g > 1)
+        saveResult("-1", NB_GAMES);
 
     FreeAll(&C);  // Libération de toutes les ressources utilisées pour l'affichage
 

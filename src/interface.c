@@ -132,6 +132,15 @@ void LoadImages(Context *C)
     C->imagesMini[EPmarshal] = IMG_Load("images/mini/marshal.png");
     C->imagesMini[EPflag] = IMG_Load("images/mini/flag.png");
 
+    C->penalty[IMGBLUE][0] = IMG_Load("images/penaltyBLUE0.png");
+    C->penalty[IMGBLUE][1] = IMG_Load("images/penaltyBLUE1.png");
+    C->penalty[IMGBLUE][2] = IMG_Load("images/penaltyBLUE2.png");
+    C->penalty[IMGBLUE][3] = IMG_Load("images/penalty3.png");
+    C->penalty[IMGRED][0] = IMG_Load("images/penaltyRED0.png");
+    C->penalty[IMGRED][1] = IMG_Load("images/penaltyRED1.png");
+    C->penalty[IMGRED][2] = IMG_Load("images/penaltyRED2.png");
+    C->penalty[IMGRED][3] = IMG_Load("images/penalty3.png");
+
     C->mystery = IMG_Load("images/mystery.png");
 
     C->board = IMG_Load("images/plateau.jpg");
@@ -496,7 +505,7 @@ int areValidCoords(SPos origin, int i1, int j1, SGameState *gameState, EColor cu
 void DisplayInfo(Context *C, SGameState *gameState, EColor currentPlayer, int penalty[2], int nbMoveLeft)
 {
     int i, x = SQUARE_SIZE * SQUARES_BY_SIDE + 78, y = 270;
-    char out[2];
+    char out[3];
 
     // Affichage du nom du jeu
     // blitText(C->screen, WINDOW_WIDTH - (500/2), 5, 1, 0, "Stratego", C->fonts[BIGTEXT], (SDL_Color) {0, 0, 0});
@@ -523,6 +532,12 @@ void DisplayInfo(Context *C, SGameState *gameState, EColor currentPlayer, int pe
 
             y += 32;
         }
+
+        Blit(C->penalty[IMGRED][penalty[ECred - 2]], C->screen, 900, 400);
+        Blit(C->penalty[IMGBLUE][penalty[ECblue - 2]], C->screen, 900, 460);
+
+        sprintf(&out, "%d", nbMoveLeft);
+        blitText(C->screen, SQUARE_SIZE * SQUARES_BY_SIDE + 420, 560, 1, 1, out, C->fonts[MEDIUMTEXT], (SDL_Color) {0, 0, 0});
     }
 }
 
