@@ -208,6 +208,7 @@ int isGameFinished(SGameState *gameState, int penalty[2], EColor player1, EColor
     int f1 = 0, f2 = 0;  // 1 si le flag existe toujours
     int m1 = 0, m2 = 0;  // 1 si le joueur à au moins une pièce qui peut bouger
     int nbPiecesOutRed = 0, nbPiecesOutBlue = 0;
+    int mPossible1, mPossible2;
 
     // On teste d'abord les pénalités
     if (penalty[player1 - 2] > MAX_PENALTY)
