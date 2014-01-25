@@ -80,7 +80,6 @@ void StartGame(const EColor color,EPiece boardInit[4][10])
 			{
 				if (boardInit[i][j+1]>3) // La pièce suivante est "forte"
 				{
-					
 					boardInit[i][j]=PlacePiece(0,3,pawnsLeft); // On place la pièce
 				}
 				else // Si la pièce suivante est "faible"
@@ -96,7 +95,9 @@ void StartGame(const EColor color,EPiece boardInit[4][10])
 			}
 
 			else
+			{
 				boardInit[i][j]=PlacePiece(0,10,pawnsLeft);
+			}
 			
 			//Deuxième pièce
 			if (boardInit[i][j+1]==EPnone) // Pas de pièce de la "zone drapeau" en [i][j+1] (Test inutile pour les lignes 2 et 3)
@@ -110,8 +111,10 @@ void StartGame(const EColor color,EPiece boardInit[4][10])
 				{
 					boardInit[i][j+1]=PlacePiece(4,8,pawnsLeft);
 				}
-				else //Ligne 2 et 3 
+				else //Ligne 2 et 3
+				{
 					boardInit[i][j+1]=PlacePiece(4,10,pawnsLeft);
+				}
 			}
 		}
 	}
