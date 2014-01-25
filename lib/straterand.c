@@ -474,24 +474,24 @@ int canMove(SGameState gs,int a,int b)
 	int dirPossibles[4]={0,0,0,0}; // i+1 | j+1 | i-1 | j-1
 	int nbDirs=0;
 
-	if (gs.board[a+1][b].content==ECnone || gs.board[a+1][b].content==colorEnemy)
+	if ((a+1<10) && (gs.board[a+1][b].content==ECnone || gs.board[a+1][b].content==colorEnemy))
 	{
 		dirPossibles[0]=1;
 		nbDirs++;
 	}
-	if (gs.board[a][b+1].content==ECnone || gs.board[a][b+1].content==colorEnemy)
+	if ((b+1<10) && (gs.board[a][b+1].content==ECnone || gs.board[a][b+1].content==colorEnemy))
 	{
 		dirPossibles[1]=1;
 		nbDirs++;
 	}
 
-	if (gs.board[a-1][b].content==ECnone || gs.board[a-1][b].content==colorEnemy)
+	if ((a-1>=0) && (gs.board[a-1][b].content==ECnone || gs.board[a-1][b].content==colorEnemy))
 	{
 		dirPossibles[2]=1;
 		nbDirs++;
 	}
 
-	if (gs.board[a][b-1].content==ECnone || gs.board[a][b-1].content==colorEnemy)
+	if ((b-1>=0) && (gs.board[a][b-1].content==ECnone || gs.board[a][b-1].content==colorEnemy))
 	{
 		dirPossibles[3]=1;
 		nbDirs++;
