@@ -10,7 +10,7 @@ objDir = obj
 binDir = .
 
 # debug option (=1 for debugging ; =0 no include debug information)
-debug = 1
+debug = 0
 
 # compiler options
 CFlags = -Wall
@@ -55,6 +55,7 @@ $(binDir)/$(app): $(objects)
 	@mkdir -p `dirname $@`
 	@echo "Linking $@..."
 	@$(CC) $(objects) $(LDFlags) -o $@
+	cd lib; make;
 
 $(objDir)/%.o: %.$(srcExt)
 	@echo "Generating dependencies for $<..."
