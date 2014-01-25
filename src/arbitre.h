@@ -54,4 +54,11 @@ Fonctions utilisées pour l'arbitrage du jeu
      */
     int isGameFinished(SGameState *gameState, int penalty[2], EColor player1, EColor player2, int nbMoveLeft);
 
+    /**
+     * Enregistre le résultat d'une manche dans un fichier, de la forme : <winnerName>\t<winnerName>\t<winnerName>\n
+     * @param char* winner Le nom du gagnant (0 si égalité)
+     * @param int   round  Le numéro du round actuel
+     */
+    void saveResult(char* winner, int round);
+
 #endif

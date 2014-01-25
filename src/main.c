@@ -190,7 +190,9 @@ int main(int argc, char *argv[])
                     ai1.Penalty();
                     if (isGameFinished(NULL, penalty, player1, player2, nbMoveLeft) == player2)  // Le joueur 2 a gagné car le joueur 1 a trop de pénalités
                     {
-                        DisplayEnd(&C, p2Name);
+                        saveResult(p2Name, g);
+                        if (nbHumanPlayers!= 0)
+                            DisplayEnd(&C, p2Name);
                         return EXIT_SUCCESS;  // On quitte le programme
                     }
                 }
@@ -210,6 +212,7 @@ int main(int argc, char *argv[])
                         ai2.Penalty();
                         if (isGameFinished(NULL, penalty, player1, player2, nbMoveLeft) == player1)  // Le joueur 1 a gagné car le joueur 2 a trop de pénalités
                         {
+                            saveResult(p1Name, g);
                             DisplayEnd(&C, p1Name);
                             return EXIT_SUCCESS;  // On quitte le programme
                         }
@@ -481,6 +484,8 @@ int main(int argc, char *argv[])
 
             if (result == player1)  // Le joueur 1 a gagné
             {
+                saveResult(p1Name, g);  // On enregistre le résultat dans un fichier
+
                 if (nbHumanPlayers > 0)  // On a au moins un joueur humain
                 {
                     if (nbHumanPlayers == 1)  // On a également une IA
@@ -498,6 +503,8 @@ int main(int argc, char *argv[])
             }
             else if (result == player2)  // Le joueur 2 a gagné
             {
+                saveResult(p2Name, g);  // On enregistre le résultat dans un fichier
+
                 if (nbHumanPlayers > 0)  // On a au moins un joueur humain
                 {
                     if (nbHumanPlayers == 1)  // On a également une IA
@@ -515,6 +522,8 @@ int main(int argc, char *argv[])
             }
             else if (result == -1)
             {
+                saveResult("0", g);  // On enregistre le résultat dans un fichier
+
                 if (nbHumanPlayers > 0)  // On a au moins un joueur humain
                 {
                     if (nbHumanPlayers == 1)  // On a également une IA

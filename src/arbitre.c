@@ -282,3 +282,20 @@ int isGameFinished(SGameState *gameState, int penalty[2], EColor player1, EColor
 
     return 0;
 }
+
+void saveResult(char* winner, int round)
+{
+    FILE *file = NULL;  // Pointeur vers le fichier
+
+    file = fopen("result.txt", "a");  // Ouverture du fichier en mode "ajout" (on ajoute du contenu à la fin du fichier)
+
+    if (file != NULL)  // Le fichier s'est bien ouvert
+    {
+        if (round == NB_GAMES)  // On est au dernier round, on termine la ligne
+            fprintf(file, "%s\n", winner);  // On écrit dans le fichier
+        else  // On n'est pas au dernier round, on continue sur la même ligne
+            fprintf(file, "%s\t", winner);  // On écrit dans le fichier
+        fclose(file);  // On ferme le fichier
+    }
+
+}
