@@ -231,7 +231,7 @@ SMove NextMove(const SGameState * const gameState)
 	}
 	
 	SMove next;
-	// Déplacer la première pièce qui le peut
+	// Déplacer la première pièce qui le peut --> A remplacer par déplaceer une pièce aléatoirement parmi celles qui peuvent
 	i=9;
 	j=9;
 	int noMove=1;
@@ -429,7 +429,7 @@ void Penalty()
  */
 int PseudoRandom(int a,int b)
 {
-	return rand()%(b-a) +a;
+	return rand()%(b-a+1) +a;
 }
 
 /**
